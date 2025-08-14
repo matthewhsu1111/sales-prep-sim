@@ -153,7 +153,7 @@ const Index = () => {
               <Button 
                 variant="hero" 
                 size="lg"
-                onClick={() => navigate('/select-persona')}
+                onClick={() => navigate('/signup')}
                 className="text-lg px-8 py-6"
               >
                 Try For Free
@@ -358,7 +358,7 @@ const Index = () => {
                 <Button 
                   variant="hero" 
                   size="lg"
-                  onClick={() => navigate('/select-persona')}
+                  onClick={() => navigate('/signup')}
                 >
                   Start Training Now
                   <ArrowRight className="h-5 w-5 ml-2" />
@@ -415,7 +415,7 @@ const Index = () => {
           <Button 
             variant="hero" 
             size="lg"
-            onClick={() => navigate('/select-persona')}
+            onClick={() => navigate('/signup')}
             className="text-lg px-8 py-6"
           >
             Try For Free
