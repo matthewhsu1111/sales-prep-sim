@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Mic, Video, Volume2, CheckCircle, AlertTriangle, Info } from "lucide-react";
+import { Mic, Video, Volume2, CheckCircle, AlertTriangle, Info, Play, Pause } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function InterviewPreparation() {
@@ -18,11 +18,19 @@ export default function InterviewPreparation() {
   const [audioLevel, setAudioLevel] = useState(0);
   const [testCountdown, setTestCountdown] = useState(0);
   const [showCameraPreview, setShowCameraPreview] = useState(false);
+  const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [audioLevelFeedback, setAudioLevelFeedback] = useState<string>('');
+  const [avgAudioLevel, setAvgAudioLevel] = useState(0);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number>();
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioPlaybackRef = useRef<HTMLAudioElement | null>(null);
+  const audioLevelsRef = useRef<number[]>([]);
 
   useEffect(() => {
     // Reset permissions to prompt state on every page load
@@ -43,8 +51,18 @@ export default function InterviewPreparation() {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+      if (audioPlaybackRef.current) {
+        audioPlaybackRef.current.pause();
+      }
     };
   }, []);
+
+  // Fix camera preview with useEffect
+  useEffect(() => {
+    if (showCameraPreview && cameraStream && videoRef.current) {
+      videoRef.current.srcObject = cameraStream;
+    }
+  }, [showCameraPreview, cameraStream]);
 
   const analyzeAudioLevel = () => {
     if (!analyserRef.current) return;
@@ -56,7 +74,52 @@ export default function InterviewPreparation() {
     const normalizedLevel = Math.min(100, (average / 255) * 100);
     setAudioLevel(normalizedLevel);
     
+    // Store audio levels for average calculation
+    audioLevelsRef.current.push(normalizedLevel);
+    
+    // Provide real-time feedback
+    if (normalizedLevel < 20) {
+      setAudioLevelFeedback('Too quiet - speak louder');
+    } else if (normalizedLevel >= 20 && normalizedLevel <= 70) {
+      setAudioLevelFeedback('Perfect audio level!');
+    } else if (normalizedLevel > 70 && normalizedLevel <= 85) {
+      setAudioLevelFeedback('Good - slightly loud');
+    } else {
+      setAudioLevelFeedback('Too loud - speak softer');
+    }
+    
     animationFrameRef.current = requestAnimationFrame(analyzeAudioLevel);
+  };
+
+  const getAudioLevelColor = (level: number) => {
+    if (level < 20) return 'bg-red-500';
+    if (level >= 20 && level <= 70) return 'bg-green-500';
+    if (level > 70 && level <= 85) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  const playRecordedAudio = () => {
+    if (!recordedAudio) return;
+    
+    if (isPlayingAudio) {
+      // Stop current playback
+      if (audioPlaybackRef.current) {
+        audioPlaybackRef.current.pause();
+        audioPlaybackRef.current.currentTime = 0;
+      }
+      setIsPlayingAudio(false);
+    } else {
+      // Start playback
+      const audioUrl = URL.createObjectURL(recordedAudio);
+      audioPlaybackRef.current = new Audio(audioUrl);
+      audioPlaybackRef.current.play();
+      setIsPlayingAudio(true);
+      
+      audioPlaybackRef.current.onended = () => {
+        setIsPlayingAudio(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+    }
   };
 
   const resetTests = () => {
@@ -81,10 +144,28 @@ export default function InterviewPreparation() {
   const testMicrophone = async () => {
     setIsTestingMic(true);
     setTestCountdown(5);
+    setRecordedAudio(null);
+    audioLevelsRef.current = [];
     
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       setMicStream(stream);
+      
+      // Set up audio recording
+      audioChunksRef.current = [];
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current.start();
+      
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        setRecordedAudio(audioBlob);
+      };
       
       // Set up audio analysis
       audioContextRef.current = new AudioContext();
@@ -102,6 +183,17 @@ export default function InterviewPreparation() {
           if (prev <= 1) {
             clearInterval(countdownInterval);
             
+            // Calculate average audio level
+            const avgLevel = audioLevelsRef.current.length > 0 
+              ? audioLevelsRef.current.reduce((sum, level) => sum + level, 0) / audioLevelsRef.current.length 
+              : 0;
+            setAvgAudioLevel(avgLevel);
+            
+            // Stop recording
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+              mediaRecorderRef.current.stop();
+            }
+            
             // Stop analysis and cleanup
             if (animationFrameRef.current) {
               cancelAnimationFrame(animationFrameRef.current);
@@ -115,10 +207,21 @@ export default function InterviewPreparation() {
             setIsTestingMic(false);
             setMicPermission('granted');
             setAudioLevel(0);
+            setAudioLevelFeedback('');
+            
+            // Provide feedback based on average audio level
+            let feedbackMessage = "Microphone test completed!";
+            if (avgLevel < 20) {
+              feedbackMessage = "Audio level was too quiet. Consider speaking louder during the interview.";
+            } else if (avgLevel > 85) {
+              feedbackMessage = "Audio level was too loud. Consider speaking softer during the interview.";
+            } else {
+              feedbackMessage = "Perfect audio level! Your microphone is ready.";
+            }
             
             toast({
               title: "Microphone Test Successful",
-              description: "Your microphone is working properly!",
+              description: feedbackMessage,
             });
             
             return 0;
@@ -234,9 +337,15 @@ export default function InterviewPreparation() {
                   <Button 
                     onClick={() => {
                       setMicPermission('prompt');
+                      setRecordedAudio(null);
+                      setAvgAudioLevel(0);
+                      setIsPlayingAudio(false);
                       if (micStream) {
                         micStream.getTracks().forEach(track => track.stop());
                         setMicStream(null);
+                      }
+                      if (audioPlaybackRef.current) {
+                        audioPlaybackRef.current.pause();
                       }
                     }}
                     variant="outline"
@@ -248,14 +357,77 @@ export default function InterviewPreparation() {
               </div>
               
               {isTestingMic && (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
                     <span>Audio Level</span>
                     <span>{Math.round(audioLevel)}%</span>
                   </div>
-                  <Progress value={audioLevel} className="h-2" />
+                  <div className="relative">
+                    <Progress value={audioLevel} className="h-3" />
+                    <div className="absolute inset-0 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-150 ${getAudioLevelColor(audioLevel)}`}
+                        style={{ width: `${audioLevel}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-center">
+                      {audioLevelFeedback}
+                    </p>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Speak normally to test your microphone level
+                    </p>
+                    <div className="flex justify-center space-x-4 text-xs">
+                      <span className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        Too Quiet (&lt;20%)
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        Perfect (20-70%)
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        Good (70-85%)
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        Too Loud (&gt;85%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {micPermission === 'granted' && recordedAudio && (
+                <div className="space-y-3 border-t pt-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Audio Playback</span>
+                    <span className="text-xs text-muted-foreground">
+                      Avg Level: {Math.round(avgAudioLevel)}%
+                    </span>
+                  </div>
+                  <Button
+                    onClick={playRecordedAudio}
+                    variant="outline"
+                    className="w-full"
+                    size="sm"
+                  >
+                    {isPlayingAudio ? (
+                      <>
+                        <Pause className="h-4 w-4 mr-2" />
+                        Stop Playback
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2" />
+                        Play Test Recording
+                      </>
+                    )}
+                  </Button>
                   <p className="text-xs text-muted-foreground text-center">
-                    Speak normally to test your microphone level
+                    Listen to how you sound during the test
                   </p>
                 </div>
               )}
