@@ -256,6 +256,28 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
             </div>
           ) : (
             <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Parsed Information</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsParsed(false)}
+                  className="text-sm"
+                >
+                  Try Again
+                </Button>
+              </div>
+              
+              <div>
+                <Label htmlFor="companyName">Company Name</Label>
+                <Input
+                  id="companyName"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="font-medium"
+                />
+              </div>
+
               <div>
                 <Label htmlFor="jobTitle">Job Title</Label>
                 <Input
