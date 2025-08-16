@@ -12,6 +12,7 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleSignup = async () => {
@@ -52,11 +53,20 @@ const Signup = () => {
       return;
     }
 
+    if (!password || password.length < 6) {
+      toast({
+        title: "Password Required",
+        description: "Please enter a password with at least 6 characters",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signUp({
         email,
-        password: 'temporary-password-123', // In production, you'd want a proper password flow
+        password,
         options: {
           emailRedirectTo: `${window.location.origin}/profile-setup`
         }
@@ -190,6 +200,14 @@ const Signup = () => {
                   placeholder="Enter your business email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="text-lg py-6"
+                />
+                
+                <Input
+                  type="password"
+                  placeholder="Create a secure password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="text-lg py-6"
                 />
                 

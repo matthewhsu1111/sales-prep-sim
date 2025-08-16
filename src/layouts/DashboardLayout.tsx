@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
@@ -5,12 +7,54 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Mic, HelpCircle, LogOut, Settings, User } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/signin");
+    }
+  }, [user, loading, navigate]);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/signin");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center mb-4">
+            <Mic className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect via useEffect
+  }
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -58,7 +102,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
