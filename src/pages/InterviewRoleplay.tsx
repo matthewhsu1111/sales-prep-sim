@@ -107,8 +107,8 @@ export default function InterviewRoleplay() {
       description: "Interview training session is beginning...",
     });
     setIsInterviewDetailsModalOpen(false);
-    // Navigate directly to interview session with the details
-    navigate('/dashboard/interview-session', { 
+    // Navigate to preparation page first
+    navigate('/dashboard/interview-preparation', { 
       state: { 
         interviewDetails: {
           jobPosting: { id: details.jobPostingId }, // Convert jobPostingId to jobPosting object
