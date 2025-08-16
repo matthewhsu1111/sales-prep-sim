@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, Bot, User, Mic, MicOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { getQuestionsForInterview } from "@/data/interviewQuestions";
 
 interface Message {
   id: string;
@@ -38,11 +39,16 @@ export default function InterviewSession() {
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const isProcessingRef = useRef(false);
 
   // Clean up function for media
   useEffect(() => {
@@ -60,21 +66,36 @@ export default function InterviewSession() {
     };
   }, [cameraStream]);
 
-  // Initialize camera when needed
+  // Initialize camera with better error handling
   const initializeCamera = async () => {
+    console.log('🎥 Initializing camera...');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: 'user' },
+        video: { 
+          width: { ideal: 640 }, 
+          height: { ideal: 480 }, 
+          facingMode: 'user' 
+        },
         audio: false
       });
       
+      console.log('✅ Camera stream acquired');
       setCameraStream(stream);
+      setCameraError(null);
       
+      // Wait for video element to be ready
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        
+        // Ensure video loads and plays
+        videoRef.current.onloadedmetadata = () => {
+          console.log('📹 Video metadata loaded');
+          videoRef.current?.play().catch(e => console.error('Video play error:', e));
+        };
       }
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      console.error('❌ Camera error:', error);
+      setCameraError('Camera access denied or not available');
       toast({
         title: "Camera Error",
         description: "Could not access camera. Please check permissions.",
@@ -83,23 +104,40 @@ export default function InterviewSession() {
     }
   };
 
-  // Start interview automatically with first question and voice recognition
+  // Initialize everything when component mounts
   useEffect(() => {
     if (interviewDetails) {
-      // Initialize camera and start continuous listening
-      initializeCamera();
-      startContinuousListening();
+      console.log('🚀 Starting interview session...');
+      setIsLoading(true);
       
-      const { getQuestionsForInterview } = require('@/data/interviewQuestions');
-      const questions = getQuestionsForInterview(
-        interviewDetails.interviewType, 
-        interviewDetails.numberOfQuestions
-      );
+      const initializeInterview = async () => {
+        try {
+          // Initialize camera first
+          await initializeCamera();
+          
+          // Get questions using proper import
+          const questions = getQuestionsForInterview(
+            interviewDetails.interviewType, 
+            interviewDetails.numberOfQuestions
+          );
+          
+          console.log('📝 Questions loaded:', questions.length);
+          
+          if (questions.length > 0) {
+            // Start audio listening
+            await startContinuousListening();
+            
+            // Start interview with first question
+            await startInterview(questions[0]);
+          }
+        } catch (error) {
+          console.error('❌ Interview initialization error:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
       
-      if (questions.length > 0) {
-        // Start immediately, no delay
-        startInterview(questions[0]);
-      }
+      initializeInterview();
     }
   }, [interviewDetails]);
 
@@ -132,118 +170,181 @@ export default function InterviewSession() {
   };
 
   const speakMessage = async (text: string) => {
+    console.log('🗣️ Speaking message:', text.substring(0, 50) + '...');
     setIsAiSpeaking(true);
+    
     try {
-      const { data } = await supabase.functions.invoke('text-to-speech', {
+      const { data, error } = await supabase.functions.invoke('text-to-speech', {
         body: { text, voice: 'alloy' }
       });
       
+      if (error) {
+        console.error('🚨 TTS API error:', error);
+        throw error;
+      }
+      
       if (data?.audioContent) {
-        await playAudioFromBase64(data.audioContent);
+        console.log('🎵 Playing audio...');
+        await playAudioUsingHtmlAudio(data.audioContent);
+        console.log('✅ Audio playback complete');
+      } else {
+        console.error('🚨 No audio content received');
       }
     } catch (error) {
-      console.error('Error with text-to-speech:', error);
+      console.error('❌ Text-to-speech error:', error);
+      toast({
+        title: "Audio Error",
+        description: "Could not play AI voice. Check your audio settings.",
+        variant: "destructive",
+      });
     } finally {
       setIsAiSpeaking(false);
     }
   };
 
-  const playAudioFromBase64 = async (base64Audio: string): Promise<void> => {
-    try {
-      const binaryString = atob(base64Audio);
-      const bytes = new Uint8Array(binaryString.length);
-      
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+  // Simplified audio playback using HTML Audio API
+  const playAudioUsingHtmlAudio = async (base64Audio: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      try {
+        // Clean up previous audio element
+        if (audioElementRef.current) {
+          audioElementRef.current.pause();
+          audioElementRef.current.src = '';
+        }
+        
+        // Create new audio element
+        const audio = new Audio();
+        audioElementRef.current = audio;
+        
+        // Set up audio data
+        const audioBlob = new Blob([Uint8Array.from(atob(base64Audio), c => c.charCodeAt(0))], { 
+          type: 'audio/mp3' 
+        });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        audio.src = audioUrl;
+        
+        audio.onended = () => {
+          console.log('🎵 Audio ended');
+          URL.revokeObjectURL(audioUrl);
+          resolve();
+        };
+        
+        audio.onerror = (error) => {
+          console.error('🚨 Audio playback error:', error);
+          URL.revokeObjectURL(audioUrl);
+          reject(error);
+        };
+        
+        audio.oncanplaythrough = () => {
+          console.log('🎵 Audio ready to play');
+          audio.play().catch(e => {
+            console.error('🚨 Play failed:', e);
+            reject(e);
+          });
+        };
+        
+        audio.load();
+      } catch (error) {
+        console.error('🚨 Audio setup error:', error);
+        reject(error);
       }
-      
-      const audioContext = new AudioContext();
-      const audioBuffer = await audioContext.decodeAudioData(bytes.buffer);
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioContext.destination);
-      source.start(0);
-      
-      return new Promise((resolve) => {
-        source.onended = () => resolve();
-      });
-    } catch (error) {
-      console.error('Error playing audio:', error);
-      throw error;
-    }
+    });
   };
 
-  // Continuous speech recognition
+  // Simplified continuous speech recognition
   const startContinuousListening = async () => {
+    console.log('🎤 Starting continuous listening...');
+    
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: { sampleRate: 16000, channelCount: 1 } 
+        audio: { 
+          sampleRate: 44100, 
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        } 
       });
       
+      streamRef.current = stream;
       setIsListening(true);
+      console.log('✅ Microphone access granted');
       
-      // Create a continuous recording loop
-      const startNewRecording = () => {
-        if (!isAiSpeaking && isListening) {
-          audioChunksRef.current = [];
-          mediaRecorderRef.current = new MediaRecorder(stream);
-          
-          mediaRecorderRef.current.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-              audioChunksRef.current.push(event.data);
-            }
-          };
-          
-          mediaRecorderRef.current.onstop = async () => {
-            if (audioChunksRef.current.length > 0) {
-              const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-              const base64Audio = await blobToBase64(audioBlob);
-              
-              try {
-                const { data } = await supabase.functions.invoke('speech-to-text', {
-                  body: { audio: base64Audio.split(',')[1] }
-                });
-                
-                if (data?.text && data.text.trim().length > 3) {
-                  const userMessage: Message = {
-                    id: Date.now().toString(),
-                    content: data.text,
-                    sender: 'user',
-                    timestamp: new Date()
-                  };
-                  
-                  setMessages(prev => [...prev, userMessage]);
-                  
-                  // Get AI response
-                  await getAIResponse(data.text);
-                }
-              } catch (error) {
-                console.error('Error with speech-to-text:', error);
-              }
-            }
-            
-            // Continue listening if not speaking
-            setTimeout(() => {
-              if (!isAiSpeaking && isListening) {
-                startNewRecording();
-              }
-            }, 500);
-          };
-          
-          mediaRecorderRef.current.start();
-          
-          // Record for 3 seconds then process
-          setTimeout(() => {
-            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-              mediaRecorderRef.current.stop();
-            }
-          }, 3000);
+      // Create a simplified recording loop
+      const createNewRecording = () => {
+        if (isProcessingRef.current || isAiSpeaking) {
+          setTimeout(createNewRecording, 1000);
+          return;
         }
+        
+        audioChunksRef.current = [];
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm;codecs=opus'
+        });
+        mediaRecorderRef.current = mediaRecorder;
+        
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+        
+        mediaRecorder.onstop = async () => {
+          if (isProcessingRef.current || audioChunksRef.current.length === 0) {
+            setTimeout(createNewRecording, 500);
+            return;
+          }
+          
+          isProcessingRef.current = true;
+          
+          try {
+            const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+            const base64Audio = await blobToBase64(audioBlob);
+            
+            console.log('🎤 Processing speech...');
+            const { data, error } = await supabase.functions.invoke('speech-to-text', {
+              body: { audio: base64Audio.split(',')[1] }
+            });
+            
+            if (error) {
+              console.error('🚨 STT error:', error);
+            } else if (data?.text && data.text.trim().length > 5) {
+              console.log('✅ Transcribed:', data.text);
+              
+              const userMessage: Message = {
+                id: Date.now().toString(),
+                content: data.text,
+                sender: 'user',
+                timestamp: new Date()
+              };
+              
+              setMessages(prev => [...prev, userMessage]);
+              await getAIResponse(data.text);
+            }
+          } catch (error) {
+            console.error('❌ Speech processing error:', error);
+          } finally {
+            isProcessingRef.current = false;
+            setTimeout(createNewRecording, 1000);
+          }
+        };
+        
+        mediaRecorder.start();
+        
+        // Record for 4 seconds then process
+        setTimeout(() => {
+          if (mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+          }
+        }, 4000);
       };
       
-      startNewRecording();
+      // Start the first recording
+      setTimeout(createNewRecording, 1000);
+      
     } catch (error) {
-      console.error('Error starting continuous listening:', error);
+      console.error('❌ Microphone error:', error);
       toast({
         title: "Microphone Error",
         description: "Could not access microphone. Please check permissions.",
@@ -253,8 +354,10 @@ export default function InterviewSession() {
   };
 
   const getAIResponse = async (userMessage: string) => {
+    console.log('🤖 Getting AI response for:', userMessage.substring(0, 50) + '...');
+    
     try {
-      const { data } = await supabase.functions.invoke('ai-interviewer', {
+      const { data, error } = await supabase.functions.invoke('ai-interviewer', {
         body: {
           message: userMessage,
           jobPosting: interviewDetails?.jobPosting,
@@ -263,7 +366,14 @@ export default function InterviewSession() {
         }
       });
       
+      if (error) {
+        console.error('🚨 AI response error:', error);
+        return;
+      }
+      
       if (data?.response) {
+        console.log('✅ AI responded:', data.response.substring(0, 50) + '...');
+        
         const aiMessage: Message = {
           id: Date.now().toString(),
           content: data.response,
@@ -276,7 +386,7 @@ export default function InterviewSession() {
         setCurrentQuestionIndex(prev => prev + 1);
       }
     } catch (error) {
-      console.error('Error getting AI response:', error);
+      console.error('❌ AI response error:', error);
     }
   };
 
@@ -290,9 +400,14 @@ export default function InterviewSession() {
   };
 
   const handleBackToDashboard = () => {
+    console.log('🔄 Cleaning up and returning to dashboard...');
+    
     // Clean up all media before navigating
     if (cameraStream) {
       cameraStream.getTracks().forEach(track => track.stop());
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
     }
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
@@ -300,6 +415,11 @@ export default function InterviewSession() {
     if (audioContextRef.current) {
       audioContextRef.current.close();
     }
+    if (audioElementRef.current) {
+      audioElementRef.current.pause();
+      audioElementRef.current.src = '';
+    }
+    
     navigate('/dashboard');
   };
 
@@ -398,16 +518,40 @@ export default function InterviewSession() {
               <h3 className="text-lg font-medium text-foreground">Your Camera</h3>
             </div>
             <div className="relative bg-black rounded-lg overflow-hidden w-full max-w-sm aspect-video">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover scale-x-[-1]"
-              />
-              {/* Always listening indicator */}
-              <div className="absolute top-2 right-2">
+              {cameraError ? (
+                <div className="w-full h-full flex items-center justify-center text-white text-sm">
+                  <div className="text-center">
+                    <div className="mb-2">📷</div>
+                    <div>{cameraError}</div>
+                    <Button 
+                      onClick={initializeCamera} 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-2"
+                    >
+                      Retry Camera
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover scale-x-[-1]"
+                  onLoadedMetadata={() => console.log('📹 Video metadata loaded')}
+                  onError={(e) => {
+                    console.error('📹 Video error:', e);
+                    setCameraError('Video display error');
+                  }}
+                />
+              )}
+              
+              {/* Status indicators */}
+              <div className="absolute top-2 right-2 flex gap-1">
                 <div className={`h-2 w-2 rounded-full ${isListening && !isAiSpeaking ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                {isLoading && <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></div>}
               </div>
             </div>
           </div>
