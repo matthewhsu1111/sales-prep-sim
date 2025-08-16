@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import InterviewRoleplay from "./pages/InterviewRoleplay";
+import InterviewPreparation from "./pages/InterviewPreparation";
 import Signin from "./pages/Signin";
 import ProfileSetup from "./pages/ProfileSetup";
 import NotFound from "./pages/NotFound";
@@ -35,6 +36,11 @@ const App = () => (
             <Route path="/dashboard/interview-roleplay" element={
               <DashboardLayout>
                 <InterviewRoleplay />
+              </DashboardLayout>
+            } />
+            <Route path="/dashboard/interview-preparation" element={
+              <DashboardLayout>
+                <InterviewPreparation />
               </DashboardLayout>
             } />
             <Route path="/dashboard/careers" element={
