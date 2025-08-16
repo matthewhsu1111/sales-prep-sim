@@ -55,11 +55,21 @@ export default function InterviewRoleplay() {
           <p className="text-muted-foreground mt-2 max-w-2xl">
             Create custom interviewers or use pre-built templates to practice and refine your answers in realistic scenarios.
           </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Each training session costs 1 credit
+          </p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90">
-          <Plus className="h-4 w-4 mr-2" />
-          Create Interviewer
-        </Button>
+        <div className="flex items-center gap-4">
+          <Card className="bg-primary text-primary-foreground">
+            <CardContent className="p-3">
+              <div className="text-sm font-medium">999 Credits</div>
+            </CardContent>
+          </Card>
+          <Button className="bg-primary hover:bg-primary/90">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Interviewer
+          </Button>
+        </div>
       </div>
 
       {/* Interviewer Templates Grid */}
@@ -100,15 +110,6 @@ export default function InterviewRoleplay() {
             </Card>
           );
         })}
-      </div>
-
-      {/* Credits Display */}
-      <div className="fixed bottom-6 left-6">
-        <Card className="bg-primary text-primary-foreground">
-          <CardContent className="p-3">
-            <div className="text-sm font-medium">999 Credits</div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

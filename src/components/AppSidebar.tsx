@@ -79,18 +79,6 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {/* Credits Section at Bottom */}
-        <div className="mt-auto">
-          <div className="p-3 bg-muted/50 rounded-lg border">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Credits</span>
-              <Badge variant="secondary" className="bg-primary/10 text-primary">
-                999
-              </Badge>
-            </div>
-          </div>
-        </div>
       </SidebarContent>
     </Sidebar>
   );
