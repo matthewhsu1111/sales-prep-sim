@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Users, BarChart3, Plus } from "lucide-react";
+import { JobPostingModal } from "@/components/JobPostingModal";
+import { useToast } from "@/hooks/use-toast";
 
 const interviewerTemplates = [
   {
@@ -46,6 +49,21 @@ const interviewerTemplates = [
 ];
 
 export default function InterviewRoleplay() {
+  const { toast } = useToast();
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
+
+  const handleStartTraining = (templateId: string) => {
+    setIsJobModalOpen(true);
+  };
+
+  const handleJobSave = (jobData: any) => {
+    console.log("Job data saved:", jobData);
+    toast({
+      title: "Success",
+      description: "Job posting saved! Starting interview training...",
+    });
+    // Here you would proceed to the actual interview training
+  };
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -96,7 +114,10 @@ export default function InterviewRoleplay() {
                   </div>
                 </div>
                 
-                <Button className="w-full mt-6 bg-foreground hover:bg-foreground/90 text-background">
+                <Button 
+                  className="w-full mt-6 bg-foreground hover:bg-foreground/90 text-background"
+                  onClick={() => handleStartTraining(template.id)}
+                >
                   Start Training
                 </Button>
               </CardContent>
@@ -104,6 +125,12 @@ export default function InterviewRoleplay() {
           );
         })}
       </div>
+
+      <JobPostingModal
+        isOpen={isJobModalOpen}
+        onClose={() => setIsJobModalOpen(false)}
+        onSave={handleJobSave}
+      />
     </div>
   );
 }
