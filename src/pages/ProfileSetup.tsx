@@ -1,4 +1,9 @@
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+
 export default function ProfileSetup() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="max-w-md w-full space-y-8 p-8">
@@ -20,10 +25,16 @@ export default function ProfileSetup() {
             </ul>
           </div>
           
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <p className="text-sm text-muted-foreground">
               Profile setup coming soon...
             </p>
+            <Button 
+              onClick={() => navigate('/dashboard')}
+              className="w-full"
+            >
+              Continue to Dashboard
+            </Button>
           </div>
         </div>
       </div>

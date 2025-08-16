@@ -121,7 +121,7 @@ const Index = () => {
               <Button 
                 variant="default" 
                 size="sm"
-                onClick={() => navigate('/select-persona')}
+                onClick={() => navigate('/signup')}
               >
                 Get Started
               </Button>
@@ -162,6 +162,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="lg"
+                onClick={() => navigate('/signup')}
                 className="text-lg px-8 py-6"
               >
                 Get Started
