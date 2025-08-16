@@ -7,19 +7,13 @@ import { Mic, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-// Auth cleanup utility to prevent limbo states
+// Only cleanup auth state when there are actual conflicts
 const cleanupAuthState = () => {
-  // Remove all Supabase auth keys from localStorage
-  Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-      localStorage.removeItem(key);
-    }
-  });
-  // Remove from sessionStorage if in use
-  Object.keys(sessionStorage || {}).forEach((key) => {
-    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-      sessionStorage.removeItem(key);
-    }
+  // Only remove problematic keys, not all auth state
+  const problematicKeys = ['sb-cqtktraoxpscithsmmww-auth-token-code-verifier'];
+  problematicKeys.forEach(key => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
   });
 };
 
@@ -33,16 +27,6 @@ const Signin = () => {
   const handleGoogleSignin = async () => {
     setIsLoading(true);
     try {
-      // Clean up existing state
-      cleanupAuthState();
-      
-      // Attempt global sign out first
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-      }
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -82,16 +66,6 @@ const Signin = () => {
 
     setIsLoading(true);
     try {
-      // Clean up existing state
-      cleanupAuthState();
-      
-      // Attempt global sign out first
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-      }
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -108,8 +82,8 @@ const Signin = () => {
           title: "Welcome back!",
           description: "You've been signed in successfully",
         });
-        // Force page refresh for clean state
-        window.location.href = '/profile-setup';
+        // Use React Router navigation instead of window.location
+        navigate('/profile-setup');
       }
     } catch (error) {
       toast({
