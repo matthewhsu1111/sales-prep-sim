@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Mic, Video, Volume2, CheckCircle, AlertTriangle, Info, Play, Pause } from "lucide-react";
+import { Mic, Video, Volume2, CheckCircle, AlertTriangle, Info, Play, Pause, Settings } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 export default function InterviewPreparation() {
@@ -22,6 +23,12 @@ export default function InterviewPreparation() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [audioLevelFeedback, setAudioLevelFeedback] = useState<string>('');
   const [avgAudioLevel, setAvgAudioLevel] = useState(0);
+  const [availableDevices, setAvailableDevices] = useState<{ audioInputs: MediaDeviceInfo[]; videoInputs: MediaDeviceInfo[] }>({
+    audioInputs: [],
+    videoInputs: []
+  });
+  const [selectedAudioDevice, setSelectedAudioDevice] = useState<string>('');
+  const [selectedVideoDevice, setSelectedVideoDevice] = useState<string>('');
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -36,6 +43,25 @@ export default function InterviewPreparation() {
     // Reset permissions to prompt state on every page load
     setMicPermission('prompt');
     setCameraPermission('prompt');
+    
+    // Get available devices
+    const getDevices = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInputs = devices.filter(device => device.kind === 'audioinput');
+        const videoInputs = devices.filter(device => device.kind === 'videoinput');
+        
+        setAvailableDevices({ audioInputs, videoInputs });
+        
+        // Set default devices
+        if (audioInputs.length > 0) setSelectedAudioDevice(audioInputs[0].deviceId);
+        if (videoInputs.length > 0) setSelectedVideoDevice(videoInputs[0].deviceId);
+      } catch (error) {
+        console.error('Error getting devices:', error);
+      }
+    };
+    
+    getDevices();
     
     return () => {
       // Cleanup streams on unmount
@@ -148,7 +174,9 @@ export default function InterviewPreparation() {
     audioLevelsRef.current = [];
     
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: selectedAudioDevice ? { deviceId: { exact: selectedAudioDevice } } : true
+      });
       setMicStream(stream);
       
       // Set up audio recording
@@ -244,7 +272,11 @@ export default function InterviewPreparation() {
 
   const enableCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: selectedVideoDevice ? 
+          { deviceId: { exact: selectedVideoDevice }, width: 640, height: 480 } :
+          { width: 640, height: 480, facingMode: 'user' }
+      });
       setCameraStream(stream);
       setCameraPermission('granted');
       setShowCameraPreview(true);
@@ -323,6 +355,24 @@ export default function InterviewPreparation() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {availableDevices.audioInputs.length > 1 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Select Microphone:</label>
+                  <Select value={selectedAudioDevice} onValueChange={setSelectedAudioDevice}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose microphone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableDevices.audioInputs.map((device) => (
+                        <SelectItem key={device.deviceId} value={device.deviceId}>
+                          {device.label || `Microphone ${device.deviceId.slice(0, 8)}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
               <div className="flex gap-2">
                 <Button 
                   onClick={testMicrophone}
@@ -447,6 +497,24 @@ export default function InterviewPreparation() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {availableDevices.videoInputs.length > 1 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Select Camera:</label>
+                  <Select value={selectedVideoDevice} onValueChange={setSelectedVideoDevice}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose camera" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableDevices.videoInputs.map((device) => (
+                        <SelectItem key={device.deviceId} value={device.deviceId}>
+                          {device.label || `Camera ${device.deviceId.slice(0, 8)}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
               <div className="flex gap-2">
                 <Button 
                   onClick={enableCamera}
@@ -474,13 +542,13 @@ export default function InterviewPreparation() {
               {showCameraPreview && (
                 <div className="space-y-3">
                   <div className="relative">
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      muted
-                      playsInline
-                      className="w-full h-48 object-cover rounded-lg bg-muted"
-                    />
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    muted
+                    playsInline
+                    className="w-full h-48 object-cover rounded-lg bg-muted scale-x-[-1]"
+                  />
                     <div className="absolute top-2 right-2">
                       <Button
                         size="sm"
