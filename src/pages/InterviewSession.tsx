@@ -83,11 +83,12 @@ export default function InterviewSession() {
     }
   };
 
-  // Start interview automatically with first question
+  // Start interview automatically with first question and voice recognition
   useEffect(() => {
     if (interviewDetails) {
-      // Initialize camera first
+      // Initialize camera and start continuous listening
       initializeCamera();
+      startContinuousListening();
       
       const { getQuestionsForInterview } = require('@/data/interviewQuestions');
       const questions = getQuestionsForInterview(
@@ -172,74 +173,82 @@ export default function InterviewSession() {
     }
   };
 
-  const startRecording = async () => {
+  // Continuous speech recognition
+  const startContinuousListening = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: { sampleRate: 16000, channelCount: 1 } 
       });
       
-      audioChunksRef.current = [];
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-      
-      mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        const base64Audio = await blobToBase64(audioBlob);
-        
-        try {
-          const { data } = await supabase.functions.invoke('speech-to-text', {
-            body: { audio: base64Audio.split(',')[1] }
-          });
-          
-          if (data?.text) {
-            const userMessage: Message = {
-              id: Date.now().toString(),
-              content: data.text,
-              sender: 'user',
-              timestamp: new Date()
-            };
-            
-            setMessages(prev => [...prev, userMessage]);
-            
-            // Get AI response
-            await getAIResponse(data.text);
-          }
-        } catch (error) {
-          console.error('Error with speech-to-text:', error);
-          toast({
-            title: "Speech Recognition Error",
-            description: "Could not process your speech. Please try again.",
-            variant: "destructive",
-          });
-        }
-        
-        // Stop microphone stream
-        stream.getTracks().forEach(track => track.stop());
-      };
-      
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
       setIsListening(true);
+      
+      // Create a continuous recording loop
+      const startNewRecording = () => {
+        if (!isAiSpeaking && isListening) {
+          audioChunksRef.current = [];
+          mediaRecorderRef.current = new MediaRecorder(stream);
+          
+          mediaRecorderRef.current.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              audioChunksRef.current.push(event.data);
+            }
+          };
+          
+          mediaRecorderRef.current.onstop = async () => {
+            if (audioChunksRef.current.length > 0) {
+              const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+              const base64Audio = await blobToBase64(audioBlob);
+              
+              try {
+                const { data } = await supabase.functions.invoke('speech-to-text', {
+                  body: { audio: base64Audio.split(',')[1] }
+                });
+                
+                if (data?.text && data.text.trim().length > 3) {
+                  const userMessage: Message = {
+                    id: Date.now().toString(),
+                    content: data.text,
+                    sender: 'user',
+                    timestamp: new Date()
+                  };
+                  
+                  setMessages(prev => [...prev, userMessage]);
+                  
+                  // Get AI response
+                  await getAIResponse(data.text);
+                }
+              } catch (error) {
+                console.error('Error with speech-to-text:', error);
+              }
+            }
+            
+            // Continue listening if not speaking
+            setTimeout(() => {
+              if (!isAiSpeaking && isListening) {
+                startNewRecording();
+              }
+            }, 500);
+          };
+          
+          mediaRecorderRef.current.start();
+          
+          // Record for 3 seconds then process
+          setTimeout(() => {
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+              mediaRecorderRef.current.stop();
+            }
+          }, 3000);
+        }
+      };
+      
+      startNewRecording();
     } catch (error) {
-      console.error('Error starting recording:', error);
+      console.error('Error starting continuous listening:', error);
       toast({
         title: "Microphone Error",
         description: "Could not access microphone. Please check permissions.",
         variant: "destructive",
       });
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      setIsListening(false);
     }
   };
 
@@ -295,37 +304,39 @@ export default function InterviewSession() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Top Navigation Bar */}
-      <div className="h-14 border-b bg-card flex items-center justify-between px-6 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">I</span>
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
+      {/* Top Navigation Bar - Floating */}
+      <div className="m-4 mb-2">
+        <div className="h-12 bg-card rounded-lg border flex items-center justify-between px-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xs">I</span>
+            </div>
+            <h1 className="text-base font-semibold text-foreground">InterviewAI</h1>
           </div>
-          <h1 className="text-lg font-semibold text-foreground">InterviewAI</h1>
+          <Button
+            onClick={handleBackToDashboard}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-3 w-3" />
+            Back
+          </Button>
         </div>
-        <Button
-          onClick={handleBackToDashboard}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Dashboard
-        </Button>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex gap-4 p-4">
+      <div className="flex-1 flex gap-4 px-4 pb-4 min-h-0">
         {/* Left Side - Transcript */}
-        <div className="w-2/5 bg-card rounded-lg border flex flex-col">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-medium text-foreground">Transcript</h2>
+        <div className="w-1/3 bg-card rounded-lg border flex flex-col min-h-0">
+          <div className="p-3 border-b flex-shrink-0">
+            <h2 className="text-sm font-medium text-foreground">Transcript</h2>
           </div>
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
+          <ScrollArea className="flex-1 p-3 min-h-0">
+            <div className="space-y-3">
               {messages.length === 0 ? (
-                <div className="text-center text-muted-foreground text-sm mt-8">
+                <div className="text-center text-muted-foreground text-xs mt-4">
                   Starting interview...
                 </div>
               ) : (
@@ -335,23 +346,23 @@ export default function InterviewSession() {
                     className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      className={`max-w-[85%] rounded-xl px-3 py-2 ${
                         message.sender === 'ai'
                           ? 'bg-secondary text-secondary-foreground'
                           : 'bg-primary text-primary-foreground'
                       }`}
                     >
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-1 mb-1">
                         {message.sender === 'ai' ? (
-                          <Bot className="h-4 w-4" />
+                          <Bot className="h-3 w-3" />
                         ) : (
-                          <User className="h-4 w-4" />
+                          <User className="h-3 w-3" />
                         )}
                         <span className="text-xs opacity-70 font-medium">
-                          {message.sender === 'ai' ? 'AI Interviewer' : 'You'}
+                          {message.sender === 'ai' ? 'AI' : 'You'}
                         </span>
                       </div>
-                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      <p className="text-xs leading-relaxed">{message.content}</p>
                     </div>
                   </div>
                 ))
@@ -361,32 +372,32 @@ export default function InterviewSession() {
         </div>
 
         {/* Right Side - AI & Camera */}
-        <div className="w-3/5 flex flex-col gap-4">
+        <div className="w-2/3 flex flex-col gap-4 min-h-0">
           {/* AI Interviewer Section */}
-          <div className="flex-1 bg-card rounded-lg border flex flex-col items-center justify-center p-6">
+          <div className="flex-1 bg-card rounded-lg border flex flex-col items-center justify-center p-4 min-h-0">
             <div className="text-center">
               <Avatar 
-                className={`h-24 w-24 mx-auto mb-4 ${
+                className={`h-16 w-16 mx-auto mb-3 ${
                   isAiSpeaking ? 'animate-pulse ring-4 ring-primary/30' : ''
                 } transition-all duration-300`}
               >
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  <Bot className="h-12 w-12" />
+                  <Bot className="h-8 w-8" />
                 </AvatarFallback>
               </Avatar>
-              <h3 className="text-xl font-medium text-foreground mb-2">AI Interviewer</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-lg font-medium text-foreground mb-1">AI Interviewer</h3>
+              <p className="text-xs text-muted-foreground">
                 {isAiSpeaking ? 'Speaking...' : isListening ? 'Listening...' : 'Ready'}
               </p>
             </div>
           </div>
 
           {/* User's Camera Section */}
-          <div className="flex-1 bg-card rounded-lg border flex flex-col items-center justify-center p-6">
-            <div className="text-center mb-4">
-              <h3 className="text-xl font-medium text-foreground">Your Camera</h3>
+          <div className="flex-1 bg-card rounded-lg border flex flex-col items-center justify-center p-4 min-h-0">
+            <div className="text-center mb-3">
+              <h3 className="text-lg font-medium text-foreground">Your Camera</h3>
             </div>
-            <div className="relative bg-black rounded-lg overflow-hidden w-full max-w-md aspect-video mb-4">
+            <div className="relative bg-black rounded-lg overflow-hidden w-full max-w-sm aspect-video">
               <video
                 ref={videoRef}
                 autoPlay
@@ -394,28 +405,11 @@ export default function InterviewSession() {
                 muted
                 className="w-full h-full object-cover scale-x-[-1]"
               />
+              {/* Always listening indicator */}
+              <div className="absolute top-2 right-2">
+                <div className={`h-2 w-2 rounded-full ${isListening && !isAiSpeaking ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
+              </div>
             </div>
-            
-            {/* Microphone Control */}
-            <Button
-              onClick={isRecording ? stopRecording : startRecording}
-              variant={isRecording ? "destructive" : "default"}
-              size="lg"
-              className="flex items-center gap-2"
-              disabled={isAiSpeaking}
-            >
-              {isRecording ? (
-                <>
-                  <MicOff className="h-5 w-5" />
-                  Stop Recording
-                </>
-              ) : (
-                <>
-                  <Mic className="h-5 w-5" />
-                  Start Recording
-                </>
-              )}
-            </Button>
           </div>
         </div>
       </div>

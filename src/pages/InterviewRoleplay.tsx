@@ -13,13 +13,13 @@ const interviewerTemplates = [
   {
     id: "strict-no-bs",
     name: "Strict, No BS",
-    description: "Tests resilience, confidence, and results-focus",
-    personality: "Direct and results-focused interviewer who values efficiency",
+    description: "Direct and to-the-point interviewer",
+    testingFocus: "Tests resilience, confidence, and results-focus",
+    personality: "Direct and to-the-point",
     traits: [
-      "Skip small talk entirely",
-      "Ask direct, pointed questions",
-      "Focus heavily on quotas and numbers",
-      "Challenge claims with aggressive pushback"
+      "Minimal small talk",
+      "Focuses on results and competency", 
+      "No-nonsense approach"
     ],
     icon: User,
     color: "bg-red-500"
@@ -27,13 +27,13 @@ const interviewerTemplates = [
   {
     id: "casual-conversational", 
     name: "Casual, Conversational",
-    description: "Tests interpersonal skills and culture fit",
-    personality: "Friendly interviewer who focuses on culture fit and personality",
+    description: "Friendly and relaxed interviewer",
+    testingFocus: "Tests interpersonal skills and culture fit",
+    personality: "Treats it like a friendly chat",
     traits: [
-      "Start with genuine small talk",
-      "Ask personal questions about hobbies",
-      "Share own experiences and stories",
-      "Create comfortable, low-pressure environment"
+      "Asks personal questions to build rapport",
+      "Relaxed, informal approach",
+      "Conversational style"
     ],
     icon: Users,
     color: "bg-green-500"
@@ -41,13 +41,13 @@ const interviewerTemplates = [
   {
     id: "analytical-detailed",
     name: "Analytical, Detail-Oriented", 
-    description: "Tests process knowledge and systematic thinking",
-    personality: "Process-focused interviewer who digs deep into methodology and data",
+    description: "Deep-dive technical interviewer",
+    testingFocus: "Tests process knowledge and systematic thinking",
+    personality: "Digs deep into specifics and metrics",
     traits: [
-      "Methodical questioning with logical flow",
-      "Request specific metrics and conversion rates",
-      "Break down sales process step-by-step",
-      "Reference frameworks and methodologies"
+      "Asks lots of follow-up questions",
+      "Wants concrete examples and data",
+      "Technical precision focus"
     ],
     icon: BarChart3,
     color: "bg-blue-500"
@@ -133,34 +133,38 @@ export default function InterviewRoleplay() {
         {interviewerTemplates.map((template) => {
           const IconComponent = template.icon;
           return (
-            <Card key={template.id} className="h-full hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+            <Card key={template.id} className="hover:shadow-lg transition-all duration-300">
               <CardHeader className="text-center pb-4">
-                <div className={`mx-auto p-4 rounded-full ${template.color} text-white mb-4 w-16 h-16 flex items-center justify-center`}>
-                  <IconComponent className="h-8 w-8" />
+                <div className={`mx-auto rounded-full ${template.color} text-white mb-4 w-20 h-20 flex items-center justify-center`}>
+                  <IconComponent className="h-10 w-10" />
                 </div>
                 <CardTitle className="text-xl">{template.name}</CardTitle>
-                <CardDescription>{template.description}</CardDescription>
+                <CardDescription className="text-muted-foreground">{template.description}</CardDescription>
               </CardHeader>
               
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Personality:</h4>
+                  <h4 className="font-medium text-sm mb-2 text-primary">Personality:</h4>
                   <p className="text-sm text-muted-foreground">{template.personality}</p>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Key Traits:</h4>
+                  <h4 className="font-medium text-sm mb-2 text-primary">Key Traits:</h4>
                   <div className="space-y-1">
                     {template.traits.map((trait, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs block w-fit">
+                      <div key={index} className="text-xs text-primary bg-primary/10 px-2 py-1 rounded inline-block mr-1 mb-1">
                         {trait}
-                      </Badge>
+                      </div>
                     ))}
                   </div>
                 </div>
                 
+                <div className="pt-2">
+                  <p className="text-xs text-muted-foreground italic">{template.testingFocus}</p>
+                </div>
+                
                 <Button 
-                  className="w-full mt-6 bg-foreground hover:bg-foreground/90 text-background"
+                  className="w-full mt-4 bg-gray-900 hover:bg-gray-800 text-white rounded-lg"
                   onClick={() => handleStartTraining(template.id)}
                   disabled={loading}
                 >
