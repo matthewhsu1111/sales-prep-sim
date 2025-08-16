@@ -44,28 +44,33 @@ export function AppSidebar() {
 
   const isCollapsed = state === "collapsed";
 
+  if (isCollapsed) {
+    return (
+      <Sidebar className="w-0 overflow-hidden" collapsible="icon">
+        <SidebarContent className="hidden" />
+      </Sidebar>
+    );
+  }
+
   return (
-    <Sidebar
-      className={isCollapsed ? "w-16" : "w-64"}
-      collapsible="icon"
-    >
-      <SidebarContent className={`flex flex-col h-full ${isCollapsed ? 'p-2 pt-20' : 'p-3 pt-20'}`}>
+    <Sidebar className="w-64" collapsible="icon">
+      <SidebarContent className="flex flex-col h-full p-3 pt-20">
         {/* Main Navigation */}
         <SidebarGroup className="flex-1">
           <SidebarGroupContent>
-            <SidebarMenu className={isCollapsed ? "space-y-2" : "space-y-3"}>
+            <SidebarMenu className="space-y-3">
               {dashboardItems.map((item) => {
                 const isCurrentPage = isActive(item.url);
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild className={isCollapsed ? "h-10 w-10 p-0 justify-center" : "h-12 px-4"}>
+                    <SidebarMenuButton asChild className="h-12 px-4">
                       <NavLink 
                         to={item.url} 
                         end 
                         className={isCurrentPage ? "bg-primary/10 text-primary font-medium border-l-4 border-primary" : "hover:bg-muted/50"}
                       >
-                        <item.icon className={isCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"} />
-                        {!isCollapsed && <span className="text-base">{item.title}</span>}
+                        <item.icon className="mr-3 h-5 w-5" />
+                        <span className="text-base">{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -76,18 +81,16 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Credits Section at Bottom */}
-        {!isCollapsed && (
-          <div className="mt-auto">
-            <div className="p-3 bg-muted/50 rounded-lg border">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Credits</span>
-                <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  999
-                </Badge>
-              </div>
+        <div className="mt-auto">
+          <div className="p-3 bg-muted/50 rounded-lg border">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Credits</span>
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
+                999
+              </Badge>
             </div>
           </div>
-        )}
+        </div>
       </SidebarContent>
     </Sidebar>
   );

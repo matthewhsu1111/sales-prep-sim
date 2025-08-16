@@ -20,7 +20,7 @@ const Signup = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/profile-setup`
         }
       });
       
@@ -58,7 +58,7 @@ const Signup = () => {
         email,
         password: 'temporary-password-123', // In production, you'd want a proper password flow
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`
+          emailRedirectTo: `${window.location.origin}/profile-setup`
         }
       });
 
