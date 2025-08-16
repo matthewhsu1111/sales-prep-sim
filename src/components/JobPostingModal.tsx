@@ -202,24 +202,38 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
                 
                 <TabsContent value="url" className="space-y-4">
                   <div>
-                    <Label htmlFor="jobUrl">Job Posting URL</Label>
-                    <Input
-                      id="jobUrl"
-                      type="url"
-                      placeholder="https://company.com/jobs/position"
-                      value={jobUrl}
-                      onChange={(e) => setJobUrl(e.target.value)}
-                    />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Paste a link to the job posting from LinkedIn, Indeed, or any company careers page
-                    </p>
+                    <Label htmlFor="jobUrl">URL</Label>
+                    <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg mb-3">
+                      <div className="flex items-start gap-2">
+                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mt-0.5">
+                          <span className="text-white text-xs font-medium">i</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Tip</p>
+                          <p className="text-sm text-blue-700 dark:text-blue-300">X Careers, LinkedIn and Greenhouse links work best.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        id="jobUrl"
+                        type="url"
+                        placeholder="https://x.com/i/jobs/1727449632538562998"
+                        value={jobUrl}
+                        onChange={(e) => setJobUrl(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button variant="outline" className="px-3">
+                        Use default
+                      </Button>
+                    </div>
                   </div>
                   <Button 
                     onClick={handleScrapeUrl} 
                     disabled={isScrapingUrl || !jobUrl.trim()}
-                    className="w-full"
+                    className="w-full bg-black hover:bg-black/90 text-white"
                   >
-                    {isScrapingUrl ? "Scraping & Parsing..." : "Scrape Job Posting"}
+                    {isScrapingUrl ? "Parsing..." : "Parse"}
                   </Button>
                 </TabsContent>
                 
@@ -237,7 +251,7 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
                   <Button 
                     onClick={handleParse} 
                     disabled={isLoading || !jobDescription.trim()}
-                    className="w-full"
+                    className="w-full bg-black hover:bg-black/90 text-white"
                   >
                     {isLoading ? "Parsing..." : "Parse Job Description"}
                   </Button>
@@ -245,72 +259,46 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
               </Tabs>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="jobTitle">Job Title</Label>
-                  <Input
-                    id="jobTitle"
-                    value={jobTitle}
-                    onChange={(e) => setJobTitle(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="jobLevel">Job Level</Label>
-                  <Input
-                    id="jobLevel"
-                    value={jobLevel}
-                    onChange={(e) => setJobLevel(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="companyName">Company Name</Label>
-                  <Input
-                    id="companyName"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="companySize">Company Size</Label>
-                  <Input
-                    id="companySize"
-                    value={companySize}
-                    onChange={(e) => setCompanySize(e.target.value)}
-                  />
-                </div>
-              </div>
-
+            <div className="space-y-6">
               <div>
-                <Label htmlFor="companyIndustry">Industry</Label>
+                <Label htmlFor="jobTitle">Job Title</Label>
                 <Input
-                  id="companyIndustry"
-                  value={companyIndustry}
-                  onChange={(e) => setCompanyIndustry(e.target.value)}
+                  id="jobTitle"
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
+                  className="text-lg font-medium"
                 />
               </div>
 
               <div>
-                <Label htmlFor="description">Job Description</Label>
+                <Label htmlFor="jobLevel">Level</Label>
+                <Input
+                  id="jobLevel"
+                  value={jobLevel}
+                  onChange={(e) => setJobLevel(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="min-h-[100px]"
+                  className="min-h-[120px] resize-none"
+                  readOnly
                 />
               </div>
 
               {keyRequirements.length > 0 && (
                 <div>
-                  <Label>Key Requirements</Label>
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <Label className="text-base font-medium">Requirements</Label>
+                  <div className="mt-3 space-y-2">
                     {keyRequirements.map((req, index) => (
-                      <Badge key={index} variant="default">
-                        {req}
-                      </Badge>
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="w-1.5 h-1.5 bg-foreground rounded-full mt-2 shrink-0"></div>
+                        <p className="text-sm leading-relaxed">{req}</p>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -318,32 +306,46 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
 
               {niceToHaves.length > 0 && (
                 <div>
-                  <Label>Nice to Have</Label>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {niceToHaves.map((item, index) => (
-                      <Badge key={index} variant="secondary">
-                        {item}
+                  <Label className="text-base font-medium">Skills</Label>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {niceToHaves.map((skill, index) => (
+                      <Badge key={index} variant="secondary" className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+                        {skill}
                       </Badge>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="flex gap-2">
-                <Button 
-                  onClick={() => setIsParsed(false)} 
-                  variant="outline"
-                  className="flex-1"
-                >
-                  Back to Edit
-                </Button>
-                <Button 
-                  onClick={handleSave}
-                  className="flex-1"
-                >
-                  Save Job Posting
-                </Button>
-              </div>
+              {/* Extract languages from keyRequirements for now */}
+              {keyRequirements.some(req => req.toLowerCase().includes('scala') || req.toLowerCase().includes('java') || req.toLowerCase().includes('python') || req.toLowerCase().includes('javascript')) && (
+                <div>
+                  <Label className="text-base font-medium">Languages</Label>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {keyRequirements
+                      .filter(req => req.toLowerCase().includes('scala') || req.toLowerCase().includes('java') || req.toLowerCase().includes('python') || req.toLowerCase().includes('javascript'))
+                      .map((req, index) => {
+                        const languages = [];
+                        if (req.toLowerCase().includes('scala')) languages.push('Scala');
+                        if (req.toLowerCase().includes('java') && !req.toLowerCase().includes('javascript')) languages.push('Java');
+                        if (req.toLowerCase().includes('python')) languages.push('Python');
+                        if (req.toLowerCase().includes('javascript')) languages.push('JavaScript');
+                        return languages.map((lang, langIndex) => (
+                          <Badge key={`${index}-${langIndex}`} variant="secondary" className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+                            {lang}
+                          </Badge>
+                        ));
+                      })}
+                  </div>
+                </div>
+              )}
+
+              <Button 
+                onClick={handleSave}
+                className="w-full bg-black hover:bg-black/90 text-white py-3 text-base"
+              >
+                Save
+              </Button>
             </div>
           )}
         </div>
