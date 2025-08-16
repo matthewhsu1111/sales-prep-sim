@@ -29,9 +29,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
           
           <div className="flex items-center gap-3">
-            <Card className="bg-primary text-primary-foreground">
+            <Card className="bg-muted border-border/50">
               <CardContent className="p-2">
-                <div className="text-sm font-medium">999 Credits</div>
+                <div className="text-sm font-medium text-foreground">999 Credits</div>
               </CardContent>
             </Card>
             
