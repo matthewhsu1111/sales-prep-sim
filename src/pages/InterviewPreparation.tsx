@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 import { Mic, Video, Volume2, CheckCircle, AlertTriangle, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,6 +15,14 @@ export default function InterviewPreparation() {
   const [isTestingMic, setIsTestingMic] = useState(false);
   const [micStream, setMicStream] = useState<MediaStream | null>(null);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [testCountdown, setTestCountdown] = useState(0);
+  const [showCameraPreview, setShowCameraPreview] = useState(false);
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number>();
 
   useEffect(() => {
     checkPermissions();
@@ -25,8 +34,27 @@ export default function InterviewPreparation() {
       if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
       }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, []);
+
+  const analyzeAudioLevel = () => {
+    if (!analyserRef.current) return;
+    
+    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+    analyserRef.current.getByteFrequencyData(dataArray);
+    
+    const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+    const normalizedLevel = Math.min(100, (average / 255) * 100);
+    setAudioLevel(normalizedLevel);
+    
+    animationFrameRef.current = requestAnimationFrame(analyzeAudioLevel);
+  };
 
   const checkPermissions = async () => {
     try {
@@ -42,30 +70,62 @@ export default function InterviewPreparation() {
 
   const testMicrophone = async () => {
     setIsTestingMic(true);
+    setTestCountdown(5);
+    
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       setMicStream(stream);
-      setMicPermission('granted');
       
-      toast({
-        title: "Microphone Test Successful",
-        description: "Your microphone is working properly!",
-      });
-
-      // Stop the stream after a short delay
-      setTimeout(() => {
-        stream.getTracks().forEach(track => track.stop());
-        setMicStream(null);
-        setIsTestingMic(false);
-      }, 2000);
+      // Set up audio analysis
+      audioContextRef.current = new AudioContext();
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      source.connect(analyserRef.current);
+      
+      // Start audio level analysis
+      analyzeAudioLevel();
+      
+      // Countdown timer
+      const countdownInterval = setInterval(() => {
+        setTestCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            
+            // Stop analysis and cleanup
+            if (animationFrameRef.current) {
+              cancelAnimationFrame(animationFrameRef.current);
+            }
+            if (audioContextRef.current) {
+              audioContextRef.current.close();
+            }
+            
+            stream.getTracks().forEach(track => track.stop());
+            setMicStream(null);
+            setIsTestingMic(false);
+            setMicPermission('granted');
+            setAudioLevel(0);
+            
+            toast({
+              title: "Microphone Test Successful",
+              description: "Your microphone is working properly!",
+            });
+            
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
     } catch (error) {
       setMicPermission('denied');
+      setIsTestingMic(false);
+      setTestCountdown(0);
       toast({
         title: "Microphone Access Denied",
         description: "Please enable microphone access to continue with the interview.",
         variant: "destructive"
       });
-      setIsTestingMic(false);
     }
   };
 
@@ -74,17 +134,17 @@ export default function InterviewPreparation() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       setCameraStream(stream);
       setCameraPermission('granted');
+      setShowCameraPreview(true);
+      
+      // Set up video preview
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
       
       toast({
         title: "Camera Access Granted",
         description: "Your camera is ready for the interview!",
       });
-
-      // Stop the stream immediately since this is just for permission
-      setTimeout(() => {
-        stream.getTracks().forEach(track => track.stop());
-        setCameraStream(null);
-      }, 1000);
     } catch (error) {
       setCameraPermission('denied');
       toast({
@@ -92,6 +152,17 @@ export default function InterviewPreparation() {
         description: "Please enable camera access to continue with the interview.",
         variant: "destructive"
       });
+    }
+  };
+
+  const stopCameraPreview = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    setShowCameraPreview(false);
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
   };
 
@@ -138,7 +209,7 @@ export default function InterviewPreparation() {
                 Click "Test Mic" to verify your microphone is working
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <Button 
                 onClick={testMicrophone}
                 disabled={isTestingMic || micPermission === 'granted'}
@@ -146,8 +217,21 @@ export default function InterviewPreparation() {
                 variant={micPermission === 'granted' ? 'secondary' : 'default'}
               >
                 <Volume2 className="h-4 w-4 mr-2" />
-                {isTestingMic ? 'Testing...' : micPermission === 'granted' ? 'Microphone Ready' : 'Test Mic'}
+                {isTestingMic ? `Testing... ${testCountdown}` : micPermission === 'granted' ? 'Microphone Ready' : 'Test Mic'}
               </Button>
+              
+              {isTestingMic && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Audio Level</span>
+                    <span>{Math.round(audioLevel)}%</span>
+                  </div>
+                  <Progress value={audioLevel} className="h-2" />
+                  <p className="text-xs text-muted-foreground text-center">
+                    Speak normally to test your microphone level
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -163,7 +247,7 @@ export default function InterviewPreparation() {
                 Allow camera access for the video interview
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <Button 
                 onClick={enableCamera}
                 disabled={cameraPermission === 'granted'}
@@ -173,6 +257,33 @@ export default function InterviewPreparation() {
                 <Video className="h-4 w-4 mr-2" />
                 {cameraPermission === 'granted' ? 'Camera Ready' : 'Enable Camera'}
               </Button>
+              
+              {showCameraPreview && (
+                <div className="space-y-3">
+                  <div className="relative">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      muted
+                      playsInline
+                      className="w-full h-48 object-cover rounded-lg bg-muted"
+                    />
+                    <div className="absolute top-2 right-2">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={stopCameraPreview}
+                        className="text-xs"
+                      >
+                        Stop Preview
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Camera preview - Make sure you're clearly visible with good lighting
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
