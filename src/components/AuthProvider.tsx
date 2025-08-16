@@ -37,9 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         // Redirect to profile setup after successful authentication
         if (event === 'SIGNED_IN' && session?.user) {
-          // Use setTimeout to avoid potential issues with React state updates
+          // Use setTimeout to avoid potential React state update issues
           setTimeout(() => {
-            window.location.href = '/profile-setup';
+            // Only redirect if not already on profile-setup or dashboard
+            const currentPath = window.location.pathname;
+            if (!currentPath.includes('/profile-setup') && !currentPath.includes('/dashboard')) {
+              window.location.href = '/profile-setup';
+            }
           }, 100);
         }
       }

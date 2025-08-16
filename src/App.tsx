@@ -7,6 +7,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import Index from "./pages/Index";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import Signin from "./pages/Signin";
 import ProfileSetup from "./pages/ProfileSetup";
 import NotFound from "./pages/NotFound";
 import { DashboardLayout } from "./layouts/DashboardLayout";
@@ -23,6 +24,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/signin" element={<Signin />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/dashboard/*" element={
               <DashboardLayout>
