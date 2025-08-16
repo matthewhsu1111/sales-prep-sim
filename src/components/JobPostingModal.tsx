@@ -106,11 +106,7 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
 
       console.log('Function response:', data);
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to parse job description');
-      }
-
-      const parsed = data.jobData;
+      const parsed = data;
       
       // Update form fields with parsed data
       setJobTitle(parsed.jobTitle || "");
