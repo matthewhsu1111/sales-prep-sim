@@ -40,7 +40,7 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted/50";
+    isActive ? "bg-primary/10 text-primary font-medium border-l-4 border-primary" : "hover:bg-muted/50";
 
   const isCollapsed = state === "collapsed";
 
@@ -49,17 +49,17 @@ export function AppSidebar() {
       className={isCollapsed ? "w-12" : "w-56"}
       collapsible="icon"
     >
-      <SidebarContent className="p-3 flex flex-col h-full">
+      <SidebarContent className="p-3 flex flex-col h-full pt-20">
         {/* Main Navigation */}
         <SidebarGroup className="flex-1">
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-3">
               {dashboardItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className="h-12 px-4">
                     <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      <item.icon className="mr-3 h-5 w-5" />
+                      {!isCollapsed && <span className="text-base">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
