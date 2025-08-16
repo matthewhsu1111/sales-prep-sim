@@ -70,6 +70,7 @@ export default function InterviewSession() {
   const initializeCamera = async () => {
     console.log('🎥 Initializing camera...');
     try {
+      console.log('📱 Requesting camera permissions...');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { 
           width: { ideal: 640 }, 
@@ -79,19 +80,29 @@ export default function InterviewSession() {
         audio: false
       });
       
-      console.log('✅ Camera stream acquired');
+      console.log('✅ Camera stream acquired, track count:', stream.getVideoTracks().length);
       setCameraStream(stream);
       setCameraError(null);
       
       // Wait for video element to be ready
       if (videoRef.current) {
+        console.log('📺 Assigning stream to video element...');
         videoRef.current.srcObject = stream;
         
         // Ensure video loads and plays
         videoRef.current.onloadedmetadata = () => {
-          console.log('📹 Video metadata loaded');
-          videoRef.current?.play().catch(e => console.error('Video play error:', e));
+          console.log('📹 Video metadata loaded, dimensions:', videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight);
+          videoRef.current?.play()
+            .then(() => console.log('✅ Video playing'))
+            .catch(e => console.error('❌ Video play error:', e));
         };
+        
+        videoRef.current.onerror = (e) => {
+          console.error('❌ Video element error:', e);
+          setCameraError('Video display error');
+        };
+      } else {
+        console.error('❌ Video ref is null!');
       }
     } catch (error) {
       console.error('❌ Camera error:', error);
@@ -106,29 +117,43 @@ export default function InterviewSession() {
 
   // Initialize everything when component mounts
   useEffect(() => {
+    console.log('🔍 Component mounted, state:', state);
+    console.log('🔍 interviewDetails:', interviewDetails);
+    
     if (interviewDetails) {
       console.log('🚀 Starting interview session...');
       setIsLoading(true);
       
       const initializeInterview = async () => {
         try {
-          // Initialize camera first
+          console.log('🎥 About to initialize camera...');
           await initializeCamera();
+          console.log('✅ Camera initialization complete');
           
-          // Get questions using proper import
+          console.log('📚 About to get questions...');
+          console.log('📚 Interview type:', interviewDetails.interviewType);
+          console.log('📚 Number of questions:', interviewDetails.numberOfQuestions);
+          
           const questions = getQuestionsForInterview(
             interviewDetails.interviewType, 
             interviewDetails.numberOfQuestions
           );
           
           console.log('📝 Questions loaded:', questions.length);
+          if (questions[0]) {
+            console.log('📝 First question preview:', questions[0].substring(0, 50));
+          }
           
           if (questions.length > 0) {
-            // Start audio listening
+            console.log('🎤 About to start continuous listening...');
             await startContinuousListening();
+            console.log('✅ Continuous listening started');
             
-            // Start interview with first question
+            console.log('🎭 About to start interview...');
             await startInterview(questions[0]);
+            console.log('✅ Interview started');
+          } else {
+            console.error('❌ No questions found!');
           }
         } catch (error) {
           console.error('❌ Interview initialization error:', error);
@@ -138,11 +163,18 @@ export default function InterviewSession() {
       };
       
       initializeInterview();
+    } else {
+      console.error('❌ No interview details found in state!');
+      console.log('🔍 Current location state:', state);
     }
-  }, [interviewDetails]);
+  }, [interviewDetails, state]);
 
   const startInterview = async (firstQuestion: string) => {
+    console.log('🎭 Starting interview with first question:', firstQuestion.substring(0, 50) + '...');
+    
     const welcomeMessage = `Hello! I'm your AI interviewer for today's ${interviewDetails?.interviewType} interview. Let's get started with our first question.`;
+    
+    console.log('💬 Welcome message:', welcomeMessage);
     
     // Add AI welcome message
     const aiMessage: Message = {
@@ -153,9 +185,12 @@ export default function InterviewSession() {
     };
     
     setMessages([aiMessage]);
+    console.log('✅ Welcome message added to chat');
     
     // Convert to speech and play
+    console.log('🔊 About to speak welcome message...');
     await speakMessage(welcomeMessage);
+    console.log('✅ Welcome message spoken');
     
     // Immediately ask first question after welcome
     const questionMessage: Message = {
@@ -166,7 +201,11 @@ export default function InterviewSession() {
     };
     
     setMessages(prev => [...prev, questionMessage]);
+    console.log('✅ First question added to chat');
+    
+    console.log('🔊 About to speak first question...');
     await speakMessage(firstQuestion);
+    console.log('✅ First question spoken');
   };
 
   const speakMessage = async (text: string) => {

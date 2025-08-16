@@ -107,7 +107,16 @@ export default function InterviewRoleplay() {
       description: "Interview training session is beginning...",
     });
     setIsInterviewDetailsModalOpen(false);
-    navigate('/dashboard/interview-preparation');
+    // Navigate directly to interview session with the details
+    navigate('/dashboard/interview-session', { 
+      state: { 
+        interviewDetails: {
+          jobPosting: { id: details.jobPostingId }, // Convert jobPostingId to jobPosting object
+          interviewType: details.interviewType,
+          numberOfQuestions: details.numberOfQuestions
+        }
+      } 
+    });
   };
   return (
     <div className="p-6 space-y-6">
