@@ -13,12 +13,13 @@ const interviewerTemplates = [
   {
     id: "strict-no-bs",
     name: "Strict, No BS",
-    description: "Direct and to-the-point interviewer",
-    personality: "Direct and to-the-point",
+    description: "Tests resilience, confidence, and results-focus",
+    personality: "Direct and results-focused interviewer who values efficiency",
     traits: [
-      "Minimal small talk",
-      "Focuses on results and competency",
-      "No-nonsense approach"
+      "Skip small talk entirely",
+      "Ask direct, pointed questions",
+      "Focus heavily on quotas and numbers",
+      "Challenge claims with aggressive pushback"
     ],
     icon: User,
     color: "bg-red-500"
@@ -26,12 +27,13 @@ const interviewerTemplates = [
   {
     id: "casual-conversational", 
     name: "Casual, Conversational",
-    description: "Friendly and relaxed interviewer",
-    personality: "Treats it like a friendly chat",
+    description: "Tests interpersonal skills and culture fit",
+    personality: "Friendly interviewer who focuses on culture fit and personality",
     traits: [
-      "Asks personal questions to build rapport",
-      "Relaxed, informal approach",
-      "Conversational style"
+      "Start with genuine small talk",
+      "Ask personal questions about hobbies",
+      "Share own experiences and stories",
+      "Create comfortable, low-pressure environment"
     ],
     icon: Users,
     color: "bg-green-500"
@@ -39,12 +41,13 @@ const interviewerTemplates = [
   {
     id: "analytical-detailed",
     name: "Analytical, Detail-Oriented", 
-    description: "Deep-dive technical interviewer",
-    personality: "Digs deep into specifics and metrics",
+    description: "Tests process knowledge and systematic thinking",
+    personality: "Process-focused interviewer who digs deep into methodology and data",
     traits: [
-      "Asks lots of follow-up questions",
-      "Wants concrete examples and data",
-      "Technical precision focus"
+      "Methodical questioning with logical flow",
+      "Request specific metrics and conversion rates",
+      "Break down sales process step-by-step",
+      "Reference frameworks and methodologies"
     ],
     icon: BarChart3,
     color: "bg-blue-500"

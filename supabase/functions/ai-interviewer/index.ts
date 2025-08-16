@@ -14,20 +14,46 @@ serve(async (req) => {
   try {
     const { message, jobPosting, interviewType, questionContext } = await req.json();
 
-    const systemPrompt = `You are an AI interviewer conducting a ${interviewType} interview. 
+// Import personality data
+    const personalities = {
+      "strict-no-bs": {
+        background: "Senior sales manager or VP with 15+ years experience who values efficiency and results above all else.",
+        style: "Skip small talk, ask direct pointed questions, focus heavily on quotas and numbers, challenge claims aggressively, use phrases like 'Bottom line is...', 'Cut to the chase', 'What are the numbers?'",
+        approach: "Focus on metrics, ask for specific examples with dollar amounts, test objection handling with pushback"
+      },
+      "casual-conversational": {
+        background: "Team lead who believes culture fit is just as important as skills. Wants to understand the person behind the resume.",
+        style: "Start with genuine small talk, ask personal questions, share experiences, use humor and casual language, create comfortable environment",
+        approach: "Frame questions as conversations, ask about motivations and goals, focus on teamwork and collaboration"
+      },
+      "analytical-detailed": {
+        background: "Sales operations manager with finance/analytics background. Believes success is driven by process and data.",
+        style: "Methodical questioning, ask follow-up questions, request clarification, use precise language, take detailed notes",
+        approach: "Break down processes step-by-step, ask about CRM usage, request specific metrics and conversion rates"
+      }
+    };
+
+    const personality = personalities[interviewType as keyof typeof personalities] || personalities["casual-conversational"];
+
+    const systemPrompt = `You are an AI interviewer with this personality and background:
+    
+    BACKGROUND: ${personality.background}
+    
+    COMMUNICATION STYLE: ${personality.style}
+    
+    QUESTION APPROACH: ${personality.approach}
     
     ${jobPosting ? `Job Context: The candidate is interviewing for: ${jobPosting.title} at ${jobPosting.company}. 
     Job Description: ${jobPosting.description}` : ''}
     
     Interview Guidelines:
+    - Stay in character according to your personality type
     - Ask one question at a time and wait for the candidate's response
     - Follow up naturally based on their answers
-    - Be professional but conversational
-    - Focus on behavioral and situational questions
-    - Evaluate communication skills, experience, and fit
+    - Evaluate communication skills, experience, and fit based on your personality
     - ${questionContext ? `Current question context: ${questionContext}` : ''}
     
-    Keep responses concise and conversational, as if speaking in real-time.`;
+    Keep responses concise and conversational, as if speaking in real-time. Embody your personality type completely.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

@@ -44,42 +44,9 @@ export default function InterviewSession() {
   const audioChunksRef = useRef<Blob[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  // Initialize camera and audio only when component mounts
+  // Clean up function for media
   useEffect(() => {
-    let mounted = true;
-    
-    const initializeMedia = async () => {
-      try {
-        // Only initialize camera for this session
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 320, height: 240, facingMode: 'user' },
-          audio: false
-        });
-        
-        if (mounted) {
-          setCameraStream(stream);
-          
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        } else {
-          // Clean up if component unmounted during async operation
-          stream.getTracks().forEach(track => track.stop());
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        toast({
-          title: "Camera Error",
-          description: "Could not access camera. Please check permissions.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    initializeMedia();
-
     return () => {
-      mounted = false;
       // Clean up all media when component unmounts
       if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
@@ -91,17 +58,37 @@ export default function InterviewSession() {
         audioContextRef.current.close();
       }
     };
-  }, []);
-
-  useEffect(() => {
-    if (videoRef.current && cameraStream) {
-      videoRef.current.srcObject = cameraStream;
-    }
   }, [cameraStream]);
 
-  // Start interview with first question
+  // Initialize camera when needed
+  const initializeCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480, facingMode: 'user' },
+        audio: false
+      });
+      
+      setCameraStream(stream);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      toast({
+        title: "Camera Error",
+        description: "Could not access camera. Please check permissions.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Start interview automatically with first question
   useEffect(() => {
     if (interviewDetails) {
+      // Initialize camera first
+      initializeCamera();
+      
       const { getQuestionsForInterview } = require('@/data/interviewQuestions');
       const questions = getQuestionsForInterview(
         interviewDetails.interviewType, 
@@ -109,13 +96,14 @@ export default function InterviewSession() {
       );
       
       if (questions.length > 0) {
+        // Start immediately, no delay
         startInterview(questions[0]);
       }
     }
   }, [interviewDetails]);
 
   const startInterview = async (firstQuestion: string) => {
-    const welcomeMessage = `Hello! I'm your AI interviewer for today's ${interviewDetails?.interviewType} interview. Let's get started.`;
+    const welcomeMessage = `Hello! I'm your AI interviewer for today's ${interviewDetails?.interviewType} interview. Let's get started with our first question.`;
     
     // Add AI welcome message
     const aiMessage: Message = {
@@ -130,18 +118,16 @@ export default function InterviewSession() {
     // Convert to speech and play
     await speakMessage(welcomeMessage);
     
-    // After welcome, ask first question
-    setTimeout(async () => {
-      const questionMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: firstQuestion,
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, questionMessage]);
-      await speakMessage(firstQuestion);
-    }, 2000);
+    // Immediately ask first question after welcome
+    const questionMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      content: firstQuestion,
+      sender: 'ai',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, questionMessage]);
+    await speakMessage(firstQuestion);
   };
 
   const speakMessage = async (text: string) => {
@@ -309,11 +295,14 @@ export default function InterviewSession() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top Navigation Bar - matches wireframe */}
-      <div className="h-12 border-b bg-card flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <h1 className="text-sm font-medium text-foreground">Interview Session</h1>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Top Navigation Bar */}
+      <div className="h-14 border-b bg-card flex items-center justify-between px-6 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-sm">I</span>
+          </div>
+          <h1 className="text-lg font-semibold text-foreground">InterviewAI</h1>
         </div>
         <Button
           onClick={handleBackToDashboard}
@@ -321,22 +310,23 @@ export default function InterviewSession() {
           size="sm"
           className="flex items-center gap-2"
         >
-          <ArrowLeft className="h-3 w-3" />
+          <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
         </Button>
       </div>
 
-      <div className="flex h-[calc(100vh-3rem)]">
-        {/* Left Side - Transcript (smaller width to match wireframe) */}
-        <div className="w-5/12 border-r bg-background">
-          <div className="p-3 border-b bg-card">
-            <h2 className="text-sm font-medium text-foreground">Transcript</h2>
+      {/* Main Content */}
+      <div className="flex-1 flex gap-4 p-4">
+        {/* Left Side - Transcript */}
+        <div className="w-2/5 bg-card rounded-lg border flex flex-col">
+          <div className="p-4 border-b">
+            <h2 className="text-lg font-medium text-foreground">Transcript</h2>
           </div>
-          <ScrollArea className="h-[calc(100vh-6rem)] p-3">
-            <div className="space-y-3">
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-4">
               {messages.length === 0 ? (
                 <div className="text-center text-muted-foreground text-sm mt-8">
-                  Interview will begin shortly...
+                  Starting interview...
                 </div>
               ) : (
                 messages.map((message) => (
@@ -345,23 +335,23 @@ export default function InterviewSession() {
                     className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-lg p-2.5 ${
+                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                         message.sender === 'ai'
                           ? 'bg-secondary text-secondary-foreground'
                           : 'bg-primary text-primary-foreground'
                       }`}
                     >
-                      <div className="flex items-center gap-1.5 mb-1">
+                      <div className="flex items-center gap-2 mb-1">
                         {message.sender === 'ai' ? (
-                          <Bot className="h-3 w-3" />
+                          <Bot className="h-4 w-4" />
                         ) : (
-                          <User className="h-3 w-3" />
+                          <User className="h-4 w-4" />
                         )}
-                        <span className="text-xs opacity-70">
+                        <span className="text-xs opacity-70 font-medium">
                           {message.sender === 'ai' ? 'AI Interviewer' : 'You'}
                         </span>
                       </div>
-                      <p className="text-xs leading-relaxed">{message.content}</p>
+                      <p className="text-sm leading-relaxed">{message.content}</p>
                     </div>
                   </div>
                 ))
@@ -370,21 +360,21 @@ export default function InterviewSession() {
           </ScrollArea>
         </div>
 
-        {/* Right Side - AI & Camera (larger width to match wireframe) */}
-        <div className="w-7/12 flex flex-col">
+        {/* Right Side - AI & Camera */}
+        <div className="w-3/5 flex flex-col gap-4">
           {/* AI Interviewer Section */}
-          <div className="h-1/2 border-b bg-card flex flex-col items-center justify-center p-4">
+          <div className="flex-1 bg-card rounded-lg border flex flex-col items-center justify-center p-6">
             <div className="text-center">
               <Avatar 
-                className={`h-20 w-20 mx-auto mb-3 ${
+                className={`h-24 w-24 mx-auto mb-4 ${
                   isAiSpeaking ? 'animate-pulse ring-4 ring-primary/30' : ''
                 } transition-all duration-300`}
               >
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  <Bot className="h-10 w-10" />
+                  <Bot className="h-12 w-12" />
                 </AvatarFallback>
               </Avatar>
-              <h3 className="font-medium text-foreground mb-1">AI Interviewer</h3>
+              <h3 className="text-xl font-medium text-foreground mb-2">AI Interviewer</h3>
               <p className="text-sm text-muted-foreground">
                 {isAiSpeaking ? 'Speaking...' : isListening ? 'Listening...' : 'Ready'}
               </p>
@@ -392,11 +382,11 @@ export default function InterviewSession() {
           </div>
 
           {/* User's Camera Section */}
-          <div className="h-1/2 bg-muted flex flex-col items-center justify-center p-4">
-            <div className="text-center mb-3">
-              <h3 className="font-medium text-foreground">Your Camera</h3>
+          <div className="flex-1 bg-card rounded-lg border flex flex-col items-center justify-center p-6">
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-medium text-foreground">Your Camera</h3>
             </div>
-            <div className="relative bg-black rounded-lg overflow-hidden w-full max-w-xs aspect-video">
+            <div className="relative bg-black rounded-lg overflow-hidden w-full max-w-md aspect-video mb-4">
               <video
                 ref={videoRef}
                 autoPlay
@@ -407,27 +397,25 @@ export default function InterviewSession() {
             </div>
             
             {/* Microphone Control */}
-            <div className="mt-4">
-              <Button
-                onClick={isRecording ? stopRecording : startRecording}
-                variant={isRecording ? "destructive" : "default"}
-                size="sm"
-                className="flex items-center gap-2"
-                disabled={isAiSpeaking}
-              >
-                {isRecording ? (
-                  <>
-                    <MicOff className="h-4 w-4" />
-                    Stop Recording
-                  </>
-                ) : (
-                  <>
-                    <Mic className="h-4 w-4" />
-                    Start Recording
-                  </>
-                )}
-              </Button>
-            </div>
+            <Button
+              onClick={isRecording ? stopRecording : startRecording}
+              variant={isRecording ? "destructive" : "default"}
+              size="lg"
+              className="flex items-center gap-2"
+              disabled={isAiSpeaking}
+            >
+              {isRecording ? (
+                <>
+                  <MicOff className="h-5 w-5" />
+                  Stop Recording
+                </>
+              ) : (
+                <>
+                  <Mic className="h-5 w-5" />
+                  Start Recording
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>
