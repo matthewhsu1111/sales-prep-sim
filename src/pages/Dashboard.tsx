@@ -1,143 +1,161 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Plus, Share, MoreHorizontal } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { TrendingUp, TrendingDown, Clock } from "lucide-react";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-
-  const prospects = [
-    {
-      id: 1,
-      name: "Alice Thompson",
-      type: "Consumer",
-      avatar: "/placeholder.svg",
-      category: "Consumer"
-    },
-    {
-      id: 2,
-      name: "Sandra Lopez", 
-      type: "B2B",
-      avatar: "/placeholder.svg",
-      category: "B2B"
-    }
+  const progressData = [
+    { month: "Jan", score: 65 },
+    { month: "Feb", score: 70 },
+    { month: "Mar", score: 72 },
+    { month: "Apr", score: 78 },
+    { month: "May", score: 82 },
+    { month: "Jun", score: 85 },
   ];
 
+  const strengths = [
+    { skill: "Communication", score: 92, trend: "up" },
+    { skill: "Problem Solving", score: 88, trend: "up" },
+    { skill: "Technical Knowledge", score: 85, trend: "stable" },
+    { skill: "Leadership", score: 82, trend: "up" },
+  ];
+
+  const improvements = [
+    { skill: "Time Management", score: 65, trend: "down" },
+    { skill: "Stress Handling", score: 68, trend: "stable" },
+    { skill: "Conflict Resolution", score: 70, trend: "up" },
+    { skill: "Negotiation", score: 72, trend: "down" },
+  ];
+
+  const recentInterviews = [
+    { id: 1, title: "Software Engineer - Google", time: "5 min ago", score: 85 },
+    { id: 2, title: "Product Manager - Meta", time: "45 min ago", score: 78 },
+    { id: 3, title: "Data Scientist - Netflix", time: "Yesterday", score: 92 },
+    { id: 4, title: "Frontend Developer - Spotify", time: "2 days ago", score: 76 },
+  ];
+
+  const chartConfig = {
+    score: {
+      label: "Interview Score",
+      color: "hsl(var(--primary))",
+    },
+  };
+
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Sales Training</h1>
-          <p className="text-muted-foreground mt-2 max-w-2xl">
-            Create custom prospects or use pre-built templates to practice and refine your sales pitch in realistic scenarios.
-          </p>
-        </div>
-        <Button 
-          variant="hero" 
-          size="lg"
-          className="px-6"
-          onClick={() => navigate('/dashboard/create-prospect')}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Create New Prospect
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground mt-2">
+          Track your interview progress and identify areas for improvement
+        </p>
       </div>
 
-      {/* Other Prospects Section */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
-            <div className="h-4 w-4 bg-purple-600 rounded"></div>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">Other Prospects</h2>
-            <p className="text-muted-foreground">Specialized training prospects for other industry scenarios</p>
-          </div>
-        </div>
+      {/* Progress Over Time Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Progress Over Time</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer config={chartConfig} className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={progressData}>
+                <XAxis dataKey="month" />
+                <YAxis />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="score" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={3}
+                  dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {prospects.map((prospect) => (
-            <Card key={prospect.id} className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Badge 
-                    variant="secondary" 
-                    className={`$
-                      {prospect.category === 'Consumer' 
-                        ? 'bg-purple-100 text-purple-800' 
-                        : 'bg-blue-100 text-blue-800'}`}
-                  >
-                    {prospect.category}
-                  </Badge>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm">
-                      <Share className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </div>
+      {/* Strengths and Improvements */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Top Strengths */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-green-600">Top Strengths</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {strengths.map((strength) => (
+              <div key={strength.skill} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="font-medium">{strength.skill}</span>
                 </div>
-
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={prospect.avatar} />
-                    <AvatarFallback className="text-lg">
-                      {prospect.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div>
-                    <h3 className="font-semibold text-foreground">{prospect.name}</h3>
-                    <Badge variant="outline" className="mt-1">
-                      {prospect.type}
-                    </Badge>
-                  </div>
-
-                  <div className="w-full">
-                    <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">
-                      Training Objectives
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      className="w-full bg-white/50 hover:bg-white/70"
-                      onClick={() => navigate(`/interview/${prospect.id}`)}
-                    >
-                      Start Session
-                    </Button>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">{strength.score}%</span>
+                  {strength.trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Areas for Improvement */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-red-600">Areas for Improvement</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {improvements.map((improvement) => (
+              <div key={improvement.skill} className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="font-medium">{improvement.skill}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">{improvement.score}%</span>
+                  {improvement.trend === "down" && <TrendingDown className="h-4 w-4 text-red-500" />}
+                  {improvement.trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Commercial Real Estate Section */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
-            <div className="h-4 w-4 bg-blue-600 rounded"></div>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">Commercial Real Estate Prospects</h2>
-          </div>
-        </div>
-
-        <div className="bg-muted/30 rounded-lg p-8 text-center">
-          <p className="text-muted-foreground">No commercial real estate prospects yet.</p>
-          <Button 
-            variant="outline" 
-            className="mt-4"
-            onClick={() => navigate('/dashboard/create-prospect?type=commercial')}
-          >
-            Create Your First Prospect
+      {/* Recent Interviews */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Recent Interviews</CardTitle>
+          <Button variant="outline" size="sm">
+            All
           </Button>
-        </div>
-      </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {recentInterviews.map((interview) => (
+              <div key={interview.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <div className="w-4 h-4 bg-primary rounded"></div>
+                  </div>
+                  <div>
+                    <h4 className="font-medium">{interview.title}</h4>
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span>{interview.time}</span>
+                    </div>
+                  </div>
+                </div>
+                <Badge variant={interview.score >= 80 ? "default" : "secondary"}>
+                  {interview.score}%
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

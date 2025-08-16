@@ -28,14 +28,9 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const dashboardItems = [
-  { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Sales Training", url: "/dashboard/training", icon: Target },
-  { title: "History", url: "/dashboard/history", icon: History },
-];
-
-const manageItems = [
-  { title: "Teams", url: "/dashboard/teams", icon: Users },
-  { title: "Billing", url: "/dashboard/billing", icon: DollarSign },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Interview Roleplay", url: "/dashboard/roleplay", icon: Mic },
+  { title: "Careers", url: "/dashboard/careers", icon: Target },
 ];
 
 export function AppSidebar() {
@@ -66,11 +61,8 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* Dashboard Section */}
-        <SidebarGroup className="mb-6">
-          <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-            Dashboard
-          </SidebarGroupLabel>
+        {/* Main Navigation */}
+        <SidebarGroup className="mb-auto">
           <SidebarGroupContent>
             <SidebarMenu>
               {dashboardItems.map((item) => (
@@ -87,42 +79,17 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Manage Section */}
-        <SidebarGroup className="mb-6">
-          <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-            Manage
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {manageItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                  <NavLink to={item.url} className={getNavCls}>
-                    <item.icon className="mr-3 h-4 w-4" />
-                    {!isCollapsed && <span>{item.title}</span>}
-                  </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Support */}
-        <SidebarGroup className="mb-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                <NavLink to="/dashboard/support" className={getNavCls}>
-                  <HelpCircle className="mr-3 h-4 w-4" />
-                  {!isCollapsed && <span>Support</span>}
-                </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Credits Section */}
+        {!isCollapsed && (
+          <div className="mt-auto p-3 bg-muted/50 rounded-lg border">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Credits</span>
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
+                999
+              </Badge>
+            </div>
+          </div>
+        )}
 
         {/* User Profile */}
         {!isCollapsed && (
