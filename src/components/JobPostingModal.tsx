@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { WebScrapingService } from "@/utils/WebScrapingService";
 import { Globe, FileText } from "lucide-react";
 
@@ -18,6 +18,7 @@ interface JobPostingModalProps {
 }
 
 export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingModalProps) {
+  const { toast } = useToast();
   // Form state
   const [jobUrl, setJobUrl] = useState("");
   const [jobDescription, setJobDescription] = useState("");
@@ -33,8 +34,6 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
   const [isParsed, setIsParsed] = useState(false);
   const [inputMode, setInputMode] = useState<"url" | "text">("url");
   const [isScrapingUrl, setIsScrapingUrl] = useState(false);
-  
-  const { toast } = useToast();
 
   const handleScrapeUrl = async () => {
     if (!jobUrl.trim()) {
@@ -134,27 +133,39 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
 
   const handleParse = () => parseJobContent(jobDescription);
 
-  const handleSave = () => {
-    const jobData = {
-      jobDescription,
-      jobTitle,
-      jobLevel,
-      companyName,
-      companyIndustry,
-      companySize,
-      description,
-      keyRequirements,
-      niceToHaves,
-      sourceUrl: jobUrl || undefined
-    };
-    
-    onSave(jobData);
-    handleClose();
+  const handleJobSave = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No authenticated user');
 
-    toast({
-      title: "Success",
-      description: "Job posting saved successfully!",
-    });
+      const { data, error } = await supabase
+        .from('job_postings')
+        .insert({
+          user_id: user.id,
+          company_name: companyName,
+          job_title: jobTitle,
+          level: jobLevel || null,
+          description: description || null,
+          requirements: keyRequirements.length > 0 ? keyRequirements : null,
+          skills: niceToHaves.length > 0 ? niceToHaves : null,
+          languages: null, // Will extract from requirements if needed
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      console.log("Job posting saved:", data);
+      onSave(data);
+      handleClose();
+    } catch (error) {
+      console.error('Error saving job posting:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save job posting. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleClose = () => {
@@ -359,7 +370,7 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
               )}
 
               <Button 
-                onClick={handleSave}
+                onClick={handleJobSave}
                 className="w-full bg-black hover:bg-black/90 text-white py-3 text-base"
               >
                 Save

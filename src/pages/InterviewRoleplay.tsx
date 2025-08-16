@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Users, BarChart3, Plus } from "lucide-react";
 import JobPostingModal from "@/components/JobPostingModal";
+import InterviewDetailsModal from "@/components/InterviewDetailsModal";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const interviewerTemplates = [
   {
@@ -51,18 +53,56 @@ const interviewerTemplates = [
 export default function InterviewRoleplay() {
   const { toast } = useToast();
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
+  const [isInterviewDetailsModalOpen, setIsInterviewDetailsModalOpen] = useState(false);
+  const [hasJobPostings, setHasJobPostings] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkExistingJobPostings();
+  }, []);
+
+  const checkExistingJobPostings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('job_postings')
+        .select('id')
+        .limit(1);
+
+      if (error) throw error;
+      setHasJobPostings(data && data.length > 0);
+    } catch (error) {
+      console.error('Error checking job postings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleStartTraining = (templateId: string) => {
-    setIsJobModalOpen(true);
+    if (hasJobPostings) {
+      setIsInterviewDetailsModalOpen(true);
+    } else {
+      setIsJobModalOpen(true);
+    }
   };
 
   const handleJobSave = (jobData: any) => {
     console.log("Job data saved:", jobData);
+    setHasJobPostings(true);
     toast({
       title: "Success",
-      description: "Job posting saved! Starting interview training...",
+      description: "Job posting saved! Now select interview details...",
     });
-    // Here you would proceed to the actual interview training
+    setIsInterviewDetailsModalOpen(true);
+  };
+
+  const handleStartInterview = (details: any) => {
+    console.log("Starting interview with details:", details);
+    toast({
+      title: "Starting Interview",
+      description: "Interview training session is beginning...",
+    });
+    setIsInterviewDetailsModalOpen(false);
+    // Here you would navigate to the actual interview training
   };
   return (
     <div className="p-6 space-y-6">
@@ -117,8 +157,9 @@ export default function InterviewRoleplay() {
                 <Button 
                   className="w-full mt-6 bg-foreground hover:bg-foreground/90 text-background"
                   onClick={() => handleStartTraining(template.id)}
+                  disabled={loading}
                 >
-                  Start Training
+                  {loading ? "Loading..." : "Start Training"}
                 </Button>
               </CardContent>
             </Card>
@@ -130,6 +171,12 @@ export default function InterviewRoleplay() {
         isOpen={isJobModalOpen}
         onClose={() => setIsJobModalOpen(false)}
         onSave={handleJobSave}
+      />
+      
+      <InterviewDetailsModal
+        isOpen={isInterviewDetailsModalOpen}
+        onClose={() => setIsInterviewDetailsModalOpen(false)}
+        onStartInterview={handleStartInterview}
       />
     </div>
   );
