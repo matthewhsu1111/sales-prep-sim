@@ -46,23 +46,12 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className={isCollapsed ? "w-14" : "w-64"}
+      className={isCollapsed ? "w-12" : "w-56"}
       collapsible="icon"
     >
-      <SidebarContent className="p-4">
-        {/* Credits */}
-        <div className="mb-6 p-3 bg-purple-50 rounded-lg border border-purple-200">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-purple-600" />
-            <span className="text-sm font-medium text-purple-900">Credits</span>
-            <Badge variant="secondary" className="ml-auto bg-purple-100 text-purple-800">
-              8 min
-            </Badge>
-          </div>
-        </div>
-
+      <SidebarContent className="p-3 flex flex-col h-full">
         {/* Main Navigation */}
-        <SidebarGroup className="mb-auto">
+        <SidebarGroup className="flex-1">
           <SidebarGroupContent>
             <SidebarMenu>
               {dashboardItems.map((item) => (
@@ -79,38 +68,25 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Credits Section */}
-        {!isCollapsed && (
-          <div className="mt-auto p-3 bg-muted/50 rounded-lg border">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Credits</span>
-              <Badge variant="secondary" className="bg-primary/10 text-primary">
+        {/* Credits Section at Bottom */}
+        <div className="mt-auto">
+          {!isCollapsed ? (
+            <div className="p-3 bg-muted/50 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Credits</span>
+                <Badge variant="secondary" className="bg-primary/10 text-primary">
+                  999
+                </Badge>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
                 999
               </Badge>
             </div>
-          </div>
-        )}
-
-        {/* User Profile */}
-        {!isCollapsed && (
-          <div className="mt-auto pt-4 border-t">
-            <div className="flex items-center gap-3 p-2">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                  M
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-foreground truncate">
-                  Matthew
-                </div>
-                <div className="text-xs text-muted-foreground truncate">
-                  matthew@example.com
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </SidebarContent>
     </Sidebar>
   );
