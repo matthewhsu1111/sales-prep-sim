@@ -88,16 +88,8 @@ export default function InterviewDetailsModal({ isOpen, onClose, onStartIntervie
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Select Interview Details</DialogTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClose}
-            className="h-6 w-6 p-0"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
         
         <div className="space-y-6">
@@ -155,22 +147,6 @@ export default function InterviewDetailsModal({ isOpen, onClose, onStartIntervie
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2 opacity-50">
-            <Checkbox 
-              id="previous-knowledge" 
-              checked={usePreviousKnowledge}
-              onCheckedChange={(checked) => setUsePreviousKnowledge(checked === true)}
-              disabled
-            />
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="previous-knowledge" className="text-sm">
-                Use knowledge from previous interviews
-              </Label>
-              <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded">
-                Beta
-              </span>
-            </div>
-          </div>
         </div>
 
         <div className="pt-4">

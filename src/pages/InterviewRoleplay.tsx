@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +52,7 @@ const interviewerTemplates = [
 ];
 
 export default function InterviewRoleplay() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [isInterviewDetailsModalOpen, setIsInterviewDetailsModalOpen] = useState(false);
@@ -102,7 +104,7 @@ export default function InterviewRoleplay() {
       description: "Interview training session is beginning...",
     });
     setIsInterviewDetailsModalOpen(false);
-    // Here you would navigate to the actual interview training
+    navigate('/dashboard/interview-preparation');
   };
   return (
     <div className="p-6 space-y-6">
