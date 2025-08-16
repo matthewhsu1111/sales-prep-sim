@@ -33,8 +33,9 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Failed to generate speech');
+      const errorText = await response.text();
+      console.error('OpenAI TTS API error:', response.status, errorText);
+      throw new Error(`TTS API error: ${response.status} - ${errorText}`);
     }
 
     const arrayBuffer = await response.arrayBuffer();

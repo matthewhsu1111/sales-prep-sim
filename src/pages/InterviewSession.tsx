@@ -241,7 +241,7 @@ export default function InterviewSession() {
     }
   };
 
-  // Simplified audio playback using HTML Audio API
+  // Improved audio playback with better error handling
   const playAudioUsingHtmlAudio = async (base64Audio: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       try {
@@ -255,16 +255,21 @@ export default function InterviewSession() {
         const audio = new Audio();
         audioElementRef.current = audio;
         
-        // Set up audio data
-        const audioBlob = new Blob([Uint8Array.from(atob(base64Audio), c => c.charCodeAt(0))], { 
-          type: 'audio/mp3' 
-        });
+        // Convert base64 to blob URL for better compatibility
+        const binaryString = atob(base64Audio);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const audioBlob = new Blob([bytes], { type: 'audio/mp3' });
         const audioUrl = URL.createObjectURL(audioBlob);
         
         audio.src = audioUrl;
+        audio.volume = 0.8; // Set volume slightly lower
         
         audio.onended = () => {
-          console.log('🎵 Audio ended');
+          console.log('🎵 Audio playback ended');
           URL.revokeObjectURL(audioUrl);
           resolve();
         };
@@ -272,16 +277,26 @@ export default function InterviewSession() {
         audio.onerror = (error) => {
           console.error('🚨 Audio playback error:', error);
           URL.revokeObjectURL(audioUrl);
-          reject(error);
+          reject(new Error('Audio playback failed'));
         };
         
-        audio.oncanplaythrough = () => {
+        audio.oncanplay = () => {
           console.log('🎵 Audio ready to play');
           audio.play().catch(e => {
             console.error('🚨 Play failed:', e);
+            URL.revokeObjectURL(audioUrl);
             reject(e);
           });
         };
+        
+        // Add timeout for audio loading
+        setTimeout(() => {
+          if (audio.readyState < 3) { // HAVE_FUTURE_DATA
+            console.error('🚨 Audio loading timeout');
+            URL.revokeObjectURL(audioUrl);
+            reject(new Error('Audio loading timeout'));
+          }
+        }, 10000);
         
         audio.load();
       } catch (error) {
@@ -291,7 +306,7 @@ export default function InterviewSession() {
     });
   };
 
-  // Simplified continuous speech recognition
+  // Improved continuous speech recognition with noise filtering
   const startContinuousListening = async () => {
     console.log('🎤 Starting continuous listening...');
     
@@ -310,7 +325,7 @@ export default function InterviewSession() {
       setIsListening(true);
       console.log('✅ Microphone access granted');
       
-      // Create a simplified recording loop
+      // Create a simplified recording loop with better noise filtering
       const createNewRecording = () => {
         if (isProcessingRef.current || isAiSpeaking) {
           setTimeout(createNewRecording, 1000);
@@ -331,7 +346,7 @@ export default function InterviewSession() {
         
         mediaRecorder.onstop = async () => {
           if (isProcessingRef.current || audioChunksRef.current.length === 0) {
-            setTimeout(createNewRecording, 500);
+            setTimeout(createNewRecording, 1000);
             return;
           }
           
@@ -339,48 +354,70 @@ export default function InterviewSession() {
           
           try {
             const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+            
+            // Only process if the audio blob is substantial enough (reduce noise)
+            if (audioBlob.size < 10000) { // Skip very small audio chunks
+              console.log('⏭️ Skipping small audio chunk:', audioBlob.size, 'bytes');
+              isProcessingRef.current = false;
+              setTimeout(createNewRecording, 1000);
+              return;
+            }
+            
             const base64Audio = await blobToBase64(audioBlob);
             
-            console.log('🎤 Processing speech...');
+            console.log('🎤 Processing speech chunk size:', audioBlob.size, 'bytes');
             const { data, error } = await supabase.functions.invoke('speech-to-text', {
               body: { audio: base64Audio.split(',')[1] }
             });
             
             if (error) {
               console.error('🚨 STT error:', error);
-            } else if (data?.text && data.text.trim().length > 5) {
-              console.log('✅ Transcribed:', data.text);
+            } else if (data?.text) {
+              const transcribedText = data.text.trim();
+              console.log('📝 Raw transcription:', transcribedText);
               
-              const userMessage: Message = {
-                id: Date.now().toString(),
-                content: data.text,
-                sender: 'user',
-                timestamp: new Date()
-              };
+              // Filter out noise and very short responses
+              const minLength = 8;
+              const hasValidWords = /^[a-zA-Z0-9\s.,!?'-]+$/.test(transcribedText);
+              const isNotRepeated = !transcribedText.toLowerCase().includes('thank you') && 
+                                   !transcribedText.toLowerCase().includes('thanks for watching');
               
-              setMessages(prev => [...prev, userMessage]);
-              await getAIResponse(data.text);
+              if (transcribedText.length >= minLength && hasValidWords && isNotRepeated) {
+                console.log('✅ Valid transcription accepted:', transcribedText);
+                
+                const userMessage: Message = {
+                  id: Date.now().toString(),
+                  content: transcribedText,
+                  sender: 'user',
+                  timestamp: new Date()
+                };
+                
+                setMessages(prev => [...prev, userMessage]);
+                await getAIResponse(transcribedText);
+              } else {
+                console.log('🗑️ Filtered out transcription:', transcribedText, 'Length:', transcribedText.length, 'Valid words:', hasValidWords);
+              }
             }
           } catch (error) {
             console.error('❌ Speech processing error:', error);
           } finally {
             isProcessingRef.current = false;
-            setTimeout(createNewRecording, 1000);
+            setTimeout(createNewRecording, 2000); // Increased delay to reduce noise
           }
         };
         
         mediaRecorder.start();
         
-        // Record for 4 seconds then process
+        // Record for 5 seconds then process (longer chunks for better quality)
         setTimeout(() => {
           if (mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
           }
-        }, 4000);
+        }, 5000);
       };
       
-      // Start the first recording
-      setTimeout(createNewRecording, 1000);
+      // Start the first recording after a delay
+      setTimeout(createNewRecording, 2000);
       
     } catch (error) {
       console.error('❌ Microphone error:', error);
