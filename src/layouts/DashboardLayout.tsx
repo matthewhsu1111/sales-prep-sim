@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Mic, HelpCircle, LogOut, Settings, User } from "lucide-react";
@@ -28,6 +29,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
           
           <div className="flex items-center gap-3">
+            <Card className="bg-primary text-primary-foreground">
+              <CardContent className="p-2">
+                <div className="text-sm font-medium">999 Credits</div>
+              </CardContent>
+            </Card>
+            
             <Button variant="ghost" size="sm">
               <HelpCircle className="h-4 w-4" />
             </Button>

@@ -59,17 +59,10 @@ export default function InterviewRoleplay() {
             Each training session costs 1 credit
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <Card className="bg-primary text-primary-foreground">
-            <CardContent className="p-3">
-              <div className="text-sm font-medium">999 Credits</div>
-            </CardContent>
-          </Card>
-          <Button className="bg-primary hover:bg-primary/90">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Interviewer
-          </Button>
-        </div>
+        <Button className="bg-primary hover:bg-primary/90">
+          <Plus className="h-4 w-4 mr-2" />
+          Create Interviewer
+        </Button>
       </div>
 
       {/* Interviewer Templates Grid */}
