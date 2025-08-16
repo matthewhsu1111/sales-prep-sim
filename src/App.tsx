@@ -7,6 +7,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import Index from "./pages/Index";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import InterviewRoleplay from "./pages/InterviewRoleplay";
 import Signin from "./pages/Signin";
 import ProfileSetup from "./pages/ProfileSetup";
 import NotFound from "./pages/NotFound";
@@ -26,9 +27,22 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
-            <Route path="/dashboard/*" element={
+            <Route path="/dashboard" element={
               <DashboardLayout>
                 <Dashboard />
+              </DashboardLayout>
+            } />
+            <Route path="/dashboard/interview-roleplay" element={
+              <DashboardLayout>
+                <InterviewRoleplay />
+              </DashboardLayout>
+            } />
+            <Route path="/dashboard/careers" element={
+              <DashboardLayout>
+                <div className="p-6">
+                  <h1 className="text-3xl font-bold">Careers</h1>
+                  <p className="text-muted-foreground mt-2">Coming soon...</p>
+                </div>
               </DashboardLayout>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

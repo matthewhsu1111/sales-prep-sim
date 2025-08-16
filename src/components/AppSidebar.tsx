@@ -29,7 +29,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const dashboardItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Interview Roleplay", url: "/dashboard/roleplay", icon: Mic },
+  { title: "Interview Roleplay", url: "/dashboard/interview-roleplay", icon: Mic },
   { title: "Careers", url: "/dashboard/careers", icon: Target },
 ];
 
