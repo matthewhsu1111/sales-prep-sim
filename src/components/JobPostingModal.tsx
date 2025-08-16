@@ -38,26 +38,86 @@ export function JobPostingModal({ isOpen, onClose, onSave }: JobPostingModalProp
 
     setIsLoading(true);
     
-    // Simulate AI parsing of job description
+    // Enhanced AI parsing simulation - analyze the actual job description text
     setTimeout(() => {
-      // Mock auto-filled data based on the job description
-      setJobTitle("Software Engineer - Core Services");
-      setLevel("Senior");
-      setDescription("Core Services is hiring an exceptional engineer to help build a high throughput distributed platform that serves Posts, Users, and social relationships to all product surface areas on X. Are you prepared to join the X team and help build the ultimate real-time information-sharing app, revolutionizing how people connect? At X, we're on a mission to become the trusted global digital public square, committed to protecting freedom of speech and building the future unlimited interactivity. Our goal is to empower every user to freely create and share ideas, fostering open public discourse without barriers. Join us in shaping this thrilling journey where your contribution will be invaluable to our success!");
-      setRequirements([
-        "Proficient in Scala/Java or similar language; an expert in majority of language constructs, able to apply them fluently to solve fairly complex problems.",
-        "Designed a non-trivial distributed system (multi-tier) - storage layers, caching layers, application layers, understanding of failure modes, which are significantly different vs non-dist systems, expertise with caching (memcached and/or redis) at scale.",
-        "Microservice Architecture experience, especially with high throughput and low-latency systems.",
-        "Experience with performance tuning.",
-        "Has done a complex systems migration involving multiple phases with dark reads, dark writes, light reads, light writes."
-      ]);
-      setSkills(["distributed platform", "high throughput", "real-time information"]);
-      setLanguages(["Scala", "Java"]);
+      const text = jobDescription.toLowerCase();
+      
+      // Extract job title
+      let extractedTitle = "Software Engineer";
+      if (text.includes("frontend") || text.includes("front-end")) {
+        extractedTitle = "Frontend Developer";
+      } else if (text.includes("backend") || text.includes("back-end")) {
+        extractedTitle = "Backend Developer";
+      } else if (text.includes("fullstack") || text.includes("full-stack")) {
+        extractedTitle = "Full Stack Developer";
+      } else if (text.includes("data scientist")) {
+        extractedTitle = "Data Scientist";
+      } else if (text.includes("product manager")) {
+        extractedTitle = "Product Manager";
+      } else if (text.includes("designer") || text.includes("ui/ux")) {
+        extractedTitle = "UI/UX Designer";
+      } else if (text.includes("devops")) {
+        extractedTitle = "DevOps Engineer";
+      }
+
+      // Extract level
+      let extractedLevel = "Mid-level";
+      if (text.includes("junior") || text.includes("entry") || text.includes("0-2 years")) {
+        extractedLevel = "Junior";
+      } else if (text.includes("senior") || text.includes("5+ years") || text.includes("lead")) {
+        extractedLevel = "Senior";
+      } else if (text.includes("principal") || text.includes("staff") || text.includes("architect")) {
+        extractedLevel = "Principal";
+      }
+
+      // Extract programming languages
+      const detectedLanguages: string[] = [];
+      const languages = ["JavaScript", "TypeScript", "Python", "Java", "Scala", "Go", "Rust", "C++", "C#", "Ruby", "PHP", "Swift", "Kotlin"];
+      languages.forEach(lang => {
+        if (text.includes(lang.toLowerCase())) {
+          detectedLanguages.push(lang);
+        }
+      });
+
+      // Extract skills and technologies
+      const detectedSkills: string[] = [];
+      const skillKeywords = ["React", "Vue", "Angular", "Node.js", "Express", "Django", "Flask", "Spring", "AWS", "Docker", "Kubernetes", "MongoDB", "PostgreSQL", "Redis", "GraphQL", "REST API", "Microservices", "Machine Learning", "AI"];
+      skillKeywords.forEach(skill => {
+        if (text.includes(skill.toLowerCase())) {
+          detectedSkills.push(skill);
+        }
+      });
+
+      // Extract requirements
+      const extractedRequirements: string[] = [];
+      if (text.includes("experience") || text.includes("years")) {
+        extractedRequirements.push("Relevant professional experience in software development");
+      }
+      if (text.includes("degree") || text.includes("bachelor") || text.includes("computer science")) {
+        extractedRequirements.push("Bachelor's degree in Computer Science or related field");
+      }
+      if (text.includes("team") || text.includes("collaboration")) {
+        extractedRequirements.push("Strong collaboration and teamwork skills");
+      }
+      if (text.includes("problem solving") || text.includes("analytical")) {
+        extractedRequirements.push("Excellent problem-solving and analytical abilities");
+      }
+      if (text.includes("communication")) {
+        extractedRequirements.push("Strong verbal and written communication skills");
+      }
+
+      // Set extracted data
+      setJobTitle(extractedTitle);
+      setLevel(extractedLevel);
+      setDescription(jobDescription.slice(0, 500) + (jobDescription.length > 500 ? "..." : ""));
+      setRequirements(extractedRequirements.length > 0 ? extractedRequirements : ["Professional experience in relevant technologies", "Strong problem-solving abilities", "Team collaboration skills"]);
+      setSkills(detectedSkills.length > 0 ? detectedSkills : ["Software Development", "Problem Solving"]);
+      setLanguages(detectedLanguages.length > 0 ? detectedLanguages : ["JavaScript"]);
       setIsLoading(false);
       
       toast({
         title: "Success",
-        description: "Job description parsed successfully!",
+        description: "Job description parsed and analyzed successfully!",
       });
     }, 2000);
   };
@@ -100,12 +160,15 @@ export function JobPostingModal({ isOpen, onClose, onSave }: JobPostingModalProp
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="jobDescription">Job Description</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Find job descriptions on LinkedIn, Indeed, Upwork, AngelList, or company career pages
+              </p>
               <Textarea
                 id="jobDescription"
                 placeholder="Paste the job description here..."
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
-                className="min-h-[200px]"
+                className="min-h-[200px] bg-muted/30 border-border"
               />
             </div>
             
@@ -121,33 +184,35 @@ export function JobPostingModal({ isOpen, onClose, onSave }: JobPostingModalProp
           {/* Auto-filled fields */}
           {jobTitle && (
             <>
-              <div className="space-y-2">
-                <Label htmlFor="jobTitle">Job Title</Label>
-                <Input
-                  id="jobTitle"
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                />
-              </div>
+               <div className="space-y-2">
+                 <Label htmlFor="jobTitle">Job Title</Label>
+                 <Input
+                   id="jobTitle"
+                   value={jobTitle}
+                   onChange={(e) => setJobTitle(e.target.value)}
+                   className="bg-muted/30 border-border"
+                 />
+               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="level">Level</Label>
-                <Input
-                  id="level"
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value)}
-                />
-              </div>
+               <div className="space-y-2">
+                 <Label htmlFor="level">Level</Label>
+                 <Input
+                   id="level"
+                   value={level}
+                   onChange={(e) => setLevel(e.target.value)}
+                   className="bg-muted/30 border-border"
+                 />
+               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="min-h-[120px]"
-                />
-              </div>
+               <div className="space-y-2">
+                 <Label htmlFor="description">Description</Label>
+                 <Textarea
+                   id="description"
+                   value={description}
+                   onChange={(e) => setDescription(e.target.value)}
+                   className="min-h-[120px] bg-muted/30 border-border"
+                 />
+               </div>
 
               <div className="space-y-2">
                 <Label>Requirements</Label>
