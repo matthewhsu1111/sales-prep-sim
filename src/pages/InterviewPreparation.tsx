@@ -25,7 +25,10 @@ export default function InterviewPreparation() {
   const animationFrameRef = useRef<number>();
 
   useEffect(() => {
-    checkPermissions();
+    // Reset permissions to prompt state on every page load
+    setMicPermission('prompt');
+    setCameraPermission('prompt');
+    
     return () => {
       // Cleanup streams on unmount
       if (micStream) {
@@ -56,15 +59,22 @@ export default function InterviewPreparation() {
     animationFrameRef.current = requestAnimationFrame(analyzeAudioLevel);
   };
 
-  const checkPermissions = async () => {
-    try {
-      const micPermissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-      const cameraPermissionStatus = await navigator.permissions.query({ name: 'camera' as PermissionName });
-      
-      setMicPermission(micPermissionStatus.state);
-      setCameraPermission(cameraPermissionStatus.state);
-    } catch (error) {
-      console.log('Permission check not supported, will request during test');
+  const resetTests = () => {
+    setMicPermission('prompt');
+    setCameraPermission('prompt');
+    setShowCameraPreview(false);
+    
+    // Stop any active streams
+    if (micStream) {
+      micStream.getTracks().forEach(track => track.stop());
+      setMicStream(null);
+    }
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
   };
 
@@ -210,15 +220,32 @@ export default function InterviewPreparation() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button 
-                onClick={testMicrophone}
-                disabled={isTestingMic || micPermission === 'granted'}
-                className="w-full"
-                variant={micPermission === 'granted' ? 'secondary' : 'default'}
-              >
-                <Volume2 className="h-4 w-4 mr-2" />
-                {isTestingMic ? `Testing... ${testCountdown}` : micPermission === 'granted' ? 'Microphone Ready' : 'Test Mic'}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={testMicrophone}
+                  disabled={isTestingMic}
+                  className="flex-1"
+                  variant={micPermission === 'granted' ? 'secondary' : 'default'}
+                >
+                  <Volume2 className="h-4 w-4 mr-2" />
+                  {isTestingMic ? `Testing... ${testCountdown}` : micPermission === 'granted' ? 'Microphone Ready' : 'Test Mic'}
+                </Button>
+                {micPermission === 'granted' && (
+                  <Button 
+                    onClick={() => {
+                      setMicPermission('prompt');
+                      if (micStream) {
+                        micStream.getTracks().forEach(track => track.stop());
+                        setMicStream(null);
+                      }
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Test Again
+                  </Button>
+                )}
+              </div>
               
               {isTestingMic && (
                 <div className="space-y-2">
@@ -248,15 +275,29 @@ export default function InterviewPreparation() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button 
-                onClick={enableCamera}
-                disabled={cameraPermission === 'granted'}
-                className="w-full"
-                variant={cameraPermission === 'granted' ? 'secondary' : 'default'}
-              >
-                <Video className="h-4 w-4 mr-2" />
-                {cameraPermission === 'granted' ? 'Camera Ready' : 'Enable Camera'}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={enableCamera}
+                  disabled={cameraPermission === 'granted'}
+                  className="flex-1"
+                  variant={cameraPermission === 'granted' ? 'secondary' : 'default'}
+                >
+                  <Video className="h-4 w-4 mr-2" />
+                  {cameraPermission === 'granted' ? 'Camera Ready' : 'Enable Camera'}
+                </Button>
+                {cameraPermission === 'granted' && (
+                  <Button 
+                    onClick={() => {
+                      setCameraPermission('prompt');
+                      stopCameraPreview();
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Test Again
+                  </Button>
+                )}
+              </div>
               
               {showCameraPreview && (
                 <div className="space-y-3">
