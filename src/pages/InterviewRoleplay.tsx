@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Users, BarChart3, Plus } from "lucide-react";
+import rebeccaMartinez from "@/assets/rebecca-martinez.jpg";
+import jakeThompson from "@/assets/jake-thompson.jpg";
+import michaelChen from "@/assets/michael-chen.jpg";
 import JobPostingModal from "@/components/JobPostingModal";
 import InterviewDetailsModal from "@/components/InterviewDetailsModal";
 import { useToast } from "@/hooks/use-toast";
@@ -11,45 +14,54 @@ import { supabase } from "@/integrations/supabase/client";
 
 const interviewerTemplates = [
   {
-    id: "strict-no-bs",
-    name: "Strict, No BS",
-    description: "Direct and to-the-point interviewer",
-    testingFocus: "Tests resilience, confidence, and results-focus",
-    personality: "Direct and to-the-point",
+    id: "strict_no_bs",
+    name: "Rebecca Martinez",
+    title: "Senior Sales Director",
+    description: "Direct and results-focused interviewer who values efficiency above all else",
+    testingFocus: "Tests resilience, confidence, and results-focus under pressure",
+    personality: "15+ years in sales leadership, no-nonsense approach, tough but fair",
     traits: [
-      "Minimal small talk",
-      "Focuses on results and competency", 
-      "No-nonsense approach"
+      "Cuts straight to business metrics",
+      "Challenges claims aggressively", 
+      "Focuses heavily on quotas and numbers",
+      "Uses phrases like 'Bottom line is...'",
+      "Tests objection handling with pushback"
     ],
-    icon: User,
+    image: rebeccaMartinez,
     color: "bg-red-500"
   },
   {
-    id: "casual-conversational", 
-    name: "Casual, Conversational",
-    description: "Friendly and relaxed interviewer",
-    testingFocus: "Tests interpersonal skills and culture fit",
-    personality: "Treats it like a friendly chat",
+    id: "casual_conversational", 
+    name: "Jake Thompson",
+    title: "Sales Team Lead",
+    description: "Friendly team leader who values culture fit and relationship-building",
+    testingFocus: "Tests interpersonal skills, teamwork, and cultural alignment",
+    personality: "Believes great salespeople are naturally social and relationship-builders",
     traits: [
-      "Asks personal questions to build rapport",
-      "Relaxed, informal approach",
-      "Conversational style"
+      "Starts with genuine small talk",
+      "Asks about motivations and goals",
+      "Shares personal experiences naturally",
+      "Uses humor and casual language",
+      "Focuses on collaboration and teamwork"
     ],
-    icon: Users,
+    image: jakeThompson,
     color: "bg-green-500"
   },
   {
-    id: "analytical-detailed",
-    name: "Analytical, Detail-Oriented", 
-    description: "Deep-dive technical interviewer",
-    testingFocus: "Tests process knowledge and systematic thinking",
-    personality: "Digs deep into specifics and metrics",
+    id: "analytical_detail_oriented",
+    name: "Michael Chen",
+    title: "Sales Operations Manager", 
+    description: "Process-driven analyst who believes success comes from systematic approaches",
+    testingFocus: "Tests analytical thinking, process knowledge, and data-driven decision making",
+    personality: "Finance/analytics background, methodical questioning, precise communication",
     traits: [
-      "Asks lots of follow-up questions",
-      "Wants concrete examples and data",
-      "Technical precision focus"
+      "Asks detailed follow-up questions",
+      "Requests specific metrics and conversions",
+      "Breaks down processes step-by-step",
+      "Focuses on CRM usage and systems",
+      "Values systematic approaches"
     ],
-    icon: BarChart3,
+    image: michaelChen,
     color: "bg-blue-500"
   }
 ];
@@ -111,7 +123,7 @@ export default function InterviewRoleplay() {
     navigate('/dashboard/interview-preparation', { 
       state: { 
         interviewDetails: {
-          jobPosting: { id: details.jobPostingId }, // Convert jobPostingId to jobPosting object
+          jobPosting: details.jobPosting, // Pass full job posting object
           interviewType: details.interviewType,
           numberOfQuestions: details.numberOfQuestions
         }
@@ -140,14 +152,18 @@ export default function InterviewRoleplay() {
       {/* Interviewer Templates Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {interviewerTemplates.map((template) => {
-          const IconComponent = template.icon;
           return (
             <Card key={template.id} className="hover:shadow-lg transition-all duration-300">
               <CardHeader className="text-center pb-4">
-                <div className={`mx-auto rounded-full ${template.color} text-white mb-4 w-20 h-20 flex items-center justify-center`}>
-                  <IconComponent className="h-10 w-10" />
+                <div className="mx-auto mb-4 w-20 h-20 rounded-full overflow-hidden bg-gray-100">
+                  <img 
+                    src={template.image} 
+                    alt={template.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <CardTitle className="text-xl">{template.name}</CardTitle>
+                <Badge variant="secondary" className="mb-2">{template.title}</Badge>
                 <CardDescription className="text-muted-foreground">{template.description}</CardDescription>
               </CardHeader>
               

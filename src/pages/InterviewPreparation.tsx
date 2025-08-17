@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -8,9 +8,17 @@ import { Mic, Video, Volume2, CheckCircle, AlertTriangle, Info, Play, Pause, Set
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
+interface InterviewDetails {
+  jobPosting: any;
+  interviewType: string;
+  numberOfQuestions: number;
+}
+
 export default function InterviewPreparation() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const [interviewDetails, setInterviewDetails] = useState<InterviewDetails | null>(null);
   const [micPermission, setMicPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [isTestingMic, setIsTestingMic] = useState(false);
@@ -40,6 +48,21 @@ export default function InterviewPreparation() {
   const audioLevelsRef = useRef<number[]>([]);
 
   useEffect(() => {
+    // Check if interview details were passed from previous page
+    const state = location.state as { interviewDetails?: InterviewDetails };
+    if (state?.interviewDetails) {
+      setInterviewDetails(state.interviewDetails);
+    } else {
+      // No interview details found, redirect to dashboard
+      toast({
+        title: "Setup Error",
+        description: "Interview details not found. Redirecting to dashboard...",
+        variant: "destructive"
+      });
+      navigate('/dashboard');
+      return;
+    }
+
     // Reset permissions to prompt state on every page load
     setMicPermission('prompt');
     setCameraPermission('prompt');
@@ -314,8 +337,10 @@ export default function InterviewPreparation() {
   const canStartInterview = micPermission === 'granted' && cameraPermission === 'granted';
 
   const handleStartInterview = () => {
-    if (canStartInterview) {
-      navigate('/dashboard/interview-session');
+    if (canStartInterview && interviewDetails) {
+      navigate('/dashboard/interview-session', {
+        state: { interviewDetails }
+      });
     }
   };
 

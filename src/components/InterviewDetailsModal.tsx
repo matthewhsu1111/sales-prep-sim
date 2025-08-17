@@ -21,7 +21,7 @@ interface InterviewDetailsModalProps {
 }
 
 interface InterviewDetails {
-  jobPostingId: string;
+  jobPosting: JobPosting;
   interviewType: string;
   numberOfQuestions: number;
 }
@@ -69,11 +69,14 @@ export default function InterviewDetailsModal({ isOpen, onClose, onStartIntervie
 
   const handleStartInterview = () => {
     if (isFormValid) {
-      onStartInterview({
-        jobPostingId: selectedJobPosting,
-        interviewType: selectedInterviewType,
-        numberOfQuestions: parseInt(selectedQuestions)
-      });
+      const selectedJob = jobPostings.find(job => job.id === selectedJobPosting);
+      if (selectedJob) {
+        onStartInterview({
+          jobPosting: selectedJob,
+          interviewType: selectedInterviewType,
+          numberOfQuestions: parseInt(selectedQuestions)
+        });
+      }
     }
   };
 
