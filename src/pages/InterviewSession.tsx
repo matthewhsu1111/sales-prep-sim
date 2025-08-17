@@ -41,6 +41,8 @@ export default function InterviewSession() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [interviewStarted, setInterviewStarted] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -66,9 +68,9 @@ export default function InterviewSession() {
     };
   }, [cameraStream]);
 
-  // Initialize camera with better error handling
-  const initializeCamera = async () => {
-    console.log('🎥 Initializing camera...');
+  // Initialize camera with better error handling and retry mechanism
+  const initializeCamera = async (retryCount = 0) => {
+    console.log('🎥 Initializing camera... (attempt', retryCount + 1, ')');
     try {
       console.log('📱 Requesting camera permissions...');
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -84,32 +86,55 @@ export default function InterviewSession() {
       setCameraStream(stream);
       setCameraError(null);
       
-      // Wait for video element to be ready
+      // Add delay to ensure video element is ready
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       if (videoRef.current) {
         console.log('📺 Assigning stream to video element...');
         videoRef.current.srcObject = stream;
         
-        // Ensure video loads and plays
+        // Set up event handlers before loading
         videoRef.current.onloadedmetadata = () => {
           console.log('📹 Video metadata loaded, dimensions:', videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight);
-          videoRef.current?.play()
-            .then(() => console.log('✅ Video playing'))
-            .catch(e => console.error('❌ Video play error:', e));
+          if (videoRef.current) {
+            videoRef.current.play()
+              .then(() => {
+                console.log('✅ Video playing successfully');
+                setCameraError(null);
+              })
+              .catch(e => {
+                console.error('❌ Video play error:', e);
+                setCameraError('Video playback failed');
+              });
+          }
         };
         
         videoRef.current.onerror = (e) => {
           console.error('❌ Video element error:', e);
           setCameraError('Video display error');
         };
+        
+        // Force video to load
+        videoRef.current.load();
       } else {
         console.error('❌ Video ref is null!');
+        setCameraError('Video element not ready');
       }
     } catch (error) {
       console.error('❌ Camera error:', error);
-      setCameraError('Camera access denied or not available');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown camera error';
+      
+      // Retry up to 3 times with increasing delays
+      if (retryCount < 2) {
+        console.log('🔄 Retrying camera initialization in', (retryCount + 1) * 1000, 'ms...');
+        setTimeout(() => initializeCamera(retryCount + 1), (retryCount + 1) * 1000);
+        return;
+      }
+      
+      setCameraError(`Camera access failed: ${errorMessage}`);
       toast({
         title: "Camera Error",
-        description: "Could not access camera. Please check permissions.",
+        description: "Could not access camera. Please check permissions and try refreshing the page.",
         variant: "destructive",
       });
     }
@@ -120,54 +145,85 @@ export default function InterviewSession() {
     console.log('🔍 Component mounted, state:', state);
     console.log('🔍 interviewDetails:', interviewDetails);
     
-    if (interviewDetails) {
-      console.log('🚀 Starting interview session...');
-      setIsLoading(true);
-      
-      const initializeInterview = async () => {
-        try {
-          console.log('🎥 About to initialize camera...');
-          await initializeCamera();
-          console.log('✅ Camera initialization complete');
-          
-          console.log('📚 About to get questions...');
-          console.log('📚 Interview type:', interviewDetails.interviewType);
-          console.log('📚 Number of questions:', interviewDetails.numberOfQuestions);
-          
-          const questions = getQuestionsForInterview(
-            interviewDetails.interviewType, 
-            interviewDetails.numberOfQuestions
-          );
-          
-          console.log('📝 Questions loaded:', questions.length);
-          if (questions[0]) {
-            console.log('📝 First question preview:', questions[0].substring(0, 50));
-          }
-          
-          if (questions.length > 0) {
-            console.log('🎤 About to start continuous listening...');
-            await startContinuousListening();
-            console.log('✅ Continuous listening started');
-            
-            console.log('🎭 About to start interview...');
-            await startInterview(questions[0]);
-            console.log('✅ Interview started');
-          } else {
-            console.error('❌ No questions found!');
-          }
-        } catch (error) {
-          console.error('❌ Interview initialization error:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      
-      initializeInterview();
-    } else {
+    if (!interviewDetails) {
       console.error('❌ No interview details found in state!');
-      console.log('🔍 Current location state:', state);
+      toast({
+        title: "Setup Error",
+        description: "Interview details not found. Redirecting to dashboard.",
+        variant: "destructive",
+      });
+      navigate('/dashboard');
+      return;
     }
-  }, [interviewDetails, state]);
+
+    const initializeInterview = async () => {
+      try {
+        console.log('🎥 Initializing camera...');
+        await initializeCamera();
+        console.log('✅ Camera ready');
+        
+        setIsLoading(false);
+        console.log('✅ Ready for user to start interview');
+      } catch (error) {
+        console.error('❌ Setup error:', error);
+        setIsLoading(false);
+      }
+    };
+    
+    initializeInterview();
+  }, [interviewDetails, navigate]);
+
+  // Function to start the actual interview (called by user button)
+  const startActualInterview = async () => {
+    if (!audioEnabled) {
+      // Enable audio with user gesture
+      try {
+        const audioContext = new AudioContext();
+        await audioContext.resume();
+        setAudioEnabled(true);
+        console.log('✅ Audio enabled by user gesture');
+      } catch (error) {
+        console.error('❌ Audio enable error:', error);
+        toast({
+          title: "Audio Error",
+          description: "Could not enable audio. Interview will continue without AI voice.",
+          variant: "destructive",
+        });
+      }
+    }
+
+    setInterviewStarted(true);
+    setIsLoading(true);
+
+    try {
+      console.log('📚 Getting questions...');
+      const questions = getQuestionsForInterview(
+        interviewDetails.interviewType, 
+        interviewDetails.numberOfQuestions
+      );
+      
+      if (questions.length === 0) {
+        throw new Error('No questions available');
+      }
+
+      console.log('🎤 Starting continuous listening...');
+      await startContinuousListening();
+      
+      console.log('🎭 Starting interview...');
+      await startInterview(questions[0]);
+      
+    } catch (error) {
+      console.error('❌ Interview start error:', error);
+      toast({
+        title: "Interview Error",
+        description: "Failed to start interview. Please try again.",
+        variant: "destructive",
+      });
+      setInterviewStarted(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const startInterview = async (firstQuestion: string) => {
     console.log('🎭 Starting interview with first question:', firstQuestion.substring(0, 50) + '...');
@@ -241,64 +297,71 @@ export default function InterviewSession() {
     }
   };
 
-  // Improved audio playback with better error handling
+  // Simplified audio playback with user gesture requirement
   const playAudioUsingHtmlAudio = async (base64Audio: string): Promise<void> => {
+    if (!audioEnabled) {
+      console.log('⏭️ Audio disabled, skipping playback');
+      return Promise.resolve();
+    }
+
     return new Promise((resolve, reject) => {
       try {
-        // Clean up previous audio element
+        // Clean up previous audio
         if (audioElementRef.current) {
           audioElementRef.current.pause();
-          audioElementRef.current.src = '';
+          audioElementRef.current.remove();
         }
         
-        // Create new audio element
+        // Create audio element
         const audio = new Audio();
         audioElementRef.current = audio;
         
-        // Convert base64 to blob URL for better compatibility
-        const binaryString = atob(base64Audio);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
+        // Convert base64 to data URL (simpler approach)
+        const audioSrc = `data:audio/mp3;base64,${base64Audio}`;
+        audio.src = audioSrc;
+        audio.volume = 0.7;
+        audio.preload = 'auto';
         
-        const audioBlob = new Blob([bytes], { type: 'audio/mp3' });
-        const audioUrl = URL.createObjectURL(audioBlob);
+        let resolved = false;
         
-        audio.src = audioUrl;
-        audio.volume = 0.8; // Set volume slightly lower
+        const cleanup = () => {
+          if (!resolved) {
+            resolved = true;
+            audio.remove();
+          }
+        };
         
         audio.onended = () => {
-          console.log('🎵 Audio playback ended');
-          URL.revokeObjectURL(audioUrl);
+          console.log('🎵 Audio ended');
+          cleanup();
           resolve();
         };
         
-        audio.onerror = (error) => {
-          console.error('🚨 Audio playback error:', error);
-          URL.revokeObjectURL(audioUrl);
+        audio.onerror = (e) => {
+          console.error('🚨 Audio error:', e);
+          cleanup();
           reject(new Error('Audio playback failed'));
         };
         
-        audio.oncanplay = () => {
-          console.log('🎵 Audio ready to play');
-          audio.play().catch(e => {
+        // Timeout after 30 seconds
+        setTimeout(() => {
+          if (!resolved) {
+            console.error('🚨 Audio timeout');
+            cleanup();
+            reject(new Error('Audio timeout'));
+          }
+        }, 30000);
+        
+        // Try to play immediately
+        console.log('🎵 Starting audio playback...');
+        audio.play()
+          .then(() => console.log('✅ Audio playing'))
+          .catch(e => {
             console.error('🚨 Play failed:', e);
-            URL.revokeObjectURL(audioUrl);
+            cleanup();
             reject(e);
           });
-        };
-        
-        // Add timeout for audio loading
-        setTimeout(() => {
-          if (audio.readyState < 3) { // HAVE_FUTURE_DATA
-            console.error('🚨 Audio loading timeout');
-            URL.revokeObjectURL(audioUrl);
-            reject(new Error('Audio loading timeout'));
-          }
-        }, 10000);
-        
-        audio.load();
+          
       } catch (error) {
         console.error('🚨 Audio setup error:', error);
         reject(error);
@@ -306,7 +369,7 @@ export default function InterviewSession() {
     });
   };
 
-  // Improved continuous speech recognition with noise filtering
+  // Simplified speech recognition with better filtering
   const startContinuousListening = async () => {
     console.log('🎤 Starting continuous listening...');
     
@@ -325,10 +388,10 @@ export default function InterviewSession() {
       setIsListening(true);
       console.log('✅ Microphone access granted');
       
-      // Create a simplified recording loop with better noise filtering
-      const createNewRecording = () => {
-        if (isProcessingRef.current || isAiSpeaking) {
-          setTimeout(createNewRecording, 1000);
+      // Simplified recording with longer intervals
+      const createRecording = () => {
+        if (isProcessingRef.current || isAiSpeaking || !streamRef.current) {
+          setTimeout(createRecording, 2000);
           return;
         }
         
@@ -346,26 +409,25 @@ export default function InterviewSession() {
         
         mediaRecorder.onstop = async () => {
           if (isProcessingRef.current || audioChunksRef.current.length === 0) {
-            setTimeout(createNewRecording, 1000);
+            setTimeout(createRecording, 2000);
             return;
           }
           
           isProcessingRef.current = true;
+          console.log('🎤 Processing speech...');
           
           try {
             const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
             
-            // Only process if the audio blob is substantial enough (reduce noise)
-            if (audioBlob.size < 10000) { // Skip very small audio chunks
+            // Only process substantial audio chunks
+            if (audioBlob.size < 15000) {
               console.log('⏭️ Skipping small audio chunk:', audioBlob.size, 'bytes');
               isProcessingRef.current = false;
-              setTimeout(createNewRecording, 1000);
+              setTimeout(createRecording, 2000);
               return;
             }
             
             const base64Audio = await blobToBase64(audioBlob);
-            
-            console.log('🎤 Processing speech chunk size:', audioBlob.size, 'bytes');
             const { data, error } = await supabase.functions.invoke('speech-to-text', {
               body: { audio: base64Audio.split(',')[1] }
             });
@@ -373,51 +435,53 @@ export default function InterviewSession() {
             if (error) {
               console.error('🚨 STT error:', error);
             } else if (data?.text) {
-              const transcribedText = data.text.trim();
-              console.log('📝 Raw transcription:', transcribedText);
+              const text = data.text.trim();
+              console.log('📝 Transcribed:', text);
               
-              // Filter out noise and very short responses
-              const minLength = 8;
-              const hasValidWords = /^[a-zA-Z0-9\s.,!?'-]+$/.test(transcribedText);
-              const isNotRepeated = !transcribedText.toLowerCase().includes('thank you') && 
-                                   !transcribedText.toLowerCase().includes('thanks for watching');
+              // Enhanced filtering
+              const isValid = text.length >= 10 && 
+                             /[a-zA-Z]/.test(text) &&
+                             !text.toLowerCase().includes('thank you') &&
+                             !text.toLowerCase().includes('thanks for watching') &&
+                             !text.toLowerCase().includes('music') &&
+                             !/^[^\w]*$/.test(text);
               
-              if (transcribedText.length >= minLength && hasValidWords && isNotRepeated) {
-                console.log('✅ Valid transcription accepted:', transcribedText);
-                
+              if (isValid) {
+                console.log('✅ Valid speech accepted');
                 const userMessage: Message = {
                   id: Date.now().toString(),
-                  content: transcribedText,
+                  content: text,
                   sender: 'user',
                   timestamp: new Date()
                 };
                 
                 setMessages(prev => [...prev, userMessage]);
-                await getAIResponse(transcribedText);
+                await getAIResponse(text);
               } else {
-                console.log('🗑️ Filtered out transcription:', transcribedText, 'Length:', transcribedText.length, 'Valid words:', hasValidWords);
+                console.log('🗑️ Filtered out speech:', text);
               }
             }
           } catch (error) {
             console.error('❌ Speech processing error:', error);
           } finally {
             isProcessingRef.current = false;
-            setTimeout(createNewRecording, 2000); // Increased delay to reduce noise
+            setTimeout(createRecording, 3000); // Longer delay between recordings
           }
         };
         
+        console.log('🎤 Starting recording...');
         mediaRecorder.start();
         
-        // Record for 5 seconds then process (longer chunks for better quality)
+        // Record for 7 seconds
         setTimeout(() => {
           if (mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
           }
-        }, 5000);
+        }, 7000);
       };
       
-      // Start the first recording after a delay
-      setTimeout(createNewRecording, 2000);
+      // Start after delay
+      setTimeout(createRecording, 3000);
       
     } catch (error) {
       console.error('❌ Microphone error:', error);
@@ -500,136 +564,202 @@ export default function InterviewSession() {
   };
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
-      {/* Top Navigation Bar - Floating */}
-      <div className="m-4 mb-2">
-        <div className="h-12 bg-card rounded-lg border flex items-center justify-between px-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xs">I</span>
-            </div>
-            <h1 className="text-base font-semibold text-foreground">InterviewAI</h1>
-          </div>
-          <Button
-            onClick={handleBackToDashboard}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Back
-          </Button>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+      {/* Top Navigation */}
+      <div className="flex items-center justify-between p-4 bg-card/80 backdrop-blur-sm border-b">
+        <Button
+          variant="ghost"
+          onClick={handleBackToDashboard}
+          className="flex items-center gap-2 hover:bg-accent"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
+        </Button>
+        <h1 className="text-xl font-semibold">
+          AI Interview Session - {interviewDetails?.interviewType}
+        </h1>
+        <div></div> {/* Spacer */}
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex gap-4 px-4 pb-4 min-h-0">
-        {/* Left Side - Transcript */}
-        <div className="w-1/3 bg-card rounded-lg border flex flex-col min-h-0">
-          <div className="p-3 border-b flex-shrink-0">
-            <h2 className="text-sm font-medium text-foreground">Transcript</h2>
-          </div>
-          <ScrollArea className="flex-1 p-3 min-h-0">
-            <div className="space-y-3">
-              {messages.length === 0 ? (
-                <div className="text-center text-muted-foreground text-xs mt-4">
-                  Starting interview...
+      <div className="container max-w-7xl mx-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-120px)]">
+          {/* Left Column - Interview Transcript */}
+          <div className="lg:col-span-2">
+            <Card className="h-full">
+              <CardContent className="p-0 h-full flex flex-col">
+                <div className="p-4 border-b bg-muted/50">
+                  <h2 className="font-semibold text-lg">Interview Transcript</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Question {currentQuestionIndex + 1} of {interviewDetails?.numberOfQuestions}
+                  </p>
                 </div>
-              ) : (
-                messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[85%] rounded-xl px-3 py-2 ${
-                        message.sender === 'ai'
-                          ? 'bg-secondary text-secondary-foreground'
-                          : 'bg-primary text-primary-foreground'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1 mb-1">
-                        {message.sender === 'ai' ? (
-                          <Bot className="h-3 w-3" />
-                        ) : (
-                          <User className="h-3 w-3" />
-                        )}
-                        <span className="text-xs opacity-70 font-medium">
-                          {message.sender === 'ai' ? 'AI' : 'You'}
-                        </span>
+                
+                <ScrollArea className="flex-1 p-4">
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-32">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                        <p className="text-sm text-muted-foreground">
+                          {interviewStarted ? "Starting interview..." : "Setting up camera and microphone..."}
+                        </p>
                       </div>
-                      <p className="text-xs leading-relaxed">{message.content}</p>
+                    </div>
+                  ) : !interviewStarted ? (
+                    <div className="flex items-center justify-center h-32">
+                      <div className="text-center space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                          <Bot className="h-8 w-8 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold mb-2">Ready to Start Your Interview</h3>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Click the button below to begin your {interviewDetails?.interviewType} interview.
+                            This will enable audio and start the conversation.
+                          </p>
+                          <Button onClick={startActualInterview} size="lg" className="px-8">
+                            Start Interview
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex gap-3 ${
+                            message.sender === 'ai' ? 'justify-start' : 'justify-end'
+                          }`}
+                        >
+                          {message.sender === 'ai' && (
+                            <Avatar className="w-8 h-8">
+                              <AvatarFallback className="bg-primary text-primary-foreground">
+                                <Bot className="h-4 w-4" />
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                          
+                          <div
+                            className={`max-w-[80%] rounded-lg p-3 ${
+                              message.sender === 'ai'
+                                ? 'bg-muted text-foreground'
+                                : 'bg-primary text-primary-foreground'
+                            }`}
+                          >
+                            <p className="text-sm">{message.content}</p>
+                            <p className="text-xs opacity-70 mt-1">
+                              {message.timestamp.toLocaleTimeString()}
+                            </p>
+                          </div>
+                          
+                          {message.sender === 'user' && (
+                            <Avatar className="w-8 h-8">
+                              <AvatarFallback className="bg-secondary">
+                                <User className="h-4 w-4" />
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - AI Interviewer & Camera */}
+          <div className="space-y-6">
+            {/* AI Interviewer Status */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center space-y-3">
+                  <Avatar className="w-16 h-16 mx-auto">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xl">
+                      <Bot className="h-8 w-8" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-semibold">AI Interviewer</h3>
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      {isAiSpeaking ? (
+                        <>
+                          <div className="animate-pulse w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-sm text-green-600">Speaking...</span>
+                        </>
+                      ) : interviewStarted ? (
+                        <>
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span className="text-sm text-blue-600">Listening</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
+                          <span className="text-sm text-muted-foreground">Ready</span>
+                        </>
+                      )}
                     </div>
                   </div>
-                ))
-              )}
-            </div>
-          </ScrollArea>
-        </div>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Right Side - AI & Camera */}
-        <div className="w-2/3 flex flex-col gap-4 min-h-0">
-          {/* AI Interviewer Section */}
-          <div className="flex-1 bg-card rounded-lg border flex flex-col items-center justify-center p-4 min-h-0">
-            <div className="text-center">
-              <Avatar 
-                className={`h-16 w-16 mx-auto mb-3 ${
-                  isAiSpeaking ? 'animate-pulse ring-4 ring-primary/30' : ''
-                } transition-all duration-300`}
-              >
-                <AvatarFallback className="bg-primary text-primary-foreground">
-                  <Bot className="h-8 w-8" />
-                </AvatarFallback>
-              </Avatar>
-              <h3 className="text-lg font-medium text-foreground mb-1">AI Interviewer</h3>
-              <p className="text-xs text-muted-foreground">
-                {isAiSpeaking ? 'Speaking...' : isListening ? 'Listening...' : 'Ready'}
-              </p>
-            </div>
-          </div>
-
-          {/* User's Camera Section */}
-          <div className="flex-1 bg-card rounded-lg border flex flex-col items-center justify-center p-4 min-h-0">
-            <div className="text-center mb-3">
-              <h3 className="text-lg font-medium text-foreground">Your Camera</h3>
-            </div>
-            <div className="relative bg-black rounded-lg overflow-hidden w-full max-w-sm aspect-video">
-              {cameraError ? (
-                <div className="w-full h-full flex items-center justify-center text-white text-sm">
-                  <div className="text-center">
-                    <div className="mb-2">📷</div>
-                    <div>{cameraError}</div>
-                    <Button 
-                      onClick={initializeCamera} 
-                      variant="outline" 
-                      size="sm" 
-                      className="mt-2"
-                    >
-                      Retry Camera
-                    </Button>
+            {/* User Camera Feed */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center space-y-3">
+                  <h3 className="font-semibold">Your Camera</h3>
+                  <div className="relative rounded-lg overflow-hidden bg-muted aspect-video">
+                    {cameraError ? (
+                      <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
+                        <div className="text-center">
+                          <div className="w-12 h-12 rounded-full bg-muted-foreground/20 flex items-center justify-center mx-auto mb-2">
+                            <User className="h-6 w-6" />
+                          </div>
+                          <p>{cameraError}</p>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => initializeCamera(0)}
+                            className="mt-2"
+                          >
+                            Retry Camera
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  
+                  {/* Status Indicators */}
+                  <div className="flex justify-center gap-4 text-xs">
+                    <div className="flex items-center gap-1">
+                      {isListening ? (
+                        <Mic className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <MicOff className="h-3 w-3 text-muted-foreground" />
+                      )}
+                      <span className={isListening ? "text-green-600" : "text-muted-foreground"}>
+                        {isListening ? "Listening" : "Not listening"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className={`h-3 w-3 rounded-full ${audioEnabled ? 'bg-blue-500' : 'bg-muted-foreground'}`}></div>
+                      <span className={audioEnabled ? "text-blue-600" : "text-muted-foreground"}>
+                        {audioEnabled ? "Audio enabled" : "Audio disabled"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover scale-x-[-1]"
-                  onLoadedMetadata={() => console.log('📹 Video metadata loaded')}
-                  onError={(e) => {
-                    console.error('📹 Video error:', e);
-                    setCameraError('Video display error');
-                  }}
-                />
-              )}
-              
-              {/* Status indicators */}
-              <div className="absolute top-2 right-2 flex gap-1">
-                <div className={`h-2 w-2 rounded-full ${isListening && !isAiSpeaking ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
-                {isLoading && <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></div>}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
