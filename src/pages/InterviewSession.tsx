@@ -498,21 +498,22 @@ export default function InterviewSession() {
     
     try {
       const { data, error } = await supabase.functions.invoke('ai-interviewer', {
-        body: {
+        body: { 
           message: userMessage,
           jobPosting: interviewDetails?.jobPosting,
           interviewType: interviewDetails?.interviewType,
-          questionContext: `This is question ${currentQuestionIndex + 1} of ${interviewDetails?.numberOfQuestions}`
+          numberOfQuestions: interviewDetails?.numberOfQuestions,
+          questionContext: `Question ${currentQuestionIndex + 1} of ${interviewDetails?.numberOfQuestions}`
         }
       });
       
       if (error) {
-        console.error('🚨 AI response error:', error);
-        return;
+        console.error('❌ AI response error:', error);
+        throw error;
       }
       
       if (data?.response) {
-        console.log('✅ AI responded:', data.response.substring(0, 50) + '...');
+        console.log('✅ AI response received:', data.response.substring(0, 50) + '...');
         
         const aiMessage: Message = {
           id: Date.now().toString(),
@@ -522,11 +523,19 @@ export default function InterviewSession() {
         };
         
         setMessages(prev => [...prev, aiMessage]);
+        
+        // Speak the AI response
         await speakMessage(data.response);
+        
         setCurrentQuestionIndex(prev => prev + 1);
       }
     } catch (error) {
       console.error('❌ AI response error:', error);
+      toast({
+        title: "AI Error",
+        description: "Could not get AI response. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -540,9 +549,7 @@ export default function InterviewSession() {
   };
 
   const handleBackToDashboard = () => {
-    console.log('🔄 Cleaning up and returning to dashboard...');
-    
-    // Clean up all media before navigating
+    // Clean up all media resources
     if (cameraStream) {
       cameraStream.getTracks().forEach(track => track.stop());
     }
@@ -551,9 +558,6 @@ export default function InterviewSession() {
     }
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
     }
     if (audioElementRef.current) {
       audioElementRef.current.pause();
@@ -564,202 +568,168 @@ export default function InterviewSession() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      {/* Top Navigation */}
-      <div className="flex items-center justify-between p-4 bg-card/80 backdrop-blur-sm border-b">
-        <Button
-          variant="ghost"
-          onClick={handleBackToDashboard}
-          className="flex items-center gap-2 hover:bg-accent"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Dashboard
-        </Button>
-        <h1 className="text-xl font-semibold">
-          AI Interview Session - {interviewDetails?.interviewType}
-        </h1>
-        <div></div> {/* Spacer */}
-      </div>
-
-      <div className="container max-w-7xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-120px)]">
-          {/* Left Column - Interview Transcript */}
-          <div className="lg:col-span-2">
-            <Card className="h-full">
-              <CardContent className="p-0 h-full flex flex-col">
-                <div className="p-4 border-b bg-muted/50">
-                  <h2 className="font-semibold text-lg">Interview Transcript</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Question {currentQuestionIndex + 1} of {interviewDetails?.numberOfQuestions}
-                  </p>
-                </div>
-                
-                <ScrollArea className="flex-1 p-4">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center h-32">
-                      <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                        <p className="text-sm text-muted-foreground">
-                          {interviewStarted ? "Starting interview..." : "Setting up camera and microphone..."}
-                        </p>
-                      </div>
-                    </div>
-                  ) : !interviewStarted ? (
-                    <div className="flex items-center justify-center h-32">
-                      <div className="text-center space-y-4">
-                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                          <Bot className="h-8 w-8 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold mb-2">Ready to Start Your Interview</h3>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Click the button below to begin your {interviewDetails?.interviewType} interview.
-                            This will enable audio and start the conversation.
-                          </p>
-                          <Button onClick={startActualInterview} size="lg" className="px-8">
-                            Start Interview
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {messages.map((message) => (
-                        <div
-                          key={message.id}
-                          className={`flex gap-3 ${
-                            message.sender === 'ai' ? 'justify-start' : 'justify-end'
-                          }`}
-                        >
-                          {message.sender === 'ai' && (
-                            <Avatar className="w-8 h-8">
-                              <AvatarFallback className="bg-primary text-primary-foreground">
-                                <Bot className="h-4 w-4" />
-                              </AvatarFallback>
-                            </Avatar>
-                          )}
-                          
-                          <div
-                            className={`max-w-[80%] rounded-lg p-3 ${
-                              message.sender === 'ai'
-                                ? 'bg-muted text-foreground'
-                                : 'bg-primary text-primary-foreground'
-                            }`}
-                          >
-                            <p className="text-sm">{message.content}</p>
-                            <p className="text-xs opacity-70 mt-1">
-                              {message.timestamp.toLocaleTimeString()}
-                            </p>
-                          </div>
-                          
-                          {message.sender === 'user' && (
-                            <Avatar className="w-8 h-8">
-                              <AvatarFallback className="bg-secondary">
-                                <User className="h-4 w-4" />
-                              </AvatarFallback>
-                            </Avatar>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </ScrollArea>
-              </CardContent>
-            </Card>
+    <div className="min-h-screen bg-background">
+      {/* Top Navigation Bar */}
+      <div className="border-b border-border bg-background px-6 py-4">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <Button
+            variant="ghost"
+            onClick={handleBackToDashboard}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </Button>
+          
+          <div className="text-center">
+            <h1 className="text-xl font-semibold">Interview Session</h1>
+            <p className="text-sm text-muted-foreground">
+              {interviewDetails?.interviewType} • {interviewDetails?.numberOfQuestions} questions
+            </p>
           </div>
-
-          {/* Right Column - AI Interviewer & Camera */}
-          <div className="space-y-6">
-            {/* AI Interviewer Status */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-center space-y-3">
-                  <Avatar className="w-16 h-16 mx-auto">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-                      <Bot className="h-8 w-8" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">AI Interviewer</h3>
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                      {isAiSpeaking ? (
-                        <>
-                          <div className="animate-pulse w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span className="text-sm text-green-600">Speaking...</span>
-                        </>
-                      ) : interviewStarted ? (
-                        <>
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="text-sm text-blue-600">Listening</span>
-                        </>
-                      ) : (
-                        <>
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
-                          <span className="text-sm text-muted-foreground">Ready</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
+          
+          <div className="w-[120px]"></div>
+        </div>
+      </div>
+      
+      {/* Main Content Area */}
+      <div className="h-[calc(100vh-89px)] flex">
+        {/* Transcript Section */}
+        <div className="flex-1 bg-background border-r border-border flex flex-col">
+          <div className="p-6 border-b border-border">
+            <h2 className="text-lg font-medium">Interview Transcript</h2>
+          </div>
+          
+          <ScrollArea className="flex-1 p-6">
+            {!interviewStarted ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center space-y-6 max-w-md">
+                  <h3 className="text-xl font-medium">Ready to begin?</h3>
+                  <p className="text-muted-foreground">
+                    Click the button below to begin your initial-screen interview. This will enable audio and start the conversation.
+                  </p>
+                  
+                  <Button 
+                    onClick={startActualInterview}
+                    disabled={isLoading}
+                    size="lg"
+                    className="px-8"
+                  >
+                    {isLoading ? "Starting..." : "Start Interview"}
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* User Camera Feed */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-center space-y-3">
-                  <h3 className="font-semibold">Your Camera</h3>
-                  <div className="relative rounded-lg overflow-hidden bg-muted aspect-video">
-                    {cameraError ? (
-                      <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-                        <div className="text-center">
-                          <div className="w-12 h-12 rounded-full bg-muted-foreground/20 flex items-center justify-center mx-auto mb-2">
-                            <User className="h-6 w-6" />
-                          </div>
-                          <p>{cameraError}</p>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => initializeCamera(0)}
-                            className="mt-2"
-                          >
-                            Retry Camera
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        className="w-full h-full object-cover"
-                      />
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-muted-foreground">Conversation will appear here...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex items-start space-x-3 ${
+                      message.sender === 'ai' ? 'justify-start' : 'justify-end'
+                    }`}
+                  >
+                    {message.sender === 'ai' && (
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          <Bot className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        message.sender === 'ai'
+                          ? 'bg-muted'
+                          : 'bg-primary text-primary-foreground'
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {message.timestamp.toLocaleTimeString()}
+                      </p>
+                    </div>
+                    {message.sender === 'user' && (
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarFallback className="bg-secondary">
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
                     )}
                   </div>
-                  
-                  {/* Status Indicators */}
-                  <div className="flex justify-center gap-4 text-xs">
-                    <div className="flex items-center gap-1">
-                      {isListening ? (
-                        <Mic className="h-3 w-3 text-green-500" />
-                      ) : (
-                        <MicOff className="h-3 w-3 text-muted-foreground" />
-                      )}
-                      <span className={isListening ? "text-green-600" : "text-muted-foreground"}>
-                        {isListening ? "Listening" : "Not listening"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className={`h-3 w-3 rounded-full ${audioEnabled ? 'bg-blue-500' : 'bg-muted-foreground'}`}></div>
-                      <span className={audioEnabled ? "text-blue-600" : "text-muted-foreground"}>
-                        {audioEnabled ? "Audio enabled" : "Audio disabled"}
-                      </span>
-                    </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </div>
+        
+        {/* AI Interviewer Section */}
+        <div className="w-80 bg-muted/50 flex flex-col">
+          {/* Status Bar */}
+          <div className="p-6 border-b border-border bg-background">
+            <h3 className="text-lg font-medium mb-4">AI Interviewer</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {/* AI Status */}
+              <div className="text-center">
+                <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${
+                  isAiSpeaking ? 'bg-green-500 animate-pulse' : 'bg-muted-foreground/30'
+                }`}></div>
+                <span className="text-xs text-muted-foreground">
+                  {isAiSpeaking ? 'Speaking' : 'Waiting'}
+                </span>
+              </div>
+              
+              {/* Camera Status */}
+              <div className="text-center">
+                <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${
+                  cameraStream ? 'bg-green-500' : 'bg-red-500'
+                }`}></div>
+                <span className="text-xs text-muted-foreground">Camera</span>
+              </div>
+              
+              {/* Microphone Status */}
+              <div className="text-center">
+                <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${
+                  isListening ? 'bg-green-500 animate-pulse' : 'bg-muted-foreground/30'
+                }`}></div>
+                <span className="text-xs text-muted-foreground">
+                  {isListening ? 'Listening' : 'Mic Off'}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Camera Preview */}
+          <div className="flex-1 p-6">
+            <div className="bg-muted rounded-lg aspect-video relative overflow-hidden">
+              {cameraError ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground text-sm text-center p-4">
+                  <div>
+                    <p className="mb-2">Camera Error</p>
+                    <p className="text-xs">{cameraError}</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              ) : cameraStream ? (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover scale-x-[-1]"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-muted-foreground/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <User className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm">Camera Preview</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

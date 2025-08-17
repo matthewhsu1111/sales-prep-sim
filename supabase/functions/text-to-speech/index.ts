@@ -38,9 +38,14 @@ serve(async (req) => {
     }
 
     const arrayBuffer = await response.arrayBuffer();
-    const base64Audio = btoa(
-      String.fromCharCode(...new Uint8Array(arrayBuffer))
-    );
+    
+    // Convert ArrayBuffer to base64 string properly
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binaryString = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+      binaryString += String.fromCharCode(uint8Array[i]);
+    }
+    const base64Audio = btoa(binaryString);
 
     return new Response(
       JSON.stringify({ audioContent: base64Audio }),
