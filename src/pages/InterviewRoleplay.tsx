@@ -153,43 +153,33 @@ export default function InterviewRoleplay() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {interviewerTemplates.map((template) => {
           return (
-            <Card key={template.id} className="hover:shadow-lg transition-all duration-300">
-              <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 w-20 h-20 rounded-full overflow-hidden bg-gray-100">
-                  <img 
-                    src={template.image} 
-                    alt={template.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <CardTitle className="text-xl">{template.name}</CardTitle>
-                <Badge variant="secondary" className="mb-2">{template.title}</Badge>
-                <CardDescription className="text-muted-foreground">{template.description}</CardDescription>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-medium text-sm mb-2 text-primary">Personality:</h4>
-                  <p className="text-sm text-muted-foreground">{template.personality}</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium text-sm mb-2 text-primary">Key Traits:</h4>
-                  <div className="space-y-1">
-                    {template.traits.map((trait, index) => (
-                      <div key={index} className="text-xs text-primary bg-primary/10 px-2 py-1 rounded inline-block mr-1 mb-1">
-                        {trait}
-                      </div>
-                    ))}
+            <Card key={template.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex items-center space-x-3">
+                  <div className="flex-shrink-0">
+                    <img 
+                      src={template.image} 
+                      alt={template.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg font-semibold">{template.name}</CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground">{template.title}</CardDescription>
                   </div>
                 </div>
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground mb-4">{template.description}</p>
                 
-                <div className="pt-2">
-                  <p className="text-xs text-muted-foreground italic">{template.testingFocus}</p>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">What they'll test:</h4>
+                  <p className="text-xs text-muted-foreground">{template.testingFocus}</p>
                 </div>
                 
                 <Button 
-                  className="w-full mt-4 bg-gray-900 hover:bg-gray-800 text-white rounded-lg"
+                  className="w-full mt-4"
                   onClick={() => handleStartTraining(template.id)}
                   disabled={loading}
                 >
