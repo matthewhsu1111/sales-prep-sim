@@ -438,12 +438,35 @@ export default function InterviewSession() {
               const text = data.text.trim();
               console.log('📝 Transcribed:', text);
               
-              // Enhanced filtering
+              // Comprehensive filtering for interview context
+              const invalidPatterns = [
+                /thank you for watching/i,
+                /please subscribe/i,
+                /like and subscribe/i,
+                /share this video/i,
+                /social media/i,
+                /youtube/i,
+                /music/i,
+                /background music/i,
+                /click the bell/i,
+                /notification/i,
+                /outro/i,
+                /intro/i,
+                /thanks for/i,
+                /if you enjoyed/i,
+                /don't forget to/i,
+                /hit that/i,
+                /🔔/,
+                /📢/,
+                /👍/,
+                /💖/,
+                /~!/
+              ];
+              
+              const hasInvalidContent = invalidPatterns.some(pattern => pattern.test(text));
               const isValid = text.length >= 10 && 
                              /[a-zA-Z]/.test(text) &&
-                             !text.toLowerCase().includes('thank you') &&
-                             !text.toLowerCase().includes('thanks for watching') &&
-                             !text.toLowerCase().includes('music') &&
+                             !hasInvalidContent &&
                              !/^[^\w]*$/.test(text);
               
               if (isValid) {
@@ -470,14 +493,20 @@ export default function InterviewSession() {
         };
         
         console.log('🎤 Starting recording...');
-        mediaRecorder.start();
-        
-        // Record for 7 seconds
-        setTimeout(() => {
-          if (mediaRecorder.state === 'recording') {
-            mediaRecorder.stop();
-          }
-        }, 7000);
+        try {
+          mediaRecorder.start();
+          
+          // Record for 7 seconds
+          setTimeout(() => {
+            if (mediaRecorder.state === 'recording') {
+              mediaRecorder.stop();
+            }
+          }, 7000);
+        } catch (error) {
+          console.error('❌ MediaRecorder start error:', error);
+          isProcessingRef.current = false;
+          setTimeout(createRecording, 5000);
+        }
       };
       
       // Start after delay
@@ -571,7 +600,11 @@ export default function InterviewSession() {
     <div className="min-h-screen bg-background">
       {/* Top Navigation Bar */}
       <div className="border-b border-border bg-background px-6 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/lovable.svg" alt="Lovable" className="h-8 w-8" />
+          </div>
+          
           <Button
             variant="ghost"
             onClick={handleBackToDashboard}
@@ -580,32 +613,23 @@ export default function InterviewSession() {
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Button>
-          
-          <div className="text-center">
-            <h1 className="text-xl font-semibold">Interview Session</h1>
-            <p className="text-sm text-muted-foreground">
-              {interviewDetails?.interviewType} • {interviewDetails?.numberOfQuestions} questions
-            </p>
-          </div>
-          
-          <div className="w-[120px]"></div>
         </div>
       </div>
       
       {/* Main Content Area */}
       <div className="h-[calc(100vh-89px)] flex">
-        {/* Transcript Section */}
-        <div className="flex-1 bg-background border-r border-border flex flex-col">
-          <div className="p-6 border-b border-border">
+        {/* Transcript Section - SMALLER */}
+        <div className="w-96 bg-background border-r border-border flex flex-col">
+          <div className="p-4 border-b border-border">
             <h2 className="text-lg font-medium">Interview Transcript</h2>
           </div>
           
-          <ScrollArea className="flex-1 p-6">
+          <ScrollArea className="flex-1 p-4">
             {!interviewStarted ? (
               <div className="h-full flex items-center justify-center">
-                <div className="text-center space-y-6 max-w-md">
-                  <h3 className="text-xl font-medium">Ready to begin?</h3>
-                  <p className="text-muted-foreground">
+                <div className="text-center space-y-4 max-w-xs">
+                  <h3 className="text-lg font-medium">Ready to begin?</h3>
+                  <p className="text-sm text-muted-foreground">
                     Click the button below to begin your initial-screen interview. This will enable audio and start the conversation.
                   </p>
                   
@@ -613,7 +637,7 @@ export default function InterviewSession() {
                     onClick={startActualInterview}
                     disabled={isLoading}
                     size="lg"
-                    className="px-8"
+                    className="px-6"
                   >
                     {isLoading ? "Starting..." : "Start Interview"}
                   </Button>
@@ -621,40 +645,40 @@ export default function InterviewSession() {
               </div>
             ) : messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-muted-foreground">Conversation will appear here...</p>
+                <p className="text-sm text-muted-foreground">Conversation will appear here...</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex items-start space-x-3 ${
+                    className={`flex items-start space-x-2 ${
                       message.sender === 'ai' ? 'justify-start' : 'justify-end'
                     }`}
                   >
                     {message.sender === 'ai' && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                      <Avatar className="h-6 w-6 flex-shrink-0">
                         <AvatarFallback className="bg-primary text-primary-foreground">
-                          <Bot className="h-4 w-4" />
+                          <Bot className="h-3 w-3" />
                         </AvatarFallback>
                       </Avatar>
                     )}
                     <div
-                      className={`max-w-[80%] rounded-lg p-3 ${
+                      className={`max-w-[85%] rounded-lg p-2 ${
                         message.sender === 'ai'
                           ? 'bg-muted'
                           : 'bg-primary text-primary-foreground'
                       }`}
                     >
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-xs">{message.content}</p>
                       <p className="text-xs opacity-70 mt-1">
                         {message.timestamp.toLocaleTimeString()}
                       </p>
                     </div>
                     {message.sender === 'user' && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                      <Avatar className="h-6 w-6 flex-shrink-0">
                         <AvatarFallback className="bg-secondary">
-                          <User className="h-4 w-4" />
+                          <User className="h-3 w-3" />
                         </AvatarFallback>
                       </Avatar>
                     )}
@@ -665,8 +689,8 @@ export default function InterviewSession() {
           </ScrollArea>
         </div>
         
-        {/* AI Interviewer Section */}
-        <div className="w-80 bg-muted/50 flex flex-col">
+        {/* AI Interviewer Section - LARGER */}
+        <div className="flex-1 bg-muted/50 flex flex-col">
           {/* Status Bar */}
           <div className="p-6 border-b border-border bg-background">
             <h3 className="text-lg font-medium mb-4">AI Interviewer</h3>
