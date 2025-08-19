@@ -270,7 +270,7 @@ export default function InterviewSession() {
     
     try {
       const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { text, voice: 'alloy' }
+        body: { text, voice: 'pNInz6obpgDQGcFmaJgB' } // Adam voice - professional male voice
       });
       
       if (error) {
