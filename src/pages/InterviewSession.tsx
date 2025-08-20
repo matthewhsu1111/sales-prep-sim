@@ -14,6 +14,7 @@ interface Message {
   content: string;
   sender: 'ai' | 'user';
   timestamp: Date;
+  isPartial?: boolean;
 }
 
 interface InterviewDetails {
@@ -267,6 +268,7 @@ export default function InterviewSession() {
   const speakMessage = async (text: string) => {
     console.log('🗣️ Speaking message:', text.substring(0, 50) + '...');
     setIsAiSpeaking(true);
+    setAudioEnabled(true); // Force enable audio when AI speaks
     
     try {
       const { data, error } = await supabase.functions.invoke('text-to-speech', {
@@ -280,7 +282,7 @@ export default function InterviewSession() {
       
       if (data?.audioContent) {
         console.log('🎵 Playing audio...');
-        await playAudioUsingHtmlAudio(data.audioContent);
+        await playAudioWithRealTimeTranscript(data.audioContent, text);
         console.log('✅ Audio playback complete');
       } else {
         console.error('🚨 No audio content received');
@@ -297,13 +299,8 @@ export default function InterviewSession() {
     }
   };
 
-  // Simplified audio playback with user gesture requirement
-  const playAudioUsingHtmlAudio = async (base64Audio: string): Promise<void> => {
-    if (!audioEnabled) {
-      console.log('⏭️ Audio disabled, skipping playback');
-      return Promise.resolve();
-    }
-
+  // Enhanced audio playback with real-time transcript
+  const playAudioWithRealTimeTranscript = async (base64Audio: string, fullText: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       try {
         // Clean up previous audio
@@ -316,18 +313,58 @@ export default function InterviewSession() {
         const audio = new Audio();
         audioElementRef.current = audio;
         
-        // Convert base64 to data URL (simpler approach)
+        // Convert base64 to data URL
         const audioSrc = `data:audio/mp3;base64,${base64Audio}`;
         audio.src = audioSrc;
-        audio.volume = 0.7;
+        audio.volume = 0.8;
         audio.preload = 'auto';
+        
+        const words = fullText.split(' ');
+        let currentWordIndex = 0;
+        
+        // Create initial message with empty content
+        const messageId = Date.now().toString();
+        const initialMessage: Message = {
+          id: messageId,
+          content: '',
+          sender: 'ai',
+          timestamp: new Date(),
+          isPartial: true
+        };
+        
+        setMessages(prev => [...prev, initialMessage]);
         
         let resolved = false;
         
         const cleanup = () => {
           if (!resolved) {
             resolved = true;
+            // Update to final complete message
+            setMessages(prev => prev.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, content: fullText, isPartial: false }
+                : msg
+            ));
             audio.remove();
+          }
+        };
+        
+        // Update transcript as audio plays
+        audio.ontimeupdate = () => {
+          if (audio.duration > 0) {
+            const progress = audio.currentTime / audio.duration;
+            const targetWordIndex = Math.floor(progress * words.length);
+            
+            if (targetWordIndex > currentWordIndex && targetWordIndex < words.length) {
+              currentWordIndex = targetWordIndex;
+              const partialText = words.slice(0, currentWordIndex + 1).join(' ');
+              
+              setMessages(prev => prev.map(msg => 
+                msg.id === messageId 
+                  ? { ...msg, content: partialText }
+                  : msg
+              ));
+            }
           }
         };
         
@@ -544,16 +581,7 @@ export default function InterviewSession() {
       if (data?.response) {
         console.log('✅ AI response received:', data.response.substring(0, 50) + '...');
         
-        const aiMessage: Message = {
-          id: Date.now().toString(),
-          content: data.response,
-          sender: 'ai',
-          timestamp: new Date()
-        };
-        
-        setMessages(prev => [...prev, aiMessage]);
-        
-        // Speak the AI response
+        // Speak the AI response (this will handle adding the message with real-time transcript)
         await speakMessage(data.response);
         
         setCurrentQuestionIndex(prev => prev + 1);
