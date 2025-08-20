@@ -230,39 +230,13 @@ export default function InterviewSession() {
     console.log('🎭 Starting interview with first question:', firstQuestion.substring(0, 50) + '...');
     
     const welcomeMessage = `Hello! I'm your AI interviewer for today's ${interviewDetails?.interviewType} interview. Let's get started with our first question.`;
+    const fullMessage = `${welcomeMessage} ${firstQuestion}`;
     
-    console.log('💬 Welcome message:', welcomeMessage);
+    console.log('💬 Speaking combined welcome and first question...');
     
-    // Add AI welcome message
-    const aiMessage: Message = {
-      id: Date.now().toString(),
-      content: welcomeMessage,
-      sender: 'ai',
-      timestamp: new Date()
-    };
-    
-    setMessages([aiMessage]);
-    console.log('✅ Welcome message added to chat');
-    
-    // Convert to speech and play
-    console.log('🔊 About to speak welcome message...');
-    await speakMessage(welcomeMessage);
-    console.log('✅ Welcome message spoken');
-    
-    // Immediately ask first question after welcome
-    const questionMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      content: firstQuestion,
-      sender: 'ai',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, questionMessage]);
-    console.log('✅ First question added to chat');
-    
-    console.log('🔊 About to speak first question...');
-    await speakMessage(firstQuestion);
-    console.log('✅ First question spoken');
+    // Speak the combined message (this will handle adding the message with real-time transcript)
+    await speakMessage(fullMessage);
+    console.log('✅ Welcome and first question spoken');
   };
 
   const speakMessage = async (text: string) => {
@@ -444,9 +418,12 @@ export default function InterviewSession() {
           }
         };
         
+        let currentUserMessageId: string | null = null;
+        let userTranscriptTimeout: NodeJS.Timeout | null = null;
+        
         mediaRecorder.onstop = async () => {
           if (isProcessingRef.current || audioChunksRef.current.length === 0) {
-            setTimeout(createRecording, 2000);
+            setTimeout(createRecording, 3000);
             return;
           }
           
@@ -460,7 +437,7 @@ export default function InterviewSession() {
             if (audioBlob.size < 15000) {
               console.log('⏭️ Skipping small audio chunk:', audioBlob.size, 'bytes');
               isProcessingRef.current = false;
-              setTimeout(createRecording, 2000);
+              setTimeout(createRecording, 3000);
               return;
             }
             
@@ -508,15 +485,47 @@ export default function InterviewSession() {
               
               if (isValid) {
                 console.log('✅ Valid speech accepted');
-                const userMessage: Message = {
-                  id: Date.now().toString(),
-                  content: text,
-                  sender: 'user',
-                  timestamp: new Date()
-                };
                 
-                setMessages(prev => [...prev, userMessage]);
-                await getAIResponse(text);
+                // Create or update user message with real-time transcript
+                if (!currentUserMessageId) {
+                  currentUserMessageId = Date.now().toString();
+                  const userMessage: Message = {
+                    id: currentUserMessageId,
+                    content: text,
+                    sender: 'user',
+                    timestamp: new Date(),
+                    isPartial: true
+                  };
+                  setMessages(prev => [...prev, userMessage]);
+                } else {
+                  // Update existing message with accumulated text
+                  setMessages(prev => prev.map(msg => 
+                    msg.id === currentUserMessageId 
+                      ? { ...msg, content: text, isPartial: true }
+                      : msg
+                  ));
+                }
+                
+                // Clear previous timeout
+                if (userTranscriptTimeout) {
+                  clearTimeout(userTranscriptTimeout);
+                }
+                
+                // Set timeout to finalize user message and get AI response
+                userTranscriptTimeout = setTimeout(async () => {
+                  if (currentUserMessageId) {
+                    // Finalize the user message
+                    setMessages(prev => prev.map(msg => 
+                      msg.id === currentUserMessageId 
+                        ? { ...msg, isPartial: false }
+                        : msg
+                    ));
+                    
+                    await getAIResponse(text);
+                    currentUserMessageId = null;
+                  }
+                }, 15000); // Give user 15 seconds to continue speaking
+                
               } else {
                 console.log('🗑️ Filtered out speech:', text);
               }
@@ -525,7 +534,7 @@ export default function InterviewSession() {
             console.error('❌ Speech processing error:', error);
           } finally {
             isProcessingRef.current = false;
-            setTimeout(createRecording, 3000); // Longer delay between recordings
+            setTimeout(createRecording, 5000); // Longer delay between recordings
           }
         };
         
@@ -533,12 +542,12 @@ export default function InterviewSession() {
         try {
           mediaRecorder.start();
           
-          // Record for 7 seconds
+          // Record for 10 seconds to give user more time
           setTimeout(() => {
             if (mediaRecorder.state === 'recording') {
               mediaRecorder.stop();
             }
-          }, 7000);
+          }, 10000);
         } catch (error) {
           console.error('❌ MediaRecorder start error:', error);
           isProcessingRef.current = false;
@@ -547,7 +556,7 @@ export default function InterviewSession() {
       };
       
       // Start after delay
-      setTimeout(createRecording, 3000);
+      setTimeout(createRecording, 5000);
       
     } catch (error) {
       console.error('❌ Microphone error:', error);
@@ -697,11 +706,14 @@ export default function InterviewSession() {
                           ? 'bg-muted'
                           : 'bg-primary text-primary-foreground'
                       }`}
-                    >
-                      <p className="text-xs">{message.content}</p>
-                      <p className="text-xs opacity-70 mt-1">
-                        {message.timestamp.toLocaleTimeString()}
-                      </p>
+                     >
+                       <p className={`text-xs ${message.isPartial ? 'opacity-75 italic' : ''}`}>
+                         {message.content}
+                         {message.isPartial && <span className="animate-pulse">...</span>}
+                       </p>
+                       <p className="text-xs opacity-70 mt-1">
+                         {message.timestamp.toLocaleTimeString()}
+                       </p>
                     </div>
                     {message.sender === 'user' && (
                       <Avatar className="h-6 w-6 flex-shrink-0">
