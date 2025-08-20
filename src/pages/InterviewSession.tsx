@@ -380,7 +380,7 @@ export default function InterviewSession() {
     });
   };
 
-  // Simplified speech recognition with better filtering
+  // Enhanced speech recognition with real-time word-by-word transcription
   const startContinuousListening = async () => {
     console.log('🎤 Starting continuous listening...');
     
@@ -399,7 +399,11 @@ export default function InterviewSession() {
       setIsListening(true);
       console.log('✅ Microphone access granted');
       
-      // Simplified recording with longer intervals
+      // Enhanced recording with real-time word-by-word transcript simulation
+      let currentUserMessageId: string | null = null;
+      let userTranscriptTimeout: NodeJS.Timeout | null = null;
+      let accumulatedText = '';
+      
       const createRecording = () => {
         if (isProcessingRef.current || isAiSpeaking || !streamRef.current) {
           setTimeout(createRecording, 2000);
@@ -418,8 +422,21 @@ export default function InterviewSession() {
           }
         };
         
-        let currentUserMessageId: string | null = null;
-        let userTranscriptTimeout: NodeJS.Timeout | null = null;
+        // Start user message when recording begins
+        mediaRecorder.onstart = () => {
+          if (!currentUserMessageId) {
+            currentUserMessageId = Date.now().toString();
+            const userMessage: Message = {
+              id: currentUserMessageId,
+              content: '',
+              sender: 'user',
+              timestamp: new Date(),
+              isPartial: true
+            };
+            setMessages(prev => [...prev, userMessage]);
+            accumulatedText = '';
+          }
+        };
         
         mediaRecorder.onstop = async () => {
           if (isProcessingRef.current || audioChunksRef.current.length === 0) {
@@ -486,24 +503,24 @@ export default function InterviewSession() {
               if (isValid) {
                 console.log('✅ Valid speech accepted');
                 
-                // Create or update user message with real-time transcript
-                if (!currentUserMessageId) {
-                  currentUserMessageId = Date.now().toString();
-                  const userMessage: Message = {
-                    id: currentUserMessageId,
-                    content: text,
-                    sender: 'user',
-                    timestamp: new Date(),
-                    isPartial: true
-                  };
-                  setMessages(prev => [...prev, userMessage]);
-                } else {
-                  // Update existing message with accumulated text
-                  setMessages(prev => prev.map(msg => 
-                    msg.id === currentUserMessageId 
-                      ? { ...msg, content: text, isPartial: true }
-                      : msg
-                  ));
+                // Simulate real-time word-by-word display for user speech
+                if (currentUserMessageId && text !== accumulatedText) {
+                  const newWords = text.split(' ');
+                  const oldWords = accumulatedText.split(' ').filter(w => w.length > 0);
+                  
+                  // Animate new words appearing
+                  for (let i = oldWords.length; i < newWords.length; i++) {
+                    setTimeout(() => {
+                      const partialText = newWords.slice(0, i + 1).join(' ');
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === currentUserMessageId 
+                          ? { ...msg, content: partialText, isPartial: true }
+                          : msg
+                      ));
+                    }, (i - oldWords.length) * 150); // 150ms delay between words
+                  }
+                  
+                  accumulatedText = text;
                 }
                 
                 // Clear previous timeout
@@ -517,14 +534,15 @@ export default function InterviewSession() {
                     // Finalize the user message
                     setMessages(prev => prev.map(msg => 
                       msg.id === currentUserMessageId 
-                        ? { ...msg, isPartial: false }
+                        ? { ...msg, content: accumulatedText, isPartial: false }
                         : msg
                     ));
                     
-                    await getAIResponse(text);
+                    await getAIResponse(accumulatedText);
                     currentUserMessageId = null;
+                    accumulatedText = '';
                   }
-                }, 15000); // Give user 15 seconds to continue speaking
+                }, 20000); // Give user 20 seconds to continue speaking
                 
               } else {
                 console.log('🗑️ Filtered out speech:', text);
