@@ -73,6 +73,7 @@ export default function InterviewRoleplay() {
   const [isInterviewDetailsModalOpen, setIsInterviewDetailsModalOpen] = useState(false);
   const [hasJobPostings, setHasJobPostings] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedInterviewer, setSelectedInterviewer] = useState<string | null>(null);
 
   useEffect(() => {
     checkExistingJobPostings();
@@ -95,6 +96,10 @@ export default function InterviewRoleplay() {
   };
 
   const handleStartTraining = (templateId: string) => {
+    // Find the interviewer template to get the name
+    const template = interviewerTemplates.find(t => t.id === templateId);
+    setSelectedInterviewer(template?.name || null);
+    
     if (hasJobPostings) {
       setIsInterviewDetailsModalOpen(true);
     } else {
@@ -113,19 +118,20 @@ export default function InterviewRoleplay() {
   };
 
   const handleStartInterview = (details: any) => {
-    console.log("Starting interview with details:", details);
+    console.log("Starting interview with details:", details, "Selected interviewer:", selectedInterviewer);
     toast({
       title: "Starting Interview",
       description: "Interview training session is beginning...",
     });
     setIsInterviewDetailsModalOpen(false);
-    // Navigate to preparation page first
-    navigate('/dashboard/interview-preparation', { 
+    // Navigate directly to interview session (skip preparation page)
+    navigate('/dashboard/interview-session', { 
       state: { 
         interviewDetails: {
           jobPosting: details.jobPosting, // Pass full job posting object
           interviewType: details.interviewType,
-          numberOfQuestions: details.numberOfQuestions
+          numberOfQuestions: details.numberOfQuestions,
+          interviewer: selectedInterviewer // Add the interviewer name
         }
       } 
     });
