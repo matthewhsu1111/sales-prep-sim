@@ -3,29 +3,53 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Bot, User, Mic, MicOff } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArrowLeft, Bot, User, Send, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { getQuestionsForInterview } from "@/data/interviewQuestions";
+
+// Import interviewer images
+import rebeccaImage from "@/assets/rebecca-martinez.jpg";
+import jakeImage from "@/assets/jake-thompson.jpg";
+import michaelImage from "@/assets/michael-chen.jpg";
 
 interface Message {
   id: string;
   content: string;
   sender: 'ai' | 'user';
   timestamp: Date;
-  isPartial?: boolean;
+  isTyping?: boolean;
 }
 
 interface InterviewDetails {
   jobPosting: any;
   interviewType: string;
   numberOfQuestions: number;
+  interviewer: string;
 }
 
 interface LocationState {
   interviewDetails?: InterviewDetails;
 }
+
+const interviewerData = {
+  "Rebecca Martinez": {
+    image: rebeccaImage,
+    title: "Senior Sales Manager",
+    style: "Direct & Results-Focused"
+  },
+  "Jake Thompson": {
+    image: jakeImage,
+    title: "Team Lead",
+    style: "Friendly & Conversational"
+  },
+  "Michael Chen": {
+    image: michaelImage,
+    title: "Sales Operations Manager",
+    style: "Analytical & Detail-Oriented"
+  }
+};
 
 export default function InterviewSession() {
   const navigate = useNavigate();
@@ -35,119 +59,26 @@ export default function InterviewSession() {
   const interviewDetails = state?.interviewDetails;
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isAiSpeaking, setIsAiSpeaking] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [cameraError, setCameraError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-  const [interviewStarted, setInterviewStarted] = useState(false);
+  const [isAiTyping, setIsAiTyping] = useState(false);
+  const [userInput, setUserInput] = useState("");
+  const [isInterviewStarted, setIsInterviewStarted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentQuestionNumber, setCurrentQuestionNumber] = useState(1);
+  const [isInterviewComplete, setIsInterviewComplete] = useState(false);
   
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const audioElementRef = useRef<HTMLAudioElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const isProcessingRef = useRef(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Clean up function for media
-  useEffect(() => {
-    return () => {
-      // Clean up all media when component unmounts
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-      }
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        mediaRecorderRef.current.stop();
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, [cameraStream]);
-
-  // Initialize camera with better error handling and retry mechanism
-  const initializeCamera = async (retryCount = 0) => {
-    console.log('🎥 Initializing camera... (attempt', retryCount + 1, ')');
-    try {
-      console.log('📱 Requesting camera permissions...');
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          width: { ideal: 640 }, 
-          height: { ideal: 480 }, 
-          facingMode: 'user' 
-        },
-        audio: false
-      });
-      
-      console.log('✅ Camera stream acquired, track count:', stream.getVideoTracks().length);
-      setCameraStream(stream);
-      setCameraError(null);
-      
-      // Add delay to ensure video element is ready
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      if (videoRef.current) {
-        console.log('📺 Assigning stream to video element...');
-        videoRef.current.srcObject = stream;
-        
-        // Set up event handlers before loading
-        videoRef.current.onloadedmetadata = () => {
-          console.log('📹 Video metadata loaded, dimensions:', videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight);
-          if (videoRef.current) {
-            videoRef.current.play()
-              .then(() => {
-                console.log('✅ Video playing successfully');
-                setCameraError(null);
-              })
-              .catch(e => {
-                console.error('❌ Video play error:', e);
-                setCameraError('Video playback failed');
-              });
-          }
-        };
-        
-        videoRef.current.onerror = (e) => {
-          console.error('❌ Video element error:', e);
-          setCameraError('Video display error');
-        };
-        
-        // Force video to load
-        videoRef.current.load();
-      } else {
-        console.error('❌ Video ref is null!');
-        setCameraError('Video element not ready');
-      }
-    } catch (error) {
-      console.error('❌ Camera error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown camera error';
-      
-      // Retry up to 3 times with increasing delays
-      if (retryCount < 2) {
-        console.log('🔄 Retrying camera initialization in', (retryCount + 1) * 1000, 'ms...');
-        setTimeout(() => initializeCamera(retryCount + 1), (retryCount + 1) * 1000);
-        return;
-      }
-      
-      setCameraError(`Camera access failed: ${errorMessage}`);
-      toast({
-        title: "Camera Error",
-        description: "Could not access camera. Please check permissions and try refreshing the page.",
-        variant: "destructive",
-      });
-    }
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Initialize everything when component mounts
   useEffect(() => {
-    console.log('🔍 Component mounted, state:', state);
-    console.log('🔍 interviewDetails:', interviewDetails);
-    
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
     if (!interviewDetails) {
-      console.error('❌ No interview details found in state!');
       toast({
         title: "Setup Error",
         description: "Interview details not found. Redirecting to dashboard.",
@@ -156,63 +87,48 @@ export default function InterviewSession() {
       navigate('/dashboard');
       return;
     }
+  }, [interviewDetails, navigate, toast]);
 
-    const initializeInterview = async () => {
-      try {
-        console.log('🎥 Initializing camera...');
-        await initializeCamera();
-        console.log('✅ Camera ready');
-        
-        setIsLoading(false);
-        console.log('✅ Ready for user to start interview');
-      } catch (error) {
-        console.error('❌ Setup error:', error);
-        setIsLoading(false);
-      }
-    };
-    
-    initializeInterview();
-  }, [interviewDetails, navigate]);
+  const startInterview = async () => {
+    if (!interviewDetails) return;
 
-  // Function to start the actual interview (called by user button)
-  const startActualInterview = async () => {
-    if (!audioEnabled) {
-      // Enable audio with user gesture
-      try {
-        const audioContext = new AudioContext();
-        await audioContext.resume();
-        setAudioEnabled(true);
-        console.log('✅ Audio enabled by user gesture');
-      } catch (error) {
-        console.error('❌ Audio enable error:', error);
-        toast({
-          title: "Audio Error",
-          description: "Could not enable audio. Interview will continue without AI voice.",
-          variant: "destructive",
-        });
-      }
-    }
-
-    setInterviewStarted(true);
     setIsLoading(true);
+    setIsInterviewStarted(true);
 
     try {
-      console.log('📚 Getting questions...');
-      const questions = getQuestionsForInterview(
-        interviewDetails.interviewType, 
-        interviewDetails.numberOfQuestions
-      );
+      // Get AI greeting and first question
+      const { data, error } = await supabase.functions.invoke('claude-interviewer', {
+        body: { 
+          interviewer: interviewDetails.interviewer,
+          jobPosting: interviewDetails.jobPosting,
+          isFirstMessage: true,
+          numberOfQuestions: interviewDetails.numberOfQuestions,
+          currentQuestionNumber: 1
+        }
+      });
       
-      if (questions.length === 0) {
-        throw new Error('No questions available');
+      if (error) {
+        console.error('❌ AI interviewer error:', error);
+        throw error;
       }
-
-      console.log('🎤 Starting continuous listening...');
-      await startContinuousListening();
       
-      console.log('🎭 Starting interview...');
-      await startInterview(questions[0]);
-      
+      if (data?.response) {
+        // Add AI message with typing animation
+        const aiMessage: Message = {
+          id: Date.now().toString(),
+          content: "",
+          sender: 'ai',
+          timestamp: new Date(),
+          isTyping: true
+        };
+        
+        setMessages([aiMessage]);
+        setIsAiTyping(true);
+        
+        // Simulate typing effect
+        await typeMessage(data.response, aiMessage.id);
+        setIsAiTyping(false);
+      }
     } catch (error) {
       console.error('❌ Interview start error:', error);
       toast({
@@ -220,383 +136,57 @@ export default function InterviewSession() {
         description: "Failed to start interview. Please try again.",
         variant: "destructive",
       });
-      setInterviewStarted(false);
+      setIsInterviewStarted(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const startInterview = async (firstQuestion: string) => {
-    console.log('🎭 Starting interview with first question:', firstQuestion.substring(0, 50) + '...');
+  const typeMessage = async (fullMessage: string, messageId: string): Promise<void> => {
+    const words = fullMessage.split(' ');
     
-    const welcomeMessage = `Hello! I'm your AI interviewer for today's ${interviewDetails?.interviewType} interview. Let's get started with our first question.`;
-    const fullMessage = `${welcomeMessage} ${firstQuestion}`;
-    
-    console.log('💬 Speaking combined welcome and first question...');
-    
-    // Speak the combined message (this will handle adding the message with real-time transcript)
-    await speakMessage(fullMessage);
-    console.log('✅ Welcome and first question spoken');
-  };
-
-  const speakMessage = async (text: string) => {
-    console.log('🗣️ Speaking message:', text.substring(0, 50) + '...');
-    setIsAiSpeaking(true);
-    setAudioEnabled(true); // Force enable audio when AI speaks
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { text, voice: 'pNInz6obpgDQGcFmaJgB' } // Adam voice - professional male voice
-      });
+    for (let i = 0; i < words.length; i++) {
+      const partialMessage = words.slice(0, i + 1).join(' ');
       
-      if (error) {
-        console.error('🚨 TTS API error:', error);
-        throw error;
-      }
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, content: partialMessage, isTyping: i < words.length - 1 }
+          : msg
+      ));
       
-      if (data?.audioContent) {
-        console.log('🎵 Playing audio...');
-        await playAudioWithRealTimeTranscript(data.audioContent, text);
-        console.log('✅ Audio playback complete');
-      } else {
-        console.error('🚨 No audio content received');
-      }
-    } catch (error) {
-      console.error('❌ Text-to-speech error:', error);
-      toast({
-        title: "Audio Error",
-        description: "Could not play AI voice. Check your audio settings.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsAiSpeaking(false);
+      // Wait between words (faster than original audio timing)
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
   };
 
-  // Enhanced audio playback with real-time transcript
-  const playAudioWithRealTimeTranscript = async (base64Audio: string, fullText: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      try {
-        // Clean up previous audio
-        if (audioElementRef.current) {
-          audioElementRef.current.pause();
-          audioElementRef.current.remove();
-        }
-        
-        // Create audio element
-        const audio = new Audio();
-        audioElementRef.current = audio;
-        
-        // Convert base64 to data URL
-        const audioSrc = `data:audio/mp3;base64,${base64Audio}`;
-        audio.src = audioSrc;
-        audio.volume = 0.8;
-        audio.preload = 'auto';
-        
-        const words = fullText.split(' ');
-        let currentWordIndex = 0;
-        
-        // Create initial message with empty content
-        const messageId = Date.now().toString();
-        const initialMessage: Message = {
-          id: messageId,
-          content: '',
-          sender: 'ai',
-          timestamp: new Date(),
-          isPartial: true
-        };
-        
-        setMessages(prev => [...prev, initialMessage]);
-        
-        let resolved = false;
-        
-        const cleanup = () => {
-          if (!resolved) {
-            resolved = true;
-            // Update to final complete message
-            setMessages(prev => prev.map(msg => 
-              msg.id === messageId 
-                ? { ...msg, content: fullText, isPartial: false }
-                : msg
-            ));
-            audio.remove();
-          }
-        };
-        
-        // Update transcript as audio plays
-        audio.ontimeupdate = () => {
-          if (audio.duration > 0) {
-            const progress = audio.currentTime / audio.duration;
-            const targetWordIndex = Math.floor(progress * words.length);
-            
-            if (targetWordIndex > currentWordIndex && targetWordIndex < words.length) {
-              currentWordIndex = targetWordIndex;
-              const partialText = words.slice(0, currentWordIndex + 1).join(' ');
-              
-              setMessages(prev => prev.map(msg => 
-                msg.id === messageId 
-                  ? { ...msg, content: partialText }
-                  : msg
-              ));
-            }
-          }
-        };
-        
-        audio.onended = () => {
-          console.log('🎵 Audio ended');
-          cleanup();
-          resolve();
-        };
-        
-        audio.onerror = (e) => {
-          console.error('🚨 Audio error:', e);
-          cleanup();
-          reject(new Error('Audio playback failed'));
-        };
-        
-        // Timeout after 30 seconds
-        setTimeout(() => {
-          if (!resolved) {
-            console.error('🚨 Audio timeout');
-            cleanup();
-            reject(new Error('Audio timeout'));
-          }
-        }, 30000);
-        
-        // Try to play immediately
-        console.log('🎵 Starting audio playback...');
-        audio.play()
-          .then(() => console.log('✅ Audio playing'))
-          .catch(e => {
-            console.error('🚨 Play failed:', e);
-            cleanup();
-            reject(e);
-          });
-          
-      } catch (error) {
-        console.error('🚨 Audio setup error:', error);
-        reject(error);
-      }
-    });
-  };
+  const sendMessage = async () => {
+    if (!userInput.trim() || !interviewDetails || isAiTyping) return;
 
-  // Enhanced speech recognition with real-time word-by-word transcription
-  const startContinuousListening = async () => {
-    console.log('🎤 Starting continuous listening...');
-    
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: { 
-          sampleRate: 44100, 
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        } 
-      });
-      
-      streamRef.current = stream;
-      setIsListening(true);
-      console.log('✅ Microphone access granted');
-      
-      // Enhanced recording with real-time word-by-word transcript simulation
-      let currentUserMessageId: string | null = null;
-      let userTranscriptTimeout: NodeJS.Timeout | null = null;
-      let accumulatedText = '';
-      
-      const createRecording = () => {
-        if (isProcessingRef.current || isAiSpeaking || !streamRef.current) {
-          setTimeout(createRecording, 2000);
-          return;
-        }
-        
-        audioChunksRef.current = [];
-        const mediaRecorder = new MediaRecorder(stream, {
-          mimeType: 'audio/webm;codecs=opus'
-        });
-        mediaRecorderRef.current = mediaRecorder;
-        
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            audioChunksRef.current.push(event.data);
-          }
-        };
-        
-        // Start user message when recording begins
-        mediaRecorder.onstart = () => {
-          if (!currentUserMessageId) {
-            currentUserMessageId = Date.now().toString();
-            const userMessage: Message = {
-              id: currentUserMessageId,
-              content: '',
-              sender: 'user',
-              timestamp: new Date(),
-              isPartial: true
-            };
-            setMessages(prev => [...prev, userMessage]);
-            accumulatedText = '';
-          }
-        };
-        
-        mediaRecorder.onstop = async () => {
-          if (isProcessingRef.current || audioChunksRef.current.length === 0) {
-            setTimeout(createRecording, 3000);
-            return;
-          }
-          
-          isProcessingRef.current = true;
-          console.log('🎤 Processing speech...');
-          
-          try {
-            const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-            
-            // Only process substantial audio chunks
-            if (audioBlob.size < 15000) {
-              console.log('⏭️ Skipping small audio chunk:', audioBlob.size, 'bytes');
-              isProcessingRef.current = false;
-              setTimeout(createRecording, 3000);
-              return;
-            }
-            
-            const base64Audio = await blobToBase64(audioBlob);
-            const { data, error } = await supabase.functions.invoke('speech-to-text', {
-              body: { audio: base64Audio.split(',')[1] }
-            });
-            
-            if (error) {
-              console.error('🚨 STT error:', error);
-            } else if (data?.text) {
-              const text = data.text.trim();
-              console.log('📝 Transcribed:', text);
-              
-              // Comprehensive filtering for interview context
-              const invalidPatterns = [
-                /thank you for watching/i,
-                /please subscribe/i,
-                /like and subscribe/i,
-                /share this video/i,
-                /social media/i,
-                /youtube/i,
-                /music/i,
-                /background music/i,
-                /click the bell/i,
-                /notification/i,
-                /outro/i,
-                /intro/i,
-                /thanks for/i,
-                /if you enjoyed/i,
-                /don't forget to/i,
-                /hit that/i,
-                /🔔/,
-                /📢/,
-                /👍/,
-                /💖/,
-                /~!/
-              ];
-              
-              const hasInvalidContent = invalidPatterns.some(pattern => pattern.test(text));
-              const isValid = text.length >= 10 && 
-                             /[a-zA-Z]/.test(text) &&
-                             !hasInvalidContent &&
-                             !/^[^\w]*$/.test(text);
-              
-              if (isValid) {
-                console.log('✅ Valid speech accepted');
-                
-                // Simulate real-time word-by-word display for user speech
-                if (currentUserMessageId && text !== accumulatedText) {
-                  const newWords = text.split(' ');
-                  const oldWords = accumulatedText.split(' ').filter(w => w.length > 0);
-                  
-                  // Animate new words appearing
-                  for (let i = oldWords.length; i < newWords.length; i++) {
-                    setTimeout(() => {
-                      const partialText = newWords.slice(0, i + 1).join(' ');
-                      setMessages(prev => prev.map(msg => 
-                        msg.id === currentUserMessageId 
-                          ? { ...msg, content: partialText, isPartial: true }
-                          : msg
-                      ));
-                    }, (i - oldWords.length) * 150); // 150ms delay between words
-                  }
-                  
-                  accumulatedText = text;
-                }
-                
-                // Clear previous timeout
-                if (userTranscriptTimeout) {
-                  clearTimeout(userTranscriptTimeout);
-                }
-                
-                // Set timeout to finalize user message and get AI response
-                userTranscriptTimeout = setTimeout(async () => {
-                  if (currentUserMessageId) {
-                    // Finalize the user message
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === currentUserMessageId 
-                        ? { ...msg, content: accumulatedText, isPartial: false }
-                        : msg
-                    ));
-                    
-                    await getAIResponse(accumulatedText);
-                    currentUserMessageId = null;
-                    accumulatedText = '';
-                  }
-                }, 20000); // Give user 20 seconds to continue speaking
-                
-              } else {
-                console.log('🗑️ Filtered out speech:', text);
-              }
-            }
-          } catch (error) {
-            console.error('❌ Speech processing error:', error);
-          } finally {
-            isProcessingRef.current = false;
-            setTimeout(createRecording, 5000); // Longer delay between recordings
-          }
-        };
-        
-        console.log('🎤 Starting recording...');
-        try {
-          mediaRecorder.start();
-          
-          // Record for 10 seconds to give user more time
-          setTimeout(() => {
-            if (mediaRecorder.state === 'recording') {
-              mediaRecorder.stop();
-            }
-          }, 10000);
-        } catch (error) {
-          console.error('❌ MediaRecorder start error:', error);
-          isProcessingRef.current = false;
-          setTimeout(createRecording, 5000);
-        }
-      };
-      
-      // Start after delay
-      setTimeout(createRecording, 5000);
-      
-    } catch (error) {
-      console.error('❌ Microphone error:', error);
-      toast({
-        title: "Microphone Error",
-        description: "Could not access microphone. Please check permissions.",
-        variant: "destructive",
-      });
-    }
-  };
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: userInput.trim(),
+      sender: 'user',
+      timestamp: new Date()
+    };
 
-  const getAIResponse = async (userMessage: string) => {
-    console.log('🤖 Getting AI response for:', userMessage.substring(0, 50) + '...');
-    
+    setMessages(prev => [...prev, userMessage]);
+    setUserInput("");
+    setIsAiTyping(true);
+
     try {
-      const { data, error } = await supabase.functions.invoke('ai-interviewer', {
+      // Check if this should be the last question
+      const nextQuestionNumber = currentQuestionNumber + 1;
+      const isLastQuestion = nextQuestionNumber > interviewDetails.numberOfQuestions;
+
+      const { data, error } = await supabase.functions.invoke('claude-interviewer', {
         body: { 
-          message: userMessage,
-          jobPosting: interviewDetails?.jobPosting,
-          interviewType: interviewDetails?.interviewType,
-          numberOfQuestions: interviewDetails?.numberOfQuestions,
-          questionContext: `Question ${currentQuestionIndex + 1} of ${interviewDetails?.numberOfQuestions}`
+          message: userInput.trim(),
+          interviewer: interviewDetails.interviewer,
+          jobPosting: interviewDetails.jobPosting,
+          conversationHistory: messages,
+          isFirstMessage: false,
+          numberOfQuestions: interviewDetails.numberOfQuestions,
+          currentQuestionNumber: isLastQuestion ? interviewDetails.numberOfQuestions : nextQuestionNumber
         }
       });
       
@@ -606,12 +196,26 @@ export default function InterviewSession() {
       }
       
       if (data?.response) {
-        console.log('✅ AI response received:', data.response.substring(0, 50) + '...');
+        // Add AI message with typing animation
+        const aiMessage: Message = {
+          id: Date.now().toString(),
+          content: "",
+          sender: 'ai',
+          timestamp: new Date(),
+          isTyping: true
+        };
         
-        // Speak the AI response (this will handle adding the message with real-time transcript)
-        await speakMessage(data.response);
+        setMessages(prev => [...prev, aiMessage]);
         
-        setCurrentQuestionIndex(prev => prev + 1);
+        // Simulate typing effect
+        await typeMessage(data.response, aiMessage.id);
+        
+        // Update question number or mark interview complete
+        if (isLastQuestion) {
+          setIsInterviewComplete(true);
+        } else {
+          setCurrentQuestionNumber(nextQuestionNumber);
+        }
       }
     } catch (error) {
       console.error('❌ AI response error:', error);
@@ -620,79 +224,110 @@ export default function InterviewSession() {
         description: "Could not get AI response. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsAiTyping(false);
     }
   };
 
-  const blobToBase64 = (blob: Blob): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const exportTranscript = () => {
+    const transcript = messages
+      .map(msg => `${msg.sender === 'ai' ? 'Interviewer' : 'You'}: ${msg.content}`)
+      .join('\n\n');
+    
+    const blob = new Blob([transcript], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `interview-transcript-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Transcript Exported",
+      description: "Your interview transcript has been downloaded.",
     });
   };
 
   const handleBackToDashboard = () => {
-    // Clean up all media resources
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-    }
-    if (audioElementRef.current) {
-      audioElementRef.current.pause();
-      audioElementRef.current.src = '';
-    }
-    
     navigate('/dashboard');
   };
+
+  if (!interviewDetails) {
+    return null;
+  }
+
+  const currentInterviewer = interviewerData[interviewDetails.interviewer as keyof typeof interviewerData];
 
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navigation Bar */}
-      <div className="border-b border-border bg-background px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/lovable.svg" alt="Lovable" className="h-8 w-8" />
-          </div>
-          
-          <Button
-            variant="ghost"
-            onClick={handleBackToDashboard}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </Button>
-        </div>
+      <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
+        <div className="text-xl font-bold text-foreground">~ InterviewAce</div>
+        <Button
+          variant="outline"
+          onClick={handleBackToDashboard}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </Button>
       </div>
-      
-      {/* Main Content Area */}
-      <div className="h-[calc(100vh-89px)] flex">
-        {/* Transcript Section - SMALLER */}
-        <div className="w-96 bg-background border-r border-border flex flex-col">
-          <div className="p-4 border-b border-border">
-            <h2 className="text-lg font-medium">Interview Transcript</h2>
+
+      {/* Main Content */}
+      <div className="flex h-[calc(100vh-112px)] p-4 gap-4">
+        {/* Left Panel - Transcript */}
+        <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
+          <div className="border-b p-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Interview Transcript</h2>
+              {messages.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportTranscript}
+                  className="flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Export
+                </Button>
+              )}
+            </div>
+            {isInterviewStarted && (
+              <div className="mt-2 text-sm text-muted-foreground">
+                {isInterviewComplete ? (
+                  <span className="text-green-600 font-medium">Interview Complete</span>
+                ) : (
+                  <span>Question {currentQuestionNumber} of {interviewDetails.numberOfQuestions}</span>
+                )}
+              </div>
+            )}
           </div>
           
           <ScrollArea className="flex-1 p-4">
-            {!interviewStarted ? (
+            {!isInterviewStarted ? (
               <div className="h-full flex items-center justify-center">
-                <div className="text-center space-y-4 max-w-xs">
+                <div className="text-center space-y-4 max-w-md">
                   <h3 className="text-lg font-medium">Ready to begin?</h3>
                   <p className="text-sm text-muted-foreground">
-                    Click the button below to begin your initial-screen interview. This will enable audio and start the conversation.
+                    Your interview with <strong>{interviewDetails.interviewer}</strong> is ready to start. 
+                    This will be a {interviewDetails.numberOfQuestions}-question text-based interview 
+                    for the {interviewDetails.interviewType} position.
                   </p>
                   
                   <Button 
-                    onClick={startActualInterview}
+                    onClick={startInterview}
                     disabled={isLoading}
                     size="lg"
-                    className="px-6"
+                    className="px-8"
                   >
                     {isLoading ? "Starting..." : "Start Interview"}
                   </Button>
@@ -700,117 +335,150 @@ export default function InterviewSession() {
               </div>
             ) : messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-sm text-muted-foreground">Conversation will appear here...</p>
+                <p className="text-sm text-muted-foreground">Starting conversation...</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex items-start space-x-2 ${
+                    className={`flex items-start space-x-3 ${
                       message.sender === 'ai' ? 'justify-start' : 'justify-end'
                     }`}
                   >
                     {message.sender === 'ai' && (
-                      <Avatar className="h-6 w-6 flex-shrink-0">
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage src={currentInterviewer?.image} />
                         <AvatarFallback className="bg-primary text-primary-foreground">
-                          <Bot className="h-3 w-3" />
+                          <Bot className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
                     )}
                     <div
-                      className={`max-w-[85%] rounded-lg p-2 ${
+                      className={`max-w-[80%] rounded-lg p-3 ${
                         message.sender === 'ai'
                           ? 'bg-muted'
                           : 'bg-primary text-primary-foreground'
                       }`}
-                     >
-                       <p className={`text-xs ${message.isPartial ? 'opacity-75 italic' : ''}`}>
-                         {message.content}
-                         {message.isPartial && <span className="animate-pulse">...</span>}
-                       </p>
-                       <p className="text-xs opacity-70 mt-1">
-                         {message.timestamp.toLocaleTimeString()}
-                       </p>
+                    >
+                      <p className={`text-sm ${message.isTyping ? 'opacity-75' : ''}`}>
+                        {message.content}
+                        {message.isTyping && <span className="animate-pulse ml-1">...</span>}
+                      </p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
                     </div>
                     {message.sender === 'user' && (
-                      <Avatar className="h-6 w-6 flex-shrink-0">
+                      <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarFallback className="bg-secondary">
-                          <User className="h-3 w-3" />
+                          <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
                     )}
                   </div>
                 ))}
+                <div ref={messagesEndRef} />
               </div>
             )}
           </ScrollArea>
-        </div>
-        
-        {/* AI Interviewer Section - LARGER */}
-        <div className="flex-1 bg-muted/50 flex flex-col">
-          {/* Status Bar */}
-          <div className="p-6 border-b border-border bg-background">
-            <h3 className="text-lg font-medium mb-4">AI Interviewer</h3>
-            <div className="grid grid-cols-3 gap-3">
-              {/* AI Status */}
-              <div className="text-center">
-                <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${
-                  isAiSpeaking ? 'bg-green-500 animate-pulse' : 'bg-muted-foreground/30'
-                }`}></div>
-                <span className="text-xs text-muted-foreground">
-                  {isAiSpeaking ? 'Speaking' : 'Waiting'}
-                </span>
-              </div>
-              
-              {/* Camera Status */}
-              <div className="text-center">
-                <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${
-                  cameraStream ? 'bg-green-500' : 'bg-red-500'
-                }`}></div>
-                <span className="text-xs text-muted-foreground">Camera</span>
-              </div>
-              
-              {/* Microphone Status */}
-              <div className="text-center">
-                <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${
-                  isListening ? 'bg-green-500 animate-pulse' : 'bg-muted-foreground/30'
-                }`}></div>
-                <span className="text-xs text-muted-foreground">
-                  {isListening ? 'Listening' : 'Mic Off'}
-                </span>
-              </div>
-            </div>
-          </div>
           
-          {/* Camera Preview */}
-          <div className="flex-1 p-6">
-            <div className="bg-muted rounded-lg aspect-video relative overflow-hidden">
-              {cameraError ? (
-                <div className="flex items-center justify-center h-full text-muted-foreground text-sm text-center p-4">
-                  <div>
-                    <p className="mb-2">Camera Error</p>
-                    <p className="text-xs">{cameraError}</p>
-                  </div>
-                </div>
-              ) : cameraStream ? (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover scale-x-[-1]"
+          {/* Input Area */}
+          {isInterviewStarted && !isInterviewComplete && (
+            <div className="border-t p-4">
+              <div className="flex space-x-2">
+                <Input
+                  ref={inputRef}
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={isAiTyping ? "AI is typing..." : "Type your response..."}
+                  disabled={isAiTyping}
+                  className="flex-1"
                 />
-              ) : (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-muted-foreground/20 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <User className="w-6 h-6" />
-                    </div>
-                    <p className="text-sm">Camera Preview</p>
+                <Button
+                  onClick={sendMessage}
+                  disabled={!userInput.trim() || isAiTyping}
+                  size="icon"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+              {isAiTyping && (
+                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
+                  <span>{interviewDetails.interviewer} is typing...</span>
                 </div>
               )}
+            </div>
+          )}
+        </div>
+
+        {/* Right Panel - Split Sections */}
+        <div className="flex-1 flex flex-col gap-4">
+          {/* AI Interviewer Section */}
+          <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
+            <div className="border-b p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`w-3 h-3 rounded-full ${
+                  isAiTyping ? 'bg-green-500 animate-pulse' : 'bg-muted-foreground/30'
+                }`}></div>
+                <h3 className="text-lg font-semibold">
+                  {isAiTyping ? 'AI is Typing' : 'AI Interviewer'}
+                </h3>
+              </div>
+              {currentInterviewer && (
+                <div className="text-sm text-muted-foreground">
+                  <div className="font-medium">{interviewDetails.interviewer}</div>
+                  <div>{currentInterviewer.title}</div>
+                  <div className="text-xs">{currentInterviewer.style}</div>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 flex items-center justify-center bg-muted/20">
+              {currentInterviewer ? (
+                <div className="text-center">
+                  <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-muted">
+                    <img 
+                      src={currentInterviewer.image} 
+                      alt={interviewDetails.interviewer}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="text-lg font-medium">{interviewDetails.interviewer}</div>
+                  <div className="text-sm text-muted-foreground">{currentInterviewer.title}</div>
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground">
+                  <Bot className="w-16 h-16 mx-auto mb-2" />
+                  <p>AI Interviewer</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* User Section (Placeholder) */}
+          <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
+            <div className="border-b p-4">
+              <h3 className="text-lg font-semibold">Your Space</h3>
+              <div className="text-sm text-muted-foreground">
+                Take notes, prepare responses
+              </div>
+            </div>
+            <div className="flex-1 flex items-center justify-center bg-muted/10">
+              <div className="text-center text-muted-foreground">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
+                  <User className="w-12 h-12" />
+                </div>
+                <p className="text-sm">Your preparation space</p>
+                <p className="text-xs text-muted-foreground/70">
+                  Use this area for notes or preparation
+                </p>
+              </div>
             </div>
           </div>
         </div>
