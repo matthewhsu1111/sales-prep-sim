@@ -1,5 +1,6 @@
 export const interviewQuestions = {
   "Initial Screen": [
+    // Background and experience
     "Walk me through your professional background and how it led you to this SDR role.",
     "What specifically attracted you to our company and this sales position?",
     "What do you know about our company and our products/services?",
@@ -10,6 +11,7 @@ export const interviewQuestions = {
     "What CRM systems have you worked with?",
     "What's your understanding of the SDR/BDR role and its importance?",
     "How do you stay current with trends in our industry?",
+    // Motivation & Culture Fit
     "Why are you transitioning from hospitality to tech sales?",
     "What motivates you to succeed in sales?",
     "How would you describe your work ethic?",
@@ -20,6 +22,7 @@ export const interviewQuestions = {
     "How would your previous managers describe you?",
     "What aspect of sales brings you the most satisfaction?",
     "What's your proudest professional achievement to date?",
+    // Role-Specific Questions
     "What's your approach to prospecting?",
     "How do you prioritize your time when working toward a quota?",
     "What's your experience with cold calling or cold outreach?",
@@ -32,6 +35,7 @@ export const interviewQuestions = {
     "How many calls/emails do you think are reasonable to expect per day?"
   ],
   "Hiring Manager": [
+    // Sales Capabilities
     "How do you qualify a prospect?",
     "Tell me about a time you turned an uninterested prospect into a customer.",
     "What's your approach to objection handling?",
@@ -42,6 +46,7 @@ export const interviewQuestions = {
     "How do you determine if a prospect is a good fit?",
     "Tell me about your listening skills during sales conversations.",
     "How do you follow up with prospects who go silent?",
+    // Strategic Thinking
     "How would you approach your first 30/60/90 days in this role?",
     "What metrics would you use to measure your own success?",
     "How do you think an SDR/BDR can contribute to the company's growth?",
@@ -52,6 +57,7 @@ export const interviewQuestions = {
     "What's your understanding of our competitive landscape?",
     "How would you handle a situation where you noticed a gap in our offering?",
     "Tell me about a time you had to pivot your strategy to achieve results.",
+    // Behavioral and Situational
     "Tell me about a time you received tough feedback. How did you respond?",
     "Describe a situation where you had to work effectively under pressure.",
     "Give me an example of how you've collaborated with team members.",
@@ -62,6 +68,7 @@ export const interviewQuestions = {
     "How do you handle conflicts with coworkers?",
     "Give me an example of how you've shown resilience in a challenging situation.",
     "Tell me about a time you identified a problem and took initiative to fix it.",
+    // Technical/Role-Play - Cold Call Simulation
     "Role-play a cold call to me as if I were a [specific persona] at [specific company].",
     "How would you respond if I told you I'm not interested right away?",
     "How would you handle the objection: 'We're already working with [competitor]'?",
@@ -72,6 +79,7 @@ export const interviewQuestions = {
     "How would you ask for a meeting?",
     "How would you respond if I asked for a detailed explanation of your product?",
     "What would you do if I asked for a significant discount during the first call?",
+    // Email and LinkedIn Outreach
     "Draft a cold email you would send to a VP of Marketing.",
     "How would you follow up on an email that received no response?",
     "What subject lines have you found most effective in outreach?",
@@ -82,6 +90,7 @@ export const interviewQuestions = {
     "How do you leverage company news in your outreach?",
     "What's your approach to multi-threading within an organization?",
     "How many touchpoints do you typically include in an outreach sequence?",
+    // Product Knowledge and Situational
     "How would you explain our product to someone with a non-technical background?",
     "What do you see as our product's key differentiators?",
     "How would you position our solution against [specific competitor]?",
@@ -94,6 +103,7 @@ export const interviewQuestions = {
     "How would you qualify a prospect's timeline and budget?"
   ],
   "Executive Interview": [
+    // Strategic Vision
     "What trends do you see affecting our industry in the next 2-3 years?",
     "How do you think our company should respond to [recent industry change]?",
     "What do you believe makes a successful sales organization?",
@@ -104,6 +114,7 @@ export const interviewQuestions = {
     "How would you help bridge the gap between sales and customer success?",
     "What do you think sets top-performing SDRs apart from average ones?",
     "How do you see the SDR role evolving in the coming years?",
+    // Leadership and Team Dynamics
     "How do you prefer to be managed?",
     "Tell me about a time you took on a leadership role, formal or informal.",
     "How do you handle competitive environments?",
@@ -114,6 +125,7 @@ export const interviewQuestions = {
     "What's your approach to continuous learning and development?",
     "How do you balance individual goals with team objectives?",
     "What would make you stay at a company long-term?",
+    // Advanced Selling and Business Acumen
     "How do you connect business challenges to our solutions?",
     "What's your understanding of our company's go-to-market strategy?",
     "How would you articulate our product's ROI to a CFO?",
