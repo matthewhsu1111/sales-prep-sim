@@ -153,7 +153,7 @@ Keep responses conversational and under 100 words unless providing final feedbac
     console.log('🎯 Sending to Claude with', messages.length, 'messages');
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-3-5-haiku-20241022",
       max_tokens: 500,
       temperature: 0.7,
       system: systemPrompt,
