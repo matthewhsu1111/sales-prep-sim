@@ -143,22 +143,37 @@ Position: ${jobPosting.title || 'N/A'}
 Role Type: ${jobPosting.roleType || 'N/A'}
 Key Requirements: ${jobPosting.keyRequirements?.join(', ') || 'N/A'}
 Salary Range: ${jobPosting.salaryRange || 'N/A'}
+Interview Type: ${jobPosting.interviewType || 'N/A'}
 
 Tailor your questions to assess fit for this specific role and company.`;
     }
 
-    // Add interview type and questions context if available
-    if (jobPosting?.interviewType) {
-      systemPrompt += `
+    // Get interview type from jobPosting
+    const interviewType = jobPosting?.interviewType || 'Initial Screen';
+    
+    systemPrompt += `
 
-Interview Type: ${jobPosting.interviewType}
+Interview Type: ${interviewType}
 
-Use questions appropriate for this interview stage. Draw from the relevant question bank:
-- Initial Screen: Focus on background, experience, motivation, culture fit, and basic role-specific questions
-- Hiring Manager: Emphasize sales capabilities, strategic thinking, behavioral situations, technical role-play, email/LinkedIn outreach, and product knowledge
-- Executive Interview: Concentrate on strategic vision, leadership, team dynamics, and advanced selling/business acumen
+CRITICAL: You must use questions specifically appropriate for the "${interviewType}" interview stage. Draw from these question categories:
 
-Select questions that naturally flow with the conversation and assess the candidate's fit for this specific interview stage.`;
+For "Initial Screen":
+- Background and experience questions (professional journey, company attraction, industry knowledge)
+- Motivation & culture fit questions (work ethic, career goals, handling rejection)
+- Basic role-specific questions (prospecting approach, cold calling comfort, quota expectations)
+
+For "Hiring Manager":
+- Sales capabilities (qualification, objection handling, personalization, discovery calls)
+- Strategic thinking (30/60/90 days, metrics, territory management, competitive landscape)
+- Behavioral situations (tough feedback, pressure, collaboration, failure scenarios)
+- Technical role-play (cold call simulation, email outreach, objection responses)
+
+For "Executive Interview":
+- Strategic vision (industry trends, company growth, sales organization success)
+- Leadership and team dynamics (management style, competitive environments, knowledge sharing)
+- Advanced selling and business acumen (ROI articulation, multi-level selling, decision processes)
+
+Select questions that naturally flow with the conversation and assess the candidate's fit for this specific interview stage. Use the exact question types listed above for the current interview type.`;
     }
 
     // Add interview progress context

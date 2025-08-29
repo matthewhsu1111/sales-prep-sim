@@ -286,31 +286,54 @@ export default function InterviewSession() {
       <div className="flex h-[calc(100vh-112px)] p-4 gap-4">
         {/* Left Panel - Transcript */}
         <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
-          <div className="border-b p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Interview Transcript</h2>
-              {messages.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={exportTranscript}
-                  className="flex items-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Export
-                </Button>
-              )}
-            </div>
-            {isInterviewStarted && (
-              <div className="mt-2 text-sm text-muted-foreground">
-                {isInterviewComplete ? (
-                  <span className="text-green-600 font-medium">Interview Complete</span>
-                ) : (
-                  <span>Question {currentQuestionNumber} of {interviewDetails.numberOfQuestions}</span>
+            <div className="border-b p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold">Interview Transcript</h2>
+                  <div className="text-sm text-muted-foreground">
+                    {interviewDetails.interviewType} Interview
+                  </div>
+                </div>
+                {messages.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportTranscript}
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export
+                  </Button>
                 )}
               </div>
-            )}
-          </div>
+              {isInterviewStarted && (
+                <div className="mt-2 text-sm text-muted-foreground">
+                  {isInterviewComplete ? (
+                    <div className="flex items-center justify-between">
+                      <span className="text-green-600 font-medium">Interview Complete</span>
+                      <Button
+                        onClick={() => navigate('/dashboard/interview-results', {
+                          state: {
+                            interviewer: interviewDetails.interviewer,
+                            interviewType: interviewDetails.interviewType,
+                            transcript: messages
+                              .map(msg => `${msg.sender === 'ai' ? 'Interviewer' : 'You'}: ${msg.content}`)
+                              .join('\n\n'),
+                            jobPosting: interviewDetails.jobPosting
+                          }
+                        })}
+                        size="sm"
+                        className="ml-4"
+                      >
+                        View Results
+                      </Button>
+                    </div>
+                  ) : (
+                    <span>Question {currentQuestionNumber} of {interviewDetails.numberOfQuestions}</span>
+                  )}
+                </div>
+              )}
+            </div>
           
           <ScrollArea className="flex-1 p-4">
             {!isInterviewStarted ? (
