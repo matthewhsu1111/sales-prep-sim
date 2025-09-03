@@ -193,7 +193,6 @@ For "Executive Interview":
 - Advanced selling and business acumen (ROI articulation, multi-level selling, decision processes)
 
 Select questions that naturally flow with the conversation and assess the candidate's fit for this specific interview stage. Use the exact question types listed above for the current interview type.`;
-    }
 
     // Add interview progress context
     systemPrompt += `
