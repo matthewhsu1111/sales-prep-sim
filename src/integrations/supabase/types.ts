@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      interview_sessions: {
+        Row: {
+          analysis_results: Json
+          created_at: string
+          id: string
+          improvements: Json
+          interview_type: string
+          interviewer_name: string
+          job_posting: Json | null
+          overall_score: number
+          scores: Json
+          strengths: Json
+          transcript: string | null
+          updated_at: string
+          user_id: string
+          weaknesses: Json
+        }
+        Insert: {
+          analysis_results?: Json
+          created_at?: string
+          id?: string
+          improvements?: Json
+          interview_type: string
+          interviewer_name: string
+          job_posting?: Json | null
+          overall_score?: number
+          scores?: Json
+          strengths?: Json
+          transcript?: string | null
+          updated_at?: string
+          user_id: string
+          weaknesses?: Json
+        }
+        Update: {
+          analysis_results?: Json
+          created_at?: string
+          id?: string
+          improvements?: Json
+          interview_type?: string
+          interviewer_name?: string
+          job_posting?: Json | null
+          overall_score?: number
+          scores?: Json
+          strengths?: Json
+          transcript?: string | null
+          updated_at?: string
+          user_id?: string
+          weaknesses?: Json
+        }
+        Relationships: []
+      }
       job_postings: {
         Row: {
           company_name: string

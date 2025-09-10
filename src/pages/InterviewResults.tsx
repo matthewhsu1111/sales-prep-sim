@@ -50,11 +50,16 @@ export default function InterviewResults() {
 
     setIsLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const { data, error } = await supabase.functions.invoke('analyze-interview', {
         body: {
           transcript: interviewData.transcript,
           interviewType: interviewData.interviewType,
-          jobPosting: interviewData.jobPosting
+          jobPosting: interviewData.jobPosting,
+          interviewer: interviewData.interviewer
+        },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`
         }
       });
 
