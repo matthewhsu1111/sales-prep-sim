@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_task_completions: {
+        Row: {
+          completed_at: string
+          created_at: string
+          date_completed: string
+          day_number: number
+          id: string
+          task_description: string
+          task_type: string
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          date_completed?: string
+          day_number: number
+          id?: string
+          task_description: string
+          task_type: string
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          date_completed?: string
+          day_number?: number
+          id?: string
+          task_description?: string
+          task_type?: string
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
       interview_sessions: {
         Row: {
           analysis_results: Json
@@ -107,12 +143,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_progress: {
+        Row: {
+          created_at: string
+          current_day: number
+          current_streak: number
+          current_week: number
+          id: string
+          last_completion_date: string | null
+          longest_streak: number
+          total_days_completed: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_day?: number
+          current_streak?: number
+          current_week?: number
+          id?: string
+          last_completion_date?: string | null
+          longest_streak?: number
+          total_days_completed?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_day?: number
+          current_streak?: number
+          current_week?: number
+          id?: string
+          last_completion_date?: string | null
+          longest_streak?: number
+          total_days_completed?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      initialize_user_progress: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
