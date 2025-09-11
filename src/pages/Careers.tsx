@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Flame, Calendar, Target, TrendingUp, CheckCircle, Clock } from "lucide-react";
+import { Flame, Calendar, Target, TrendingUp } from "lucide-react";
 
 interface UserProgress {
   current_week: number;
@@ -36,7 +36,7 @@ const WEEKDAY_TASKS = [
 ];
 
 const WEEKEND_TASKS = [
-  { id: "applications", type: "applications", description: "5 new applications per day" }
+  { id: "applications", type: "applications", description: "5 new applications" }
 ];
 
 export default function Careers() {
@@ -48,9 +48,8 @@ export default function Careers() {
 
   const getCurrentDayTasks = () => {
     const dayOfWeek = currentDate.getDay();
-    // Monday-Thursday = interview focus, Friday-Sunday = application marathon
-    const isApplicationDay = dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6; // Sunday, Friday, Saturday
-    return isApplicationDay ? WEEKEND_TASKS : WEEKDAY_TASKS;
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6; // Sunday, Friday, Saturday
+    return isWeekend ? WEEKEND_TASKS : WEEKDAY_TASKS;
   };
 
   const initializeUserProgress = async () => {
@@ -239,52 +238,60 @@ export default function Careers() {
   return (
     <div className="flex-1 space-y-6 p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="text-center space-y-2">
+      <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Welcome to Cadence Careers!</h1>
         <p className="text-muted-foreground">
           Follow our proven week-by-week system to land sales interviews faster than ever before
         </p>
       </div>
 
-      {/* Progress Stats */}
+      {/* Progress Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Week</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Week {userProgress?.current_week || 1}</div>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-sm font-medium">Week {userProgress?.current_week || 1}</p>
+                <p className="text-xs text-muted-foreground">Day {userProgress?.current_day || 1}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
-            <Flame className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{userProgress?.current_streak || 0} days</div>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Flame className="h-4 w-4 text-orange-500" />
+              <div>
+                <p className="text-sm font-medium">{userProgress?.current_streak || 0} Day Streak</p>
+                <p className="text-xs text-muted-foreground">Keep it going!</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Longest Streak</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{userProgress?.longest_streak || 0} days</div>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Target className="h-4 w-4 text-green-500" />
+              <div>
+                <p className="text-sm font-medium">{userProgress?.total_days_completed || 0} Days</p>
+                <p className="text-xs text-muted-foreground">Completed</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Complete</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{userProgress?.total_days_completed || 0} days</div>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="h-4 w-4 text-blue-500" />
+              <div>
+                <p className="text-sm font-medium">{userProgress?.longest_streak || 0} Days</p>
+                <p className="text-xs text-muted-foreground">Best Streak</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -296,40 +303,33 @@ export default function Careers() {
             <div>
               <CardTitle className="text-xl">Your Daily Action Plan</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
+                {dayOfWeek} • {currentTime}
+              </p>
+              <p className="text-sm text-muted-foreground">
                 Each week builds momentum. Each day moves you closer to your ideal sales role.
               </p>
             </div>
             {allTasksCompleted && (
-              <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                <CheckCircle className="w-4 h-4 mr-1" />
-                Day Complete!
+              <Badge variant="default" className="bg-green-500/10 text-green-600 border-green-200">
+                Day Complete! 🎉
               </Badge>
             )}
           </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Current Date and Progress */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="w-4 h-4" />
-              {dayOfWeek} • {currentTime}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span>Daily Progress</span>
+              <span>{Math.round(completionPercentage)}%</span>
             </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Day {userProgress?.current_day || 1} Progress</span>
-                <span>{Math.round(completionPercentage)}% Complete</span>
-              </div>
-              <Progress value={completionPercentage} className="w-full" />
-            </div>
+            <Progress value={completionPercentage} className="h-2" />
           </div>
-
-          {/* Tasks */}
-          <div className="space-y-4">
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg">Day {userProgress?.current_day || 1}</h3>
             {dailyTasks.map((task) => (
               <div
                 key={task.id}
-                className="flex items-start space-x-3 p-4 rounded-lg border transition-colors hover:bg-muted/50"
+                className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
               >
                 <Checkbox
                   id={task.id}
@@ -338,7 +338,7 @@ export default function Careers() {
                 />
                 <label
                   htmlFor={task.id}
-                  className={`flex-1 text-sm cursor-pointer ${
+                  className={`flex-1 cursor-pointer text-sm ${
                     task.completed ? 'line-through text-muted-foreground' : ''
                   }`}
                 >
@@ -348,20 +348,8 @@ export default function Careers() {
             ))}
           </div>
 
-          {allTasksCompleted && (
-            <div className="text-center p-6 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-              <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-1">
-                Excellent Work!
-              </h3>
-              <p className="text-green-700 dark:text-green-300 text-sm">
-                You've completed all tasks for today. Your streak continues!
-              </p>
-            </div>
-          )}
-
           {!allTasksCompleted && (
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
+            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
                 Complete all tasks to unlock tomorrow's challenges and build your streak! 🔥
               </p>
