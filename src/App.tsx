@@ -14,6 +14,7 @@ import InterviewResults from "./pages/InterviewResults";
 import Signin from "./pages/Signin";
 import ProfileSetup from "./pages/ProfileSetup";
 import NotFound from "./pages/NotFound";
+import Careers from "./pages/Careers";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
@@ -49,10 +50,7 @@ const App = () => (
             <Route path="/dashboard/interview-results" element={<InterviewResults />} />
             <Route path="/dashboard/careers" element={
               <DashboardLayout>
-                <div className="p-6">
-                  <h1 className="text-3xl font-bold">Careers</h1>
-                  <p className="text-muted-foreground mt-2">Coming soon...</p>
-                </div>
+                <Careers />
               </DashboardLayout>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
