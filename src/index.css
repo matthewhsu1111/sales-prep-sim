@@ -6,9 +6,12 @@
 
 @layer base {
   :root {
-    /* Core Brand Colors - Calming Blues & Professional Grays */
-    --background: 220 20% 99%;
+    /* Core Brand Colors - Clean & Minimalistic */
+    --background: 0 0% 100%;
     --foreground: 220 25% 15%;
+    
+    /* Custom gray for subheadlines and descriptions */
+    --text-gray: 210 14% 35%;
 
     --card: 220 15% 98%;
     --card-foreground: 220 25% 15%;

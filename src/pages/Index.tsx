@@ -159,29 +159,23 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Flowing Background Pattern */}
-      <div className="fixed inset-0 opacity-[0.02] pointer-events-none">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='%23000' fill-opacity='1'%3e%3cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20c11.046 0 20-8.954 20-20zm10-10c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e")`,
-        }} />
-      </div>
+    <div className="min-h-screen bg-white">{/* Clean white background */}
 
       {/* Navigation */}
-      <nav className="relative border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="relative border-b border-gray-200 bg-white">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
                 <Mic className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-xl">InterviewAce</span>
+              <span className="font-bold text-xl text-foreground">InterviewAce</span>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
-              <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">Testimonials</a>
-              <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
+              <a href="#features" className="text-gray-600 hover:text-foreground transition-colors">Features</a>
+              <a href="#testimonials" className="text-gray-600 hover:text-foreground transition-colors">Testimonials</a>
+              <a href="#pricing" className="text-gray-600 hover:text-foreground transition-colors">Pricing</a>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -201,25 +195,26 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
+      <section className="relative pt-24 pb-16 bg-white">
         <div className="container mx-auto px-4 max-w-7xl">
-          <div className="text-center space-y-8">
+          <div className="text-center space-y-6">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight max-w-5xl mx-auto">
               Stop Getting Rejected,
               <br />
               <span className="text-primary">Start Getting Job Offers</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Practice with AI interviewers who simulate real hiring managers.
-            </p>
-
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Build confidence, master role-plays, and turn interviews into job offers.
-            </p>
+            <div className="space-y-4">
+              <p className="text-xl md:text-2xl leading-relaxed max-w-3xl mx-auto" style={{color: 'rgb(75 85 99)'}}>
+                Practice with AI interviewers who simulate real hiring managers.
+              </p>
+              <p className="text-lg max-w-2xl mx-auto" style={{color: 'rgb(75 85 99)'}}>
+                Build confidence, master role-plays, and turn interviews into job offers.
+              </p>
+            </div>
 
             <div className="pt-4">
-              <p className="text-sm text-muted-foreground mb-6">
+              <p className="text-sm mb-6" style={{color: 'rgb(75 85 99)'}}>
                 Join 1,200+ Sales Professionals Who Got Hired
               </p>
               
@@ -245,11 +240,11 @@ const Index = () => {
 
             {/* VSL Placeholder */}
             <div className="relative max-w-4xl mx-auto mt-16">
-              <div className="relative z-10 bg-card rounded-2xl p-8 shadow-lg border">
-                <div className="aspect-video bg-muted rounded-xl flex items-center justify-center">
+              <div className="relative z-10 bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
+                <div className="aspect-video bg-gray-50 rounded-xl flex items-center justify-center">
                   <div className="text-center">
-                    <Play className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">Video Demo Placeholder</p>
+                    <Play className="h-16 w-16 mx-auto mb-4" style={{color: 'rgb(75 85 99)'}} />
+                    <p style={{color: 'rgb(75 85 99)'}}>Video Demo Placeholder</p>
                   </div>
                 </div>
               </div>
@@ -259,16 +254,16 @@ const Index = () => {
       </section>
 
       {/* Problem/Solution Callout */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
             Before You Sell Anything to Anyone, You First Have to Sell Yourself
           </h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl mb-8 max-w-3xl mx-auto leading-relaxed" style={{color: 'rgb(75 85 99)'}}>
             You can crush quotas, close deals, and be the best salesman in the world, but if you can't sell yourself in the interview, you'll never get the chance. 73% of sales candidates fail at the interview stage - not because they can't sell, but because they <em>can't interview</em>.
           </p>
           
-          <div className="bg-card rounded-xl p-8 shadow-lg border mt-12">
+          <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 mt-12">
             <h3 className="text-2xl font-bold text-foreground mb-4">
               That's Why We Created The Most Realistic Interview Practice Experience Possible…
             </h3>
@@ -277,20 +272,20 @@ const Index = () => {
       </section>
 
       {/* Meet Your AI Interview Team */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-foreground mb-4">
               Meet Your AI Interview Team
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-xl max-w-3xl mx-auto" style={{color: 'rgb(75 85 99)'}}>
               Each AI interviewer has unique personalities and testing styles - just like real hiring managers.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {interviewers.map((interviewer) => (
-              <Card key={interviewer.id} className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/20">
+              <Card key={interviewer.id} className="hover:shadow-sm transition-shadow cursor-pointer border border-gray-200 hover:border-primary/20 bg-white">
                 <CardHeader className="text-center">
                   <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden">
                     <img 
@@ -305,12 +300,12 @@ const Index = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="text-center space-y-4">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm" style={{color: 'rgb(75 85 99)'}}>
                     {interviewer.description}
                   </p>
                   <div className="pt-2">
                     <p className="text-sm font-medium text-foreground mb-2">What they'll test:</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs" style={{color: 'rgb(75 85 99)'}}>
                       {interviewer.testingStyle}
                     </p>
                   </div>
@@ -384,7 +379,7 @@ const Index = () => {
       )}
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-muted/30">
+      <section id="features" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="space-y-24">
             {features.map((feature, index) => (
@@ -401,12 +396,12 @@ const Index = () => {
                       {feature.title}
                     </h3>
                   </div>
-                  <p className="text-xl text-muted-foreground">
+                  <p className="text-xl" style={{color: 'rgb(75 85 99)'}}>
                     {feature.description}
                   </p>
                   <ul className="space-y-3">
                     {feature.details.map((detail, i) => (
-                      <li key={i} className="flex items-center gap-3 text-muted-foreground">
+                      <li key={i} className="flex items-center gap-3" style={{color: 'rgb(75 85 99)'}}>
                         <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
                         {detail}
                       </li>
@@ -416,8 +411,8 @@ const Index = () => {
                 
                 {/* GIF Placeholder */}
                 <div className="flex-1">
-                  <div className="aspect-video bg-card rounded-xl border shadow-lg flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
+                  <div className="aspect-video bg-white rounded-xl border border-gray-200 shadow-sm flex items-center justify-center">
+                    <div className="text-center" style={{color: 'rgb(75 85 99)'}}>
                       <FileText className="h-12 w-12 mx-auto mb-2" />
                       <p>Feature Demo</p>
                     </div>
@@ -430,7 +425,7 @@ const Index = () => {
       </section>
 
       {/* Testimonial */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-3xl font-bold text-foreground mb-12">Real People, Real Job Offers</h2>
           <blockquote className="text-2xl md:text-3xl font-medium text-foreground mb-8">
@@ -442,41 +437,41 @@ const Index = () => {
             </div>
             <div className="text-left">
               <div className="font-semibold">Sarah Chen</div>
-              <div className="text-muted-foreground">SDR at Salesforce</div>
+              <div style={{color: 'rgb(75 85 99)'}}>SDR at Salesforce</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ROI Calculator */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
               What's Your Potential Salary Increase?
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl" style={{color: 'rgb(75 85 99)'}}>
               The average career changer entering sales sees a $28,000/year increase. What about you?
             </p>
           </div>
 
-          <Card className="bg-card border shadow-lg">
+          <Card className="bg-white border border-gray-200 shadow-sm">
             <CardContent className="pt-8 space-y-6">
               <div className="text-center">
                 <Calculator className="h-12 w-12 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Interactive ROI Calculator</h3>
-                <p className="text-muted-foreground mb-6">Coming Soon - Calculate your potential income increase</p>
+                <p className="mb-6" style={{color: 'rgb(75 85 99)'}}>Coming Soon - Calculate your potential income increase</p>
                 <div className="space-y-4 text-left max-w-md mx-auto">
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-muted-foreground">Current role/salary input</span>
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span style={{color: 'rgb(75 85 99)'}}>Current role/salary input</span>
                     <span>→</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-muted-foreground">Target sales role selector</span>
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span style={{color: 'rgb(75 85 99)'}}>Target sales role selector</span>
                     <span>→</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-muted-foreground">Location selector</span>
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span style={{color: 'rgb(75 85 99)'}}>Location selector</span>
                     <span>→</span>
                   </div>
                   <div className="pt-4 text-center">
@@ -490,28 +485,28 @@ const Index = () => {
       </section>
 
       {/* Old Way vs New Way */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12">
             {/* Old Way */}
-            <Card className="border-destructive/20 bg-destructive/5">
+            <Card className="border-red-200 bg-red-50">
               <CardHeader>
-                <CardTitle className="text-2xl text-center text-destructive">Old Way</CardTitle>
+                <CardTitle className="text-2xl text-center text-red-600">Old Way</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center gap-3 text-destructive">
+                <div className="flex items-center gap-3 text-red-600">
                   <X className="h-5 w-5" />
                   <span>Practice with friends (who go easy on you)</span>
                 </div>
-                <div className="flex items-center gap-3 text-destructive">
+                <div className="flex items-center gap-3 text-red-600">
                   <X className="h-5 w-5" />
                   <span>Generic interview prep (not sales-specific)</span>
                 </div>
-                <div className="flex items-center gap-3 text-destructive">
+                <div className="flex items-center gap-3 text-red-600">
                   <X className="h-5 w-5" />
                   <span>Expensive 1-on-1 coaching ($300/session)</span>
                 </div>
-                <div className="flex items-center gap-3 text-destructive">
+                <div className="flex items-center gap-3 text-red-600">
                   <X className="h-5 w-5" />
                   <span>No feedback on confidence/delivery</span>
                 </div>
@@ -519,7 +514,7 @@ const Index = () => {
             </Card>
 
             {/* New Way */}
-            <Card className="border-primary/20 bg-primary/5">
+            <Card className="border-blue-200 bg-blue-50">
               <CardHeader>
                 <CardTitle className="text-2xl text-center text-primary">New Way</CardTitle>
               </CardHeader>
@@ -547,20 +542,20 @@ const Index = () => {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 bg-muted/30">
+      <section id="pricing" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
               Choose Your Plan
             </h2>
-            <p className="text-muted-foreground">Save 20% with annual billing</p>
+            <p style={{color: 'rgb(75 85 99)'}}>Save 20% with annual billing</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            <Card className="border-2">
+            <Card className="border-2 border-gray-200 bg-white">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">Starter</CardTitle>
-                <div className="text-4xl font-bold text-primary">$49<span className="text-lg text-muted-foreground">/month</span></div>
+                <div className="text-4xl font-bold text-primary">$49<span className="text-lg" style={{color: 'rgb(75 85 99)'}}>/month</span></div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
@@ -583,11 +578,11 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-primary">
+            <Card className="border-2 border-primary bg-white">
               <CardHeader className="text-center">
                 <Badge className="mb-2">Popular</Badge>
                 <CardTitle className="text-2xl">Pro</CardTitle>
-                <div className="text-4xl font-bold text-primary">$99<span className="text-lg text-muted-foreground">/month</span></div>
+                <div className="text-4xl font-bold text-primary">$99<span className="text-lg" style={{color: 'rgb(75 85 99)'}}>/month</span></div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
@@ -616,9 +611,9 @@ const Index = () => {
           </div>
 
           <div className="text-center mt-12 space-y-4">
-            <p className="text-muted-foreground">Get hired in 60 days or money back</p>
-            <div className="border-t pt-6">
-              <p className="text-muted-foreground mb-4">Or start with 3 free practice sessions</p>
+            <p style={{color: 'rgb(75 85 99)'}}>Get hired in 60 days or money back</p>
+            <div className="border-t border-gray-200 pt-6">
+              <p className="mb-4" style={{color: 'rgb(75 85 99)'}}>Or start with 3 free practice sessions</p>
               <Button variant="outline" size="lg" onClick={() => navigate('/signup')}>
                 Try For Free
               </Button>
@@ -628,7 +623,7 @@ const Index = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
@@ -638,11 +633,11 @@ const Index = () => {
 
           <Accordion type="single" collapsible className="space-y-4">
             {faqItems.map((item, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg px-6">
+              <AccordionItem key={index} value={`item-${index}`} className="border border-gray-200 rounded-lg px-6 bg-white">
                 <AccordionTrigger className="text-left font-semibold">
                   {item.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pt-2">
+                <AccordionContent className="pt-2" style={{color: 'rgb(75 85 99)'}}>
                   {item.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -652,12 +647,12 @@ const Index = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-primary/5">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
             Ready to Turn Interviews Into Job Offers?
           </h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-xl mb-8 max-w-2xl mx-auto" style={{color: 'rgb(75 85 99)'}}>
             Join 1,200+ sales professionals who stopped getting rejected and started getting hired.
           </p>
           <Button 
