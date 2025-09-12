@@ -97,7 +97,7 @@ const Signin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex h-16 items-center justify-between">
@@ -137,13 +137,13 @@ const Signin = () => {
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">
               Welcome Back
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-text-gray">
               Sign in to continue your interview training journey
             </p>
           </div>
 
           {/* Signin Form */}
-          <Card className="bg-gradient-card border-border/50 shadow-large">
+          <Card className="bg-white border border-border shadow-soft">
             <CardContent className="pt-6 space-y-6">
               <Button 
                 variant="outline" 
@@ -166,7 +166,7 @@ const Signin = () => {
                   <div className="w-full border-t border-border"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-background px-4 text-muted-foreground">Or sign in with email</span>
+                  <span className="bg-white px-4 text-text-gray">Or sign in with email</span>
                 </div>
               </div>
 
@@ -191,7 +191,7 @@ const Signin = () => {
                 
                 <Button 
                   type="submit"
-                  variant="hero" 
+                  variant="default" 
                   size="lg"
                   className="w-full text-lg py-6"
                   disabled={isLoading}
@@ -201,7 +201,7 @@ const Signin = () => {
               </form>
 
               <div className="text-center">
-                <span className="text-muted-foreground">Don't have an account? </span>
+                <span className="text-text-gray">Don't have an account? </span>
                 <button 
                   onClick={() => navigate('/signup')}
                   className="text-primary hover:underline font-medium"

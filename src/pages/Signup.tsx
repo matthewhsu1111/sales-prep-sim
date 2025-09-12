@@ -102,7 +102,7 @@ const Signup = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex h-16 items-center justify-between">
@@ -127,24 +127,6 @@ const Signup = () => {
         </div>
       </div>
 
-      {/* Progress Steps */}
-      <div className="container mx-auto px-4 max-w-2xl mt-8 mb-12">
-        <div className="flex items-center justify-center gap-8">
-          <div className="flex items-center gap-2">
-            <Badge variant="default" className="rounded-full">1</Badge>
-            <span className="text-primary font-medium">Register</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="rounded-full">2</Badge>
-            <span className="text-muted-foreground">Confirm</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="rounded-full">3</Badge>
-            <span className="text-muted-foreground">Start Training</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="w-full max-w-md space-y-8">
@@ -158,16 +140,15 @@ const Signup = () => {
           {/* Headline */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-              Train Smarter, Not Harder with AI
+              Create Your Account
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Join elite sales teams using InterviewAce AI to train against perfect AI prospects, get 
-              real-time feedback, and save hours per day managing sales teams.
+            <p className="text-text-gray">
+              Join thousands of professionals who improve their interview skills with AI
             </p>
           </div>
 
           {/* Signup Form */}
-          <Card className="bg-gradient-card border-border/50 shadow-large">
+          <Card className="bg-white border border-border shadow-soft">
             <CardContent className="pt-6 space-y-6">
               <Button 
                 variant="outline" 
@@ -190,14 +171,14 @@ const Signup = () => {
                   <div className="w-full border-t border-border"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-background px-4 text-muted-foreground">Or continue with</span>
+                  <span className="bg-white px-4 text-text-gray">Or sign up with email</span>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <Input
                   type="email"
-                  placeholder="Enter your business email"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="text-lg py-6"
@@ -205,25 +186,25 @@ const Signup = () => {
                 
                 <Input
                   type="password"
-                  placeholder="Create a secure password"
+                  placeholder="Create a password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="text-lg py-6"
                 />
                 
                 <Button 
-                  variant="hero" 
+                  variant="default" 
                   size="lg"
                   className="w-full text-lg py-6"
                   onClick={handleEmailSignup}
                   disabled={isLoading}
                 >
-                  Start Free Demo
+                  Sign Up
                 </Button>
               </div>
 
               <div className="text-center">
-                <span className="text-muted-foreground">Already using InterviewAce? </span>
+                <span className="text-text-gray">Already have an account? </span>
                 <button 
                   onClick={() => navigate('/signin')}
                   className="text-primary hover:underline font-medium"
@@ -233,20 +214,6 @@ const Signup = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
-
-      {/* Trust Section */}
-      <div className="container mx-auto px-4 max-w-4xl py-12">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-6">Trusted by leading sales teams</p>
-          <div className="flex items-center justify-center gap-8 opacity-60">
-            {trustLogos.map((logo, index) => (
-              <div key={index} className="text-muted-foreground font-medium">
-                {logo}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>
