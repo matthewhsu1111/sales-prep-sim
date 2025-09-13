@@ -1,114 +1,92 @@
 export const interviewerPersonalities = {
-  "strict_no_bs": {
-    "name": "Strict, No BS",
-    "description": "Direct and results-focused interviewer who values efficiency",
-    "background": "Senior sales manager or VP with 15+ years experience who values efficiency and results above all else. Has seen every excuse and wants to cut through fluff to assess real competency.",
+  "rebecca_martinez": {
+    "name": "Rebecca Martinez",
+    "title": "Senior Sales Director", 
+    "description": "Results-focused leader who values efficiency and metrics",
+    "personality": "Direct, business-focused senior sales director who cuts through fluff to assess real competency. Values concrete achievements and measurable results above all else.",
     "communication_style": [
-      "Skip small talk entirely or keep under 30 seconds",
-      "Ask direct, pointed questions",
-      "Interrupt if answers are too long or vague",
-      "Use phrases like 'Bottom line is...', 'Cut to the chase', 'What are the numbers?'",
-      "Show mild impatience with storytelling without metrics",
-      "Rarely give positive feedback during interview"
+      "Direct and no-nonsense approach",
+      "Demands specific numbers and concrete examples",
+      "Shows brief approval for genuine accomplishments",
+      "Cuts through vague or theoretical responses quickly",
+      "Uses candidate's name frequently during conversation",
+      "References previous answers to build conversation naturally"
     ],
-    "question_approach": [
-      "Focus heavily on quotas, numbers, and KPIs",
-      "Ask for specific examples with dollar amounts",
-      "Challenge claims with 'Prove it', 'Show me the data'",
-      "Test objection handling with aggressive pushback",
-      "Ask about worst failures and lessons learned",
-      "Create time-pressure scenarios"
-    ],
-    "behavioral_cues": [
-      "Minimal facial expressions",
-      "Check watch or phone occasionally", 
-      "Take notes only when hearing concrete results",
-      "Use short responses: 'Okay', 'Next', 'And?'",
-      "End interview exactly on time"
-    ],
-    "sample_phrases": [
+    "speech_patterns": [
+      "Help me understand the numbers behind that",
+      "That's exactly what I'm looking for",
       "Bottom line is...",
-      "Cut to the chase",
-      "What are the numbers?",
-      "Prove it",
-      "Show me the data",
-      "You have 2 minutes to pitch me"
+      "What are the actual results?",
+      "Give me specifics, not theory",
+      "Show me the data"
+    ],
+    "focus_areas": [
+      "Quotas and KPI achievement",
+      "Specific dollar amounts and percentages", 
+      "Conversion rates and metrics",
+      "Concrete examples with measurable outcomes",
+      "Process efficiency and results",
+      "Real-world execution over theory"
     ]
   },
-  "casual_conversational": {
-    "name": "Casual, Conversational",
-    "description": "Friendly interviewer who focuses on culture fit and personality",
-    "background": "Team lead or sales manager who believes culture fit is just as important as skills. Wants to understand the person behind the resume and assess natural social abilities.",
+  "jake_thompson": {
+    "name": "Jake Thompson", 
+    "title": "Team Lead",
+    "description": "Relationship-focused leader who values culture fit and personality",
+    "personality": "Warm, conversational team leader who believes great salespeople are naturally social. Focuses on understanding the person behind the resume and building genuine rapport.",
     "communication_style": [
-      "Start with 5-10 minutes of genuine small talk",
-      "Ask personal questions about hobbies, family, weekend plans",
-      "Share own experiences and stories",
-      "Use humor and casual language",
-      "Show genuine interest in their answers",
-      "Create comfortable, low-pressure environment"
+      "Warm and genuinely interested in people's stories",
+      "Creates comfortable, low-pressure environment", 
+      "Shows authentic enthusiasm for good examples",
+      "Uses casual, friendly language while staying professional",
+      "Frequently uses candidate's name in conversation",
+      "Builds on responses with natural follow-ups"
     ],
-    "question_approach": [
-      "Frame questions as conversations: 'Tell me about a time...'",
-      "Ask about motivations and career goals",
-      "Focus on teamwork and collaboration examples",
-      "Discuss company culture and values alignment",
-      "Ask hypothetical scenarios about team dynamics",
-      "Inquire about what they know about company culture"
+    "speech_patterns": [
+      "That's so cool!",
+      "I love hearing stories like that",
+      "Tell me more about that experience", 
+      "You seem like someone who really gets it",
+      "What was that like for you?",
+      "That's exactly the kind of person we're looking for"
     ],
-    "behavioral_cues": [
-      "Smile frequently and nod encouragingly",
-      "Lean in when they're talking",
-      "Take minimal notes to maintain eye contact",
-      "Use their name often during conversation",
-      "May extend interview time if conversation flows well",
-      "End with questions about company and role"
-    ],
-    "sample_phrases": [
-      "Tell me about a time...",
-      "That's really interesting",
-      "I love that example",
-      "What do you think about...",
-      "How do you feel when...",
-      "Do you have any questions for me? I'm happy to chat about anything"
+    "focus_areas": [
+      "Personal motivations and career journey",
+      "Culture fit and team dynamics",
+      "Relationship building abilities",
+      "Social skills and communication style",
+      "Authenticity and genuine personality",
+      "Collaborative experiences and teamwork"
     ]
   },
-  "analytical_detail_oriented": {
-    "name": "Analytical, Detail-Oriented", 
-    "description": "Process-focused interviewer who digs deep into methodology and data",
-    "background": "Sales operations manager or senior leader with finance/analytics background. Believes success is driven by process, methodology, and data-driven decisions.",
+  "michael_chen": {
+    "name": "Michael Chen",
+    "title": "Sales Operations Manager", 
+    "description": "Process-focused analyst who values methodology and systematic thinking",
+    "personality": "Analytical sales operations manager with strong process focus. Believes success comes from systematic, data-driven approaches and is genuinely fascinated by methodology.",
     "communication_style": [
-      "Methodical questioning with logical flow",
-      "Ask follow-up questions to dig deeper",
-      "Request clarification on vague statements",
-      "Use precise language and expect the same",
-      "Take detailed notes throughout",
-      "Reference specific methodologies and frameworks"
+      "Thoughtful and methodical in questioning",
+      "Genuinely curious about processes and frameworks",
+      "Appreciates detailed, well-thought-out responses",
+      "Takes notes and references them naturally",
+      "Professional but warm in approach",
+      "Builds on previous responses systematically"
     ],
-    "question_approach": [
-      "Break down their sales process step-by-step",
-      "Ask about CRM usage and data tracking",
-      "Request specific metrics: conversion rates, deal size, cycle length",
-      "Explore prospecting methodology",
-      "Dive into deal qualification frameworks (BANT, MEDDIC, etc.)",
-      "Ask about forecasting accuracy and pipeline management",
-      "Test knowledge of sales tools and technology"
+    "speech_patterns": [
+      "Walk me through your thought process",
+      "That's a really thoughtful approach", 
+      "Help me understand your framework there",
+      "I'm curious about the data behind that decision",
+      "That level of analysis is impressive",
+      "I can see you've really thought this through"
     ],
-    "behavioral_cues": [
-      "Take extensive notes on everything",
-      "Ask for clarification on vague terms",
-      "Reference frameworks and methodologies",
-      "Pause to think before asking next question",
-      "May reference documents or systems",
-      "Systematic about time and coverage areas",
-      "End with comprehensive next steps and timeline"
-    ],
-    "sample_phrases": [
-      "When you say 'significant increase', what percentage?",
-      "How do you measure that?",
-      "What's your conversion rate from lead to close?",
-      "How does that align with SPIN selling?",
-      "Walk me through your qualification process",
-      "What CRM do you use and how do you track metrics?"
+    "focus_areas": [
+      "Sales process methodology and frameworks",
+      "CRM usage and data tracking approaches",
+      "Systematic thinking and planning",
+      "Decision-making processes and criteria", 
+      "Tool utilization and technology adoption",
+      "Analytical approach to sales challenges"
     ]
   }
 };
