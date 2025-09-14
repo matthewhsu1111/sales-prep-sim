@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Bot, User, Send, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,7 +68,7 @@ export default function InterviewSession() {
   const [isInterviewComplete, setIsInterviewComplete] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -409,20 +410,29 @@ export default function InterviewSession() {
           {/* Input Area */}
           {isInterviewStarted && !isInterviewComplete && (
             <div className="border-t p-4">
-              <div className="flex space-x-2">
-                <Input
-                  ref={inputRef}
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={isAiTyping ? "AI is typing..." : "Type your response..."}
-                  disabled={isAiTyping}
-                  className="flex-1"
-                />
+              <div className="flex space-x-2 items-end">
+                <div className="flex-1">
+                  <Textarea
+                    ref={inputRef}
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
+                    placeholder={isAiTyping ? "AI is typing..." : "Type your response... (Press Enter to send, Shift+Enter for new line)"}
+                    disabled={isAiTyping}
+                    className="min-h-[60px] max-h-[200px] resize-none"
+                    rows={3}
+                  />
+                </div>
                 <Button
                   onClick={sendMessage}
                   disabled={!userInput.trim() || isAiTyping}
                   size="icon"
+                  className="flex-shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
