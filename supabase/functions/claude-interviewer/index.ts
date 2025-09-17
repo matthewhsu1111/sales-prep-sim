@@ -372,8 +372,8 @@ serve(async (req) => {
     }
 
     // Extract comprehensive job details for dynamic integration
-    const companyName = jobPosting?.company || "the company";
-    const jobTitle = jobPosting?.title || "this role";
+    const companyName = jobPosting?.company_name || jobPosting?.company || "the company";
+    const jobTitle = jobPosting?.job_title || jobPosting?.title || "this role";
     const productInfo = jobPosting?.description || "";
     const requirements = jobPosting?.requirements || "";
     const fullJobContent = `${productInfo} ${requirements}`;
