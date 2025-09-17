@@ -104,7 +104,8 @@ export default function InterviewSession() {
           jobPosting: interviewDetails.jobPosting,
           isFirstMessage: true,
           numberOfQuestions: interviewDetails.numberOfQuestions,
-          currentQuestionNumber: 1
+          currentQuestionNumber: 1,
+          interviewType: interviewDetails.interviewType
         }
       });
       
@@ -187,7 +188,8 @@ export default function InterviewSession() {
           conversationHistory: messages,
           isFirstMessage: false,
           numberOfQuestions: interviewDetails.numberOfQuestions,
-          currentQuestionNumber: isLastQuestion ? interviewDetails.numberOfQuestions : nextQuestionNumber
+          currentQuestionNumber: isLastQuestion ? interviewDetails.numberOfQuestions : nextQuestionNumber,
+          interviewType: interviewDetails.interviewType
         }
       });
       

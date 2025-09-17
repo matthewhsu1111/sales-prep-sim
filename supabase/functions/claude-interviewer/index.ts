@@ -200,6 +200,14 @@ RARE POSITIVE FEEDBACK (only for exceptional answers):
 - "That's sophisticated thinking"
 - "Damn. That's impressive"
 
+TECHNICAL/ROLE-PLAY CATEGORY - IMMEDIATE ROLE-PLAY MODE:
+For Technical/Role-Play interviews, you MUST immediately switch to role-play mode. Do NOT ask background questions. Instead:
+- First message: "I'm going to play a [prospect title] at [company from job posting]. You're cold calling me. Ready? [Ring ring] Hello?"
+- Then respond AS THE PROSPECT with realistic objections, skepticism, and pushback
+- Be difficult, busy, skeptical - like a real prospect would be
+- Challenge their pitch, ask tough questions, give common objections
+- Make them work for every response and test their sales skills in real-time
+
 QUESTION STRUCTURE: You MUST ask questions sequentially from the selected category (Initial Screen, Hiring Manager, Technical/Role-Play, or Executive Interview). Use ONLY the provided question bank - no improvised questions. Build naturally on their responses but stay within the category.
 
 JOB INTEGRATION - Aggressively test job-specific knowledge:
@@ -237,6 +245,13 @@ CASUAL BUT SYSTEMATIC SPEECH PATTERNS:
 - Smooth transitions: "That's fascinating! And speaking of that, I'm curious about..."
 - Encouraging responses: "You should be proud of that", "That's exactly what I like to hear"
 - Building connections: "That reminds me of...", "I've seen that work really well"
+
+TECHNICAL/ROLE-PLAY CATEGORY - IMMEDIATE ROLE-PLAY MODE:
+For Technical/Role-Play interviews, you MUST immediately switch to role-play mode with your warm but challenging style:
+- First message: "Alright! So I'm going to play a [prospect title] at [company from job posting]. This'll be fun - you get to cold call me! Ready? Here we go... [Ring ring] Hello, this is Jake speaking."
+- Then respond AS THE PROSPECT but maintain your naturally friendly yet skeptical tone
+- Be busy but not rude, give realistic objections with your conversational style
+- Make them prove their value while staying true to your warm personality
 
 QUESTION STRUCTURE: You MUST ask questions sequentially from the selected category (Initial Screen, Hiring Manager, Technical/Role-Play, or Executive Interview). Use ONLY the provided question bank but ask them in your warm, conversational style.
 
@@ -284,6 +299,13 @@ ANALYTICAL SPEECH PATTERNS:
 - Systematic building: "You mentioned X earlier, how does that connect to this approach?"
 - Note-taking references: "I'm writing this down because it's important"
 
+TECHNICAL/ROLE-PLAY CATEGORY - IMMEDIATE ROLE-PLAY MODE:
+For Technical/Role-Play interviews, you MUST immediately switch to role-play mode with your analytical approach:
+- First message: "Alright, let's run a simulation. I'm going to play a [prospect title] at [company from job posting]. I want to see your methodology in action. Ready? [Ring ring] Hello?"
+- Then respond AS THE PROSPECT but maintain your analytical, process-focused personality
+- Be methodical in your objections, ask detailed questions about their approach
+- Test their process thinking with systematic pushback and detailed challenges
+
 QUESTION STRUCTURE: You MUST ask questions sequentially from the selected category (Initial Screen, Hiring Manager, Technical/Role-Play, or Executive Interview). Use ONLY the provided question bank but explore them with analytical depth.
 
 TYPICAL PHRASES (while covering required questions):
@@ -309,13 +331,13 @@ FOCUS AREAS:
 - Analytical approach to challenges (using question bank examples)
 
 Remember: Stay analytically curious while methodically covering all required questions from the selected category. Appreciate detail but don't deviate from question structure.`,
-    greeting: "Hello, I'm Michael Chen. Thanks for taking the time to meet with me today. I'm really looking forward to our discussion. I tend to be pretty methodical in how I approach these conversations because I believe the best salespeople are those who think systematically about their work."
+    greeting: "Hello, I'm Michael Chen, Sales Operations Manager. Thank you for your time today. I'm looking forward to understanding your approach to sales and how you think about the processes behind successful outcomes."
   }
 };
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
@@ -323,166 +345,237 @@ serve(async (req) => {
       message, 
       interviewer, 
       jobPosting, 
-      conversationHistory = [],
+      conversationHistory = [], 
       isFirstMessage = false,
-      numberOfQuestions = 5,
-      currentQuestionNumber = 1
+      numberOfQuestions = 10,
+      currentQuestionNumber = 1,
+      interviewType = "Initial Screen"
     } = await req.json();
 
-    console.log('🤖 Claude interviewer request:', { interviewer, isFirstMessage, currentQuestionNumber });
+    console.log(`🤖 Claude interviewer request: {
+  interviewer: "${interviewer}",
+  isFirstMessage: ${isFirstMessage},
+  currentQuestionNumber: ${currentQuestionNumber},
+  interviewType: "${interviewType}"
+}
+`);
 
-    const personality = personalities[interviewer as keyof typeof personalities];
-    if (!personality) {
+    const selectedPersonality = personalities[interviewer as keyof typeof personalities];
+    if (!selectedPersonality) {
       throw new Error(`Unknown interviewer: ${interviewer}`);
     }
 
-    let systemPrompt = personality.systemPrompt;
-    
-    // Get interview type from jobPosting
-    const interviewType = jobPosting?.interviewType || 'Initial Screen';
-    
-    // Add comprehensive job posting integration
-    if (jobPosting) {
-      systemPrompt += `
-
-COMPREHENSIVE JOB POSTING CONTEXT:
-Company: ${jobPosting.company || 'N/A'}
-Position Title: ${jobPosting.title || 'N/A'}
-Role Type: ${jobPosting.roleType || 'N/A'}
-Department: ${jobPosting.department || 'N/A'}
-Location: ${jobPosting.location || 'N/A'}
-Salary Range: ${jobPosting.salaryRange || 'N/A'}
-Experience Level: ${jobPosting.experienceLevel || 'N/A'}
-Key Requirements: ${jobPosting.keyRequirements?.join(', ') || 'N/A'}
-Preferred Skills: ${jobPosting.preferredSkills?.join(', ') || 'N/A'}
-Tools/Technologies: ${jobPosting.tools?.join(', ') || 'N/A'}
-CRM Systems: ${jobPosting.crmSystems?.join(', ') || 'N/A'}
-Products/Services: ${jobPosting.products?.join(', ') || 'N/A'}
-Target Market: ${jobPosting.targetMarket || 'N/A'}
-Quota/Metrics: ${jobPosting.quotaExpectations || 'N/A'}
-Company Culture: ${jobPosting.companyCulture || 'N/A'}
-Industry: ${jobPosting.industry || 'N/A'}
-
-CRITICAL JOB INTEGRATION REQUIREMENTS:
-1. Use the company name "${jobPosting.company}" naturally throughout the conversation
-2. Reference specific products/services they'll be selling: ${jobPosting.products?.join(', ') || 'the company\'s solutions'}
-3. Mention tools/CRMs listed: ${jobPosting.tools?.join(', ') || 'sales tools'} and ${jobPosting.crmSystems?.join(', ') || 'CRM systems'}
-4. Ask about experience relevant to ${jobPosting.industry || 'this industry'}
-5. Reference the exact role title "${jobPosting.title}" when asking role-specific questions
-6. Incorporate quota/metrics: ${jobPosting.quotaExpectations || 'performance expectations'}
-7. Assess culture fit based on: ${jobPosting.companyCulture || 'company values'}
-8. Target market knowledge: ${jobPosting.targetMarket || 'customer base'}
-
-WEAVE JOB DETAILS INTO QUESTIONS NATURALLY - Don't just list them, but incorporate them meaningfully into your questions and responses.`;
+    // Get relevant questions for the interview type
+    const availableQuestions = questionBanks[interviewType as keyof typeof questionBanks];
+    if (!availableQuestions) {
+      throw new Error(`Unknown interview type: ${interviewType}`);
     }
 
-    // Add structured question bank guidance with strict enforcement
-    const questionBank = questionBanks[interviewType as keyof typeof questionBanks];
-    if (questionBank) {
-      systemPrompt += `
-
-MANDATORY STRUCTURED INTERVIEW FLOW - ${interviewType}:
-You MUST ONLY ask questions from the "${interviewType}" category below. NO IMPROVISED QUESTIONS ALLOWED.
-
-${Object.entries(questionBank).map(([category, questions]) => `
-${category.toUpperCase()}:
-${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}`).join('\n')}
-
-CRITICAL ENFORCEMENT RULES:
-- ONLY use questions from the ${interviewType} categories above
-- Ask questions sequentially within each subcategory
-- NO random or improvised questions outside these banks
-- Incorporate job posting details INTO these specific questions
-- Build on previous responses but stay within question structure
-- Progress systematically through question types
-- Each question must come from the provided bank
-
-VALIDATION REQUIREMENT:
-- Users cannot advance to feedback until completing the full question sequence
-- Track progress through each subcategory systematically
-- Ensure comprehensive coverage of all question types
-
-QUESTION PROGRESSION STRATEGY:
-- Initial Screen: Background → Motivation → Role-Specific (complete all subcategories)
-- Hiring Manager: Sales Capabilities → Strategic Thinking → Behavioral (systematic coverage)
-- Technical/Role-Play: Cold Call → Email/LinkedIn → Product Knowledge (all simulations)
-- Executive: Strategic Vision → Leadership → Business Acumen (comprehensive assessment)`;
-    }
-
-    // Add interview progress context
-    systemPrompt += `
-
-INTERVIEW PROGRESS: Question ${currentQuestionNumber} of ${numberOfQuestions}
-${currentQuestionNumber === numberOfQuestions ? 
-  'This is the FINAL question. After the candidate responds, provide comprehensive feedback on their performance across all areas discussed.' : 
-  `Continue with natural follow-up questions from the ${interviewType} question bank. Build on their responses and assess their fit for ${jobPosting?.company || 'the company'}.`}
-
-RESPONSE GUIDELINES:
-- Keep responses conversational and under 100 words unless providing final feedback
-- ALWAYS use dialogue only - no asterisks, brackets, or narrative descriptions
-- Use the candidate's name naturally throughout
-- Reference previous answers to build conversation flow
-- Show authentic human reactions appropriate to your personality`;
-
-    const messages = [];
+    // Extract comprehensive job details for dynamic integration
+    const companyName = jobPosting?.company || "the company";
+    const jobTitle = jobPosting?.title || "this role";
+    const productInfo = jobPosting?.description || "";
+    const requirements = jobPosting?.requirements || "";
+    const fullJobContent = `${productInfo} ${requirements}`;
     
-    if (isFirstMessage) {
-      // First message with job-specific greeting
-      const jobContext = jobPosting ? `for the ${jobPosting.title} role at ${jobPosting.company}` : '';
-      messages.push({
-        role: "user" as const,
-        content: `Start the interview with your greeting and first question ${jobContext}. Incorporate the job posting details naturally into your opening.`
-      });
-    } else {
-      // Add conversation history
+    // Extract detailed job information
+    const crmTools = extractCRMTools(fullJobContent);
+    const industry = extractIndustry(fullJobContent);
+    const targetCustomers = extractTargetCustomers(fullJobContent);
+    const competitors = extractCompetitors(fullJobContent);
+    const keyProducts = extractKeyProducts(fullJobContent);
+
+    console.log(`🎯 Sending to Claude with ${conversationHistory.length + (message ? 1 : 0)} messages for ${interviewType} interview
+`);
+
+    // Special handling for Technical/Role-Play category
+    const isRolePlayCategory = interviewType === "Technical/Role-Play";
+    
+    // Create comprehensive system prompt with enhanced job integration
+    const systemPrompt = `${selectedPersonality.systemPrompt}
+
+INTERVIEW CONTEXT:
+- Interview Type: ${interviewType}
+- Company: ${companyName}
+- Role: ${jobTitle}
+- Current Question: ${currentQuestionNumber}/${numberOfQuestions}
+- Industry: ${industry}
+- Target Customers: ${targetCustomers}
+- Key Products/Services: ${keyProducts}
+- CRM/Tools mentioned: ${crmTools}
+- Competitors: ${competitors}
+
+CRITICAL JOB-SPECIFIC INTEGRATION:
+- Always use "${companyName}" instead of generic "our company"
+- Reference "${jobTitle}" role specifically
+- Customize questions with ${targetCustomers} as target market
+- Mention ${keyProducts} when discussing products
+- Reference ${crmTools} for tool-related questions
+- Use ${industry} context for industry questions
+- Reference ${competitors} when discussing competition
+
+${isRolePlayCategory ? `
+TECHNICAL/ROLE-PLAY SPECIAL INSTRUCTIONS:
+This is a Technical/Role-Play interview. You MUST immediately begin role-play scenarios:
+
+1. If this is the FIRST message, start role-play immediately with:
+   - "I'm going to play a [prospect title] at ${companyName}. You're cold calling me. Ready? [Ring ring] Hello?"
+   
+2. Once role-play begins, you ARE THE PROSPECT, not the interviewer:
+   - Respond as a busy ${targetCustomers} professional would
+   - Give realistic objections and skepticism
+   - Be challenging but realistic
+   - Test their sales skills with real prospect behavior
+   - Reference ${competitors} as existing solutions
+   - Challenge them on ${keyProducts} value proposition
+
+3. Use these role-play scenarios from the question bank:
+${Object.entries(availableQuestions).map(([category, questions]) => 
+  `${category}:\n${questions.map((q, i) => `${i + 1}. ${q.replace(/\[specific persona\]/g, targetCustomers || "VP of Sales").replace(/\[specific company\]/g, companyName).replace(/\[competitor\]/g, competitors || "your current solution")}`).join('\n')}`
+).join('\n\n')}
+
+NO BACKGROUND QUESTIONS - Go straight into role-play mode!
+` : `
+STRUCTURED QUESTION FLOW FOR ${interviewType}:
+${Object.entries(availableQuestions).map(([category, questions]) => 
+  `${category}:\n${questions.map((q, i) => `${i + 1}. ${q.replace(/our company/g, companyName).replace(/our products\/services/g, `${companyName}'s ${keyProducts}`).replace(/our target customer/g, targetCustomers || "our target customer")}`).join('\n')}`
+).join('\n\n')}
+
+CRITICAL RULES:
+1. Ask questions ONLY from the ${interviewType} category
+2. Progress systematically through question topics  
+3. Build naturally on responses but stay within category
+4. Integrate job-specific details into EVERY question
+5. Track which areas have been covered
+6. Provide follow-ups from same category when needed
+`}
+
+${isFirstMessage ? 
+  (isRolePlayCategory ? 
+    `This is your FIRST message for Technical/Role-Play. START ROLE-PLAY IMMEDIATELY - no background questions!` :
+    `This is your FIRST message. Start with your greeting and first question from ${interviewType} category, fully customized with job details.`) : 
+  (isRolePlayCategory ?
+    `Continue the role-play as the prospect. Stay in character and challenge them with realistic objections.` :
+    `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`)
+}`;
+
+    const messages = [
+      { role: "system", content: systemPrompt }
+    ];
+
+    // Add conversation history
+    if (conversationHistory.length > 0) {
       conversationHistory.forEach((msg: any) => {
         messages.push({
-          role: msg.sender === 'ai' ? 'assistant' as const : 'user' as const,
+          role: msg.sender === 'ai' ? 'assistant' : 'user',
           content: msg.content
         });
       });
-      
-      // Add current user message
-      messages.push({
-        role: "user" as const,
-        content: message
-      });
     }
 
-    console.log('🎯 Sending to Claude with', messages.length, 'messages for', interviewType, 'interview');
+    // Add current message if provided
+    if (message) {
+      messages.push({ role: "user", content: message });
+    }
 
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-haiku-20241022",
-      max_tokens: 500,
-      temperature: 0.7,
-      system: systemPrompt,
-      messages: messages
+    const completion = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 2000,
+      messages: messages as any
     });
 
-    const aiResponse = response.content[0]?.type === 'text' 
-      ? response.content[0].text 
-      : 'I apologize, there was an issue with my response.';
+    const response = completion.content[0].text;
 
-    console.log('✅ Claude response generated:', aiResponse.substring(0, 100) + '...');
+    console.log(`✅ Claude response generated: ${response.substring(0, 100)}...
+`);
 
-    return new Response(JSON.stringify({ 
-      response: aiResponse,
-      interviewer: interviewer,
-      interviewType: interviewType,
-      questionNumber: currentQuestionNumber
+    return new Response(JSON.stringify({
+      response,
+      interviewer,
+      currentQuestionNumber,
+      isComplete: currentQuestionNumber >= numberOfQuestions
     }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
     console.error('❌ Claude interviewer error:', error);
-    
     return new Response(JSON.stringify({ 
-      error: error.message || 'Unknown error occurred',
-      details: error.stack 
+      error: 'Failed to generate interview response',
+      details: error.message 
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });
+
+// Enhanced helper functions for comprehensive job parsing
+function extractCRMTools(content: string): string {
+  const crmKeywords = ['salesforce', 'hubspot', 'pipedrive', 'crm', 'outreach', 'salesloft', 'apollo', 'zoominfo', 'clearbit'];
+  const found = crmKeywords.filter(keyword => 
+    content.toLowerCase().includes(keyword)
+  );
+  return found.length > 0 ? found.join(', ') : 'standard CRM systems';
+}
+
+function extractIndustry(content: string): string {
+  const industryKeywords = {
+    'saas': 'SaaS/Technology',
+    'software': 'Software',
+    'technology': 'Technology',
+    'fintech': 'Financial Technology',
+    'healthcare': 'Healthcare',
+    'finance': 'Finance',
+    'retail': 'Retail',
+    'manufacturing': 'Manufacturing',
+    'real estate': 'Real Estate',
+    'ai': 'AI/Machine Learning',
+    'artificial intelligence': 'AI/Machine Learning'
+  };
+  
+  for (const [keyword, industry] of Object.entries(industryKeywords)) {
+    if (content.toLowerCase().includes(keyword)) {
+      return industry;
+    }
+  }
+  return 'Technology';
+}
+
+function extractTargetCustomers(content: string): string {
+  const customerKeywords = {
+    'enterprise': 'Enterprise customers',
+    'mid-market': 'Mid-market companies',
+    'smb': 'Small and medium businesses',
+    'startups': 'Startups',
+    'fortune 500': 'Fortune 500 companies',
+    'vp of sales': 'VPs of Sales',
+    'sales director': 'Sales Directors',
+    'sales manager': 'Sales Managers',
+    'cro': 'Chief Revenue Officers',
+    'sales leaders': 'Sales Leaders'
+  };
+  
+  for (const [keyword, customer] of Object.entries(customerKeywords)) {
+    if (content.toLowerCase().includes(keyword)) {
+      return customer;
+    }
+  }
+  return 'VP of Sales';
+}
+
+function extractCompetitors(content: string): string {
+  const competitorKeywords = ['competitor', 'competing', 'versus', 'alternative', 'salesforce', 'hubspot', 'outreach', 'salesloft'];
+  const found = competitorKeywords.filter(keyword => 
+    content.toLowerCase().includes(keyword)
+  );
+  return found.length > 0 ? 'your current solution' : 'competing solutions';
+}
+
+function extractKeyProducts(content: string): string {
+  const productKeywords = ['platform', 'software', 'solution', 'tool', 'app', 'system', 'service'];
+  const found = productKeywords.filter(keyword => 
+    content.toLowerCase().includes(keyword)
+  );
+  return found.length > 0 ? 'our platform' : 'our solution';
+}
