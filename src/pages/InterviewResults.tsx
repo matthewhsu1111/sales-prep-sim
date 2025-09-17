@@ -28,37 +28,108 @@ export default function InterviewResults() {
   const { toast } = useToast();
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
-  const interviewData = location.state as InterviewResultsData;
-
-  console.log('InterviewResults mounted, location.state:', location.state);
+  const [interviewData, setInterviewData] = useState<InterviewResultsData | null>(null);
 
   useEffect(() => {
-    if (!interviewData) {
+    fetchLatestInterviewSession();
+  }, [navigate, toast]);
+
+  const fetchLatestInterviewSession = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication Error",
+          description: "Please sign in to view interview results.",
+          variant: "destructive",
+        });
+        navigate('/dashboard');
+        return;
+      }
+
+      // Fetch the latest interview session for this user
+      const { data: sessions, error } = await supabase
+        .from('interview_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Error fetching interview session:', error);
+        toast({
+          title: "Data Error",
+          description: "Could not load interview results. Redirecting to dashboard.",
+          variant: "destructive",
+        });
+        navigate('/dashboard');
+        return;
+      }
+
+      if (!sessions || sessions.length === 0) {
+        toast({
+          title: "No Results Found",
+          description: "No interview sessions found. Please complete an interview first.",
+          variant: "destructive",
+        });
+        navigate('/dashboard');
+        return;
+      }
+
+      const session = sessions[0];
+      setInterviewData({
+        interviewer: session.interviewer_name,
+        interviewType: session.interview_type,
+        transcript: session.transcript || '',
+        jobPosting: session.job_posting
+      });
+
+      // If analysis results already exist, use them
+      if (session.analysis_results && Object.keys(session.analysis_results).length > 0) {
+        setFeedback({
+          strengths: Array.isArray(session.strengths) ? session.strengths.map(s => String(s)) : [],
+          weaknesses: Array.isArray(session.weaknesses) ? session.weaknesses.map(w => String(w)) : [],
+          improvements: Array.isArray(session.improvements) ? session.improvements.map(i => String(i)) : [],
+          overallScore: session.overall_score || 0,
+          overallFeedback: typeof session.analysis_results === 'object' && session.analysis_results !== null && 'overallFeedback' in session.analysis_results 
+            ? String(session.analysis_results.overallFeedback) 
+            : "Analysis completed."
+        });
+        setIsLoading(false);
+      } else {
+        // Generate new analysis
+        generateFeedback({
+          interviewer: session.interviewer_name,
+          interviewType: session.interview_type,
+          transcript: session.transcript || '',
+          jobPosting: session.job_posting
+        }, session.id);
+      }
+    } catch (error) {
+      console.error('Error fetching interview session:', error);
       toast({
-        title: "Missing Data",
-        description: "Interview results not found. Redirecting to dashboard.",
+        title: "Error",
+        description: "Could not load interview results. Redirecting to dashboard.",
         variant: "destructive",
       });
       navigate('/dashboard');
-      return;
     }
-    
-    generateFeedback();
-  }, [interviewData, navigate, toast]);
+  };
 
-  const generateFeedback = async () => {
-    if (!interviewData) return;
+  const generateFeedback = async (data: InterviewResultsData, sessionId?: string) => {
+    if (!data) return;
 
     setIsLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const { data, error } = await supabase.functions.invoke('analyze-interview', {
+      const { data: analysisData, error } = await supabase.functions.invoke('analyze-interview', {
         body: {
-          transcript: interviewData.transcript,
-          interviewType: interviewData.interviewType,
-          jobPosting: interviewData.jobPosting,
-          interviewer: interviewData.interviewer
+          transcript: data.transcript,
+          interviewType: data.interviewType,
+          jobPosting: data.jobPosting,
+          interviewer: data.interviewer,
+          sessionId: sessionId
         },
         headers: {
           Authorization: `Bearer ${session?.access_token}`
@@ -87,7 +158,7 @@ export default function InterviewResults() {
           overallFeedback: "Overall, you showed good potential for this role. Your communication skills and enthusiasm are strong assets. Focus on developing more technical sales skills and quantifying your achievements to improve your interview performance."
         });
       } else {
-        setFeedback(data);
+        setFeedback(analysisData);
       }
     } catch (error) {
       console.error('Error generating feedback:', error);
