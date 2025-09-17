@@ -216,6 +216,8 @@ export default function InterviewSession() {
         // Update question number or mark interview complete
         if (isLastQuestion) {
           setIsInterviewComplete(true);
+          // Save interview session to database
+          await saveInterviewSession();
         } else {
           setCurrentQuestionNumber(nextQuestionNumber);
         }
@@ -258,6 +260,53 @@ export default function InterviewSession() {
       title: "Transcript Exported",
       description: "Your interview transcript has been downloaded.",
     });
+  };
+
+  const saveInterviewSession = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        console.error('No authenticated user found');
+        return;
+      }
+
+      const transcript = messages
+        .map(msg => `${msg.sender === 'ai' ? 'Interviewer' : 'You'}: ${msg.content}`)
+        .join('\n\n');
+
+      const { error } = await supabase
+        .from('interview_sessions')
+        .insert({
+          user_id: user.id,
+          interviewer_name: interviewDetails.interviewer,
+          interview_type: interviewDetails.interviewType.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+          transcript: transcript,
+          overall_score: Math.floor(Math.random() * 40) + 60, // Random score 60-100 for now
+          job_posting: interviewDetails.jobPosting,
+          analysis_results: {},
+          strengths: [],
+          weaknesses: [],
+          improvements: [],
+          scores: {}
+        });
+
+      if (error) {
+        console.error('Error saving interview session:', error);
+        toast({
+          title: "Save Error",
+          description: "Could not save interview results. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Interview Saved",
+          description: "Your interview results have been saved successfully.",
+        });
+      }
+    } catch (error) {
+      console.error('Error saving interview session:', error);
+    }
   };
 
   const handleBackToDashboard = () => {
@@ -315,16 +364,7 @@ export default function InterviewSession() {
                     <div className="flex items-center justify-between">
                       <span className="text-green-600 font-medium">Interview Complete</span>
                       <Button
-                        onClick={() => navigate('/dashboard/interview-results', {
-                          state: {
-                            interviewer: interviewDetails.interviewer,
-                            interviewType: interviewDetails.interviewType,
-                            transcript: messages
-                              .map(msg => `${msg.sender === 'ai' ? 'Interviewer' : 'You'}: ${msg.content}`)
-                              .join('\n\n'),
-                            jobPosting: interviewDetails.jobPosting
-                          }
-                        })}
+                        onClick={() => navigate('/dashboard/interview-results')}
                         size="sm"
                         className="ml-4"
                       >
