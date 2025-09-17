@@ -27,10 +27,10 @@ interface InterviewDetails {
 }
 
 const interviewTypes = [
-  { value: "initial-screen", label: "Initial Screen" },
-  { value: "hiring-manager", label: "Hiring Manager" },
-  { value: "technical-roleplay", label: "Technical/Role-play" },
-  { value: "executive-interview", label: "Executive Interview" }
+  { value: "Initial Screen", label: "Initial Screen" },
+  { value: "Hiring Manager", label: "Hiring Manager" },
+  { value: "Technical/Role-Play", label: "Technical/Role-Play" },
+  { value: "Executive Interview", label: "Executive Interview" }
 ];
 
 const questionOptions = [5, 10, 25, 50, 100];
