@@ -459,9 +459,7 @@ ${isFirstMessage ?
     `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`)
 }`;
 
-    const messages = [
-      { role: "system", content: systemPrompt }
-    ];
+    const messages = [];
 
     // Add conversation history
     if (conversationHistory.length > 0) {
@@ -481,6 +479,7 @@ ${isFirstMessage ?
     const completion = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20241022",
       max_tokens: 2000,
+      system: systemPrompt,
       messages: messages as any
     });
 
