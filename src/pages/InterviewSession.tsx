@@ -28,7 +28,6 @@ interface InterviewDetails {
   interviewType: string;
   numberOfQuestions: number;
   interviewer: string;
-  selectedCategory: string;
 }
 
 interface LocationState {
@@ -89,17 +88,6 @@ export default function InterviewSession() {
       navigate('/dashboard');
       return;
     }
-
-    // Check if job description is required and missing
-    if (!interviewDetails.jobPosting) {
-      toast({
-        title: "Job Description Required",
-        description: "Please upload a job description before starting the interview.",
-        variant: "destructive",
-      });
-      navigate('/dashboard');
-      return;
-    }
   }, [interviewDetails, navigate, toast]);
 
   const startInterview = async () => {
@@ -114,7 +102,6 @@ export default function InterviewSession() {
         body: { 
           interviewer: interviewDetails.interviewer,
           jobPosting: interviewDetails.jobPosting,
-          selectedCategory: interviewDetails.selectedCategory,
           isFirstMessage: true,
           numberOfQuestions: interviewDetails.numberOfQuestions,
           currentQuestionNumber: 1
@@ -197,7 +184,6 @@ export default function InterviewSession() {
           message: userInput.trim(),
           interviewer: interviewDetails.interviewer,
           jobPosting: interviewDetails.jobPosting,
-          selectedCategory: interviewDetails.selectedCategory,
           conversationHistory: messages,
           isFirstMessage: false,
           numberOfQuestions: interviewDetails.numberOfQuestions,
@@ -306,7 +292,7 @@ export default function InterviewSession() {
                 <div>
                   <h2 className="text-lg font-semibold">Interview Transcript</h2>
                   <div className="text-sm text-muted-foreground">
-                    {interviewDetails.selectedCategory} • {interviewDetails.interviewType} Interview
+                    {interviewDetails.interviewType} Interview
                   </div>
                 </div>
                 {messages.length > 0 && (
