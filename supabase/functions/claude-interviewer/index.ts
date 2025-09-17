@@ -480,7 +480,10 @@ ${isFirstMessage ?
       model: "claude-3-5-sonnet-20241022",
       max_tokens: 2000,
       system: systemPrompt,
-      messages: messages as any
+      messages: messages.map(msg => ({
+  role: msg.role as "user" | "assistant",
+  content: msg.content
+}))
     });
 
     const response = completion.content[0].text;
