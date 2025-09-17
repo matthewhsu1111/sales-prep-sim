@@ -323,23 +323,43 @@ serve(async (req) => {
       message, 
       interviewer, 
       jobPosting, 
-      conversationHistory = [],
+      selectedCategory,
+      conversationHistory = [], 
       isFirstMessage = false,
       numberOfQuestions = 5,
       currentQuestionNumber = 1
     } = await req.json();
 
-    console.log('🤖 Claude interviewer request:', { interviewer, isFirstMessage, currentQuestionNumber });
+    console.log('🤖 Claude interviewer request:', { interviewer, selectedCategory, isFirstMessage, currentQuestionNumber });
 
     const personality = personalities[interviewer as keyof typeof personalities];
     if (!personality) {
       throw new Error(`Unknown interviewer: ${interviewer}`);
     }
 
+    if (!selectedCategory || !questionBanks[selectedCategory as keyof typeof questionBanks]) {
+      throw new Error(`Invalid interview category: ${selectedCategory}`);
+    }
+
+    if (!jobPosting) {
+      throw new Error('Job posting is required for all interviews');
+    }
+
     let systemPrompt = personality.systemPrompt;
     
-    // Get interview type from jobPosting
-    const interviewType = jobPosting?.interviewType || 'Initial Screen';
+    // Extract comprehensive job details for question customization
+    const jobDetails = {
+      companyName: jobPosting.company || jobPosting.companyName || "the company",
+      role: jobPosting.title || jobPosting.jobTitle || "Sales Development Representative", 
+      product: jobPosting.products?.join(', ') || jobPosting.product || "our solution",
+      crm: jobPosting.crmSystems?.join(', ') || jobPosting.crm || null,
+      requirements: jobPosting.keyRequirements || jobPosting.requirements || [],
+      industry: jobPosting.industry || "technology",
+      targetCustomer: jobPosting.targetMarket || jobPosting.targetCustomer || "prospects",
+      tools: jobPosting.tools || [],
+      quotaExpectation: jobPosting.quotaExpectations || jobPosting.quotaExpectation || null,
+      territory: jobPosting.territory || null
+    };
     
     // Add comprehensive job posting integration
     if (jobPosting) {
@@ -376,46 +396,47 @@ CRITICAL JOB INTEGRATION REQUIREMENTS:
 WEAVE JOB DETAILS INTO QUESTIONS NATURALLY - Don't just list them, but incorporate them meaningfully into your questions and responses.`;
     }
 
-    // Add structured question bank guidance with strict enforcement
-    const questionBank = questionBanks[interviewType as keyof typeof questionBanks];
-    if (questionBank) {
-      systemPrompt += `
+    // Get available questions for the selected category and customize them
+    const categoryQuestions = questionBanks[selectedCategory as keyof typeof questionBanks];
+    
+    systemPrompt += `
 
-MANDATORY STRUCTURED INTERVIEW FLOW - ${interviewType}:
-You MUST ONLY ask questions from the "${interviewType}" category below. NO IMPROVISED QUESTIONS ALLOWED.
+MANDATORY STRUCTURED INTERVIEW FLOW - ${selectedCategory}:
+You MUST ONLY ask questions from the "${selectedCategory}" category below. NO IMPROVISED QUESTIONS ALLOWED.
 
-${Object.entries(questionBank).map(([category, questions]) => `
-${category.toUpperCase()}:
+${Object.entries(categoryQuestions).map(([subcategory, questions]) => `
+${subcategory.toUpperCase()}:
 ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}`).join('\n')}
 
+QUESTION CUSTOMIZATION REQUIREMENTS:
+- Transform generic questions to include specific company details
+- "What do you know about our company?" becomes "What do you know about ${jobDetails.companyName} and how we help ${jobDetails.targetCustomer} with ${jobDetails.product}?"
+- "What CRM systems have you worked with?" becomes "I see we use ${jobDetails.crm || 'CRM systems'} here - what's your experience with that platform?"
+- Reference specific role title: "${jobDetails.role}" not generic "SDR role"
+- Incorporate industry-specific challenges for ${jobDetails.industry}
+- Use actual company name "${jobDetails.companyName}" in all questions
+
 CRITICAL ENFORCEMENT RULES:
-- ONLY use questions from the ${interviewType} categories above
-- Ask questions sequentially within each subcategory
+- ONLY use questions from the ${selectedCategory} categories above
+- Customize each question with job posting details naturally
+- Ask questions sequentially but can choose order based on conversation flow
 - NO random or improvised questions outside these banks
-- Incorporate job posting details INTO these specific questions
 - Build on previous responses but stay within question structure
-- Progress systematically through question types
-- Each question must come from the provided bank
+- Must cover all major question clusters before providing feedback
+- Track which topic areas have been covered
 
 VALIDATION REQUIREMENT:
 - Users cannot advance to feedback until completing the full question sequence
-- Track progress through each subcategory systematically
-- Ensure comprehensive coverage of all question types
-
-QUESTION PROGRESSION STRATEGY:
-- Initial Screen: Background → Motivation → Role-Specific (complete all subcategories)
-- Hiring Manager: Sales Capabilities → Strategic Thinking → Behavioral (systematic coverage)
-- Technical/Role-Play: Cold Call → Email/LinkedIn → Product Knowledge (all simulations)
-- Executive: Strategic Vision → Leadership → Business Acumen (comprehensive assessment)`;
-    }
+- Progress systematically through each subcategory
+- Ensure comprehensive coverage of all ${selectedCategory} question types`;
 
     // Add interview progress context
     systemPrompt += `
 
-INTERVIEW PROGRESS: Question ${currentQuestionNumber} of ${numberOfQuestions}
+INTERVIEW PROGRESS: Question ${currentQuestionNumber} of ${numberOfQuestions} in ${selectedCategory} category
 ${currentQuestionNumber === numberOfQuestions ? 
   'This is the FINAL question. After the candidate responds, provide comprehensive feedback on their performance across all areas discussed.' : 
-  `Continue with natural follow-up questions from the ${interviewType} question bank. Build on their responses and assess their fit for ${jobPosting?.company || 'the company'}.`}
+  `Continue with natural follow-up questions from the ${selectedCategory} question bank. Build on their responses and assess their fit for ${jobDetails.companyName}.`}
 
 RESPONSE GUIDELINES:
 - Keep responses conversational and under 100 words unless providing final feedback
@@ -428,10 +449,10 @@ RESPONSE GUIDELINES:
     
     if (isFirstMessage) {
       // First message with job-specific greeting
-      const jobContext = jobPosting ? `for the ${jobPosting.title} role at ${jobPosting.company}` : '';
+      const jobContext = `for the ${jobDetails.role} role at ${jobDetails.companyName}`;
       messages.push({
         role: "user" as const,
-        content: `Start the interview with your greeting and first question ${jobContext}. Incorporate the job posting details naturally into your opening.`
+        content: `Start the interview with your greeting and first question ${jobContext}. Use a question from the ${selectedCategory} category and customize it with specific job details. Reference ${jobDetails.companyName}, ${jobDetails.role}, and ${jobDetails.product} naturally.`
       });
     } else {
       // Add conversation history
