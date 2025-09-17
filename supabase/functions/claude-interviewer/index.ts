@@ -461,20 +461,28 @@ ${isFirstMessage ?
 
     const messages = [];
 
-    // Add conversation history
-    if (conversationHistory.length > 0) {
-      conversationHistory.forEach((msg: any) => {
-        messages.push({
-          role: msg.sender === 'ai' ? 'assistant' : 'user',
-          content: msg.content
-        });
-      });
-    }
+// Add conversation history
+if (conversationHistory.length > 0) {
+  conversationHistory.forEach((msg: any) => {
+    messages.push({
+      role: msg.sender === 'ai' ? 'assistant' : 'user',
+      content: msg.content
+    });
+  });
+}
 
-    // Add current message if provided
-    if (message) {
-      messages.push({ role: "user", content: message });
-    }
+// Add current message if provided
+if (message) {
+  messages.push({ role: "user", content: message });
+}
+
+// FIX: Add default message for first interaction
+if (messages.length === 0) {
+  messages.push({ 
+    role: "user", 
+    content: "Please start the interview." 
+  });
+}
 
     const completion = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20241022",
