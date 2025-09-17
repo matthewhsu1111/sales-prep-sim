@@ -31,6 +31,8 @@ export default function InterviewResults() {
   
   const interviewData = location.state as InterviewResultsData;
 
+  console.log('InterviewResults mounted, location.state:', location.state);
+
   useEffect(() => {
     if (!interviewData) {
       toast({
