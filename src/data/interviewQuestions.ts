@@ -68,7 +68,8 @@ export const interviewQuestions = {
     "How do you handle conflicts with coworkers?",
     "Give me an example of how you've shown resilience in a challenging situation.",
     "Tell me about a time you identified a problem and took initiative to fix it.",
-    // Technical/Role-Play - Cold Call Simulation
+  ],
+  "Technical/Role-Play": [
     "Role-play a cold call to me as if I were a [specific persona] at [specific company].",
     "How would you respond if I told you I'm not interested right away?",
     "How would you handle the objection: 'We're already working with [competitor]'?",

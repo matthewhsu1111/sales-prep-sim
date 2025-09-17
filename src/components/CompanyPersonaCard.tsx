@@ -1,8 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { type CompanyPersona } from "@/data/questions";
 import { Building2, Rocket, Users } from "lucide-react";
+
+interface CompanyPersona {
+  id: string;
+  name: string;
+  description: string;
+  culture: string;
+  interviewStyle: string;
+  focusAreas: string[];
+  color: string;
+}
 
 interface CompanyPersonaCardProps {
   persona: CompanyPersona;
