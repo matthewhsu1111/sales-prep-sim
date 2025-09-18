@@ -224,7 +224,8 @@ FOCUS AREAS:
 - Testing resilience under aggressive questioning
 
 Remember: You're testing if they can handle real sales pressure. Push hard, interrupt weak answers, and only show approval for genuinely strong responses.`,
-    greeting: "I'm Rebecca Martinez, Senior Sales Director. I appreciate you taking the time today. Let's dive right in - I'm looking for someone who can deliver real results, not just talk about them."
+    greeting: "I'm Rebecca Martinez, Senior Sales Director. I appreciate you taking the time today. Let's dive right in - I'm looking for someone who can deliver real results, not just talk about them.",
+    closingMessage: "That wraps up my questions. You've given me what I needed to assess your capabilities. You'll receive detailed feedback on your performance shortly. Thanks for your time."
   },
   "Jake Thompson": {
     systemPrompt: `CRITICAL FORMATTING RULE: Your responses must be dialogue ONLY. Never use asterisks (*), brackets [], parentheses (), or any narrative descriptions. You are speaking out loud in a real interview - provide only the exact words you would say.
@@ -277,7 +278,8 @@ FOCUS AREAS:
 - Collaborative experiences (using question bank examples)
 
 Remember: Stay warm and encouraging while methodically progressing through the required question categories. Build rapport but don't skip questions.`,
-    greeting: "Hey there! I'm Jake Thompson, really great to meet you. I hope your day's been going well so far. I'm honestly excited about our conversation today. I love getting to know the person behind the resume, you know?"
+    greeting: "Hey there! I'm Jake Thompson, really great to meet you. I hope your day's been going well so far. I'm honestly excited about our conversation today. I love getting to know the person behind the resume, you know?",
+    closingMessage: "That's awesome! Well, that covers everything I wanted to discuss today. I really enjoyed getting to know you and hearing about your experience. You should get your feedback results soon. Thanks so much for taking the time!"
   },
   "Michael Chen": {
     systemPrompt: `CRITICAL FORMATTING RULE: Your responses must be dialogue ONLY. Never use asterisks (*), brackets [], parentheses (), or any narrative descriptions. You are speaking out loud in a real interview - provide only the exact words you would say.
@@ -331,7 +333,8 @@ FOCUS AREAS:
 - Analytical approach to challenges (using question bank examples)
 
 Remember: Stay analytically curious while methodically covering all required questions from the selected category. Appreciate detail but don't deviate from question structure.`,
-    greeting: "Hello, I'm Michael Chen, Sales Operations Manager. Thank you for your time today. I'm looking forward to understanding your approach to sales and how you think about the processes behind successful outcomes."
+    greeting: "Hello, I'm Michael Chen, Sales Operations Manager. Thank you for your time today. I'm looking forward to understanding your approach to sales and how you think about the processes behind successful outcomes.",
+    closingMessage: "That completes our structured interview process. I appreciate the thoughtful responses you've provided throughout our conversation. You'll receive a comprehensive analysis of your performance shortly. Thank you for your time today."
   }
 };
 
@@ -364,6 +367,11 @@ serve(async (req) => {
     if (!selectedPersonality) {
       throw new Error(`Unknown interviewer: ${interviewer}`);
     }
+
+    const isLastQuestion = currentQuestionNumber >= numberOfQuestions;
+    const shouldProvideClosing = !isFirstMessage && isLastQuestion && message; // User just responded to final question
+
+    console.log(`🎯 Interview status: isLastQuestion=${isLastQuestion}, shouldProvideClosing=${shouldProvideClosing}`);
 
     // Get relevant questions for the interview type
     const availableQuestions = questionBanks[interviewType as keyof typeof questionBanks];
@@ -404,6 +412,15 @@ INTERVIEW CONTEXT:
 - Key Products/Services: ${keyProducts}
 - CRM/Tools mentioned: ${crmTools}
 - Competitors: ${competitors}
+
+${shouldProvideClosing ? `
+🚨 CRITICAL: FINAL MESSAGE INSTRUCTIONS 🚨
+The interview is complete. The candidate just answered the final question. You MUST provide a closing statement now.
+
+Your closing MUST be: "${selectedPersonality.closingMessage || 'Thank you for your time today. You will receive feedback on your interview performance shortly.'}"
+
+DO NOT ask another question. DO NOT continue the interview. Use EXACTLY the closing message above.
+` : `
 
 CRITICAL JOB-SPECIFIC INTEGRATION:
 - Always use "${companyName}" instead of generic "our company"
@@ -454,9 +471,9 @@ ${isFirstMessage ?
   (isRolePlayCategory ? 
     `This is your FIRST message for Technical/Role-Play. START ROLE-PLAY IMMEDIATELY - no background questions!` :
     `This is your FIRST message. Start with your greeting and first question from ${interviewType} category, fully customized with job details.`) : 
-  (isRolePlayCategory ?
+  (!shouldProvideClosing && (isRolePlayCategory ?
     `Continue the role-play as the prospect. Stay in character and challenge them with realistic objections.` :
-    `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`)
+    `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`))
 }`;
 
     const messages = [];
@@ -485,7 +502,7 @@ if (messages.length === 0) {
 }
 
     const completion = await anthropic.messages.create({
-      model: "claude-3-5-haiku-20241022",
+      model: "claude-3-5-sonnet-latest",
       max_tokens: 2000,
       system: systemPrompt,
       messages: messages.map(msg => ({
@@ -500,11 +517,11 @@ if (messages.length === 0) {
 `);
 
     return new Response(JSON.stringify({
-      response,
-      interviewer,
-      currentQuestionNumber,
-      isComplete: currentQuestionNumber >= numberOfQuestions
-    }), {
+        response,
+        interviewer,
+        currentQuestionNumber: shouldProvideClosing ? numberOfQuestions : currentQuestionNumber,
+        isComplete: shouldProvideClosing  // ✅ CORRECT
+      }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
