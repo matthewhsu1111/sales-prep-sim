@@ -14,12 +14,33 @@ interface InterviewResultsData {
   jobPosting?: any;
 }
 
+interface StrengthItem {
+  skill: string;
+  category: string;
+  evidence: string;
+  score: number;
+}
+
+interface WeaknessItem {
+  skill: string;
+  category: string;
+  issue: string;
+  improvementActions: string[];
+  score: number;
+}
+
 interface FeedbackData {
-  strengths: string[];
-  weaknesses: string[];
+  strengths: StrengthItem[] | string[];  // Handle both formats
+  weaknesses: WeaknessItem[] | string[]; // Handle both formats
   improvements: string[];
   overallScore: number;
   overallFeedback: string;
+  detailedScores?: {
+    communication: number;
+    confidence: number;
+    salesSkills: number;
+    interviewMechanics: number;
+  };
 }
 
 export default function InterviewResults() {
@@ -28,108 +49,37 @@ export default function InterviewResults() {
   const { toast } = useToast();
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [interviewData, setInterviewData] = useState<InterviewResultsData | null>(null);
+  
+  const interviewData = location.state as InterviewResultsData;
+
+  console.log('InterviewResults mounted, location.state:', location.state);
 
   useEffect(() => {
-    fetchLatestInterviewSession();
-  }, [navigate, toast]);
-
-  const fetchLatestInterviewSession = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: "Authentication Error",
-          description: "Please sign in to view interview results.",
-          variant: "destructive",
-        });
-        navigate('/dashboard');
-        return;
-      }
-
-      // Fetch the latest interview session for this user
-      const { data: sessions, error } = await supabase
-        .from('interview_sessions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (error) {
-        console.error('Error fetching interview session:', error);
-        toast({
-          title: "Data Error",
-          description: "Could not load interview results. Redirecting to dashboard.",
-          variant: "destructive",
-        });
-        navigate('/dashboard');
-        return;
-      }
-
-      if (!sessions || sessions.length === 0) {
-        toast({
-          title: "No Results Found",
-          description: "No interview sessions found. Please complete an interview first.",
-          variant: "destructive",
-        });
-        navigate('/dashboard');
-        return;
-      }
-
-      const session = sessions[0];
-      setInterviewData({
-        interviewer: session.interviewer_name,
-        interviewType: session.interview_type,
-        transcript: session.transcript || '',
-        jobPosting: session.job_posting
-      });
-
-      // If analysis results already exist, use them
-      if (session.analysis_results && Object.keys(session.analysis_results).length > 0) {
-        setFeedback({
-          strengths: Array.isArray(session.strengths) ? session.strengths.map(s => String(s)) : [],
-          weaknesses: Array.isArray(session.weaknesses) ? session.weaknesses.map(w => String(w)) : [],
-          improvements: Array.isArray(session.improvements) ? session.improvements.map(i => String(i)) : [],
-          overallScore: session.overall_score || 0,
-          overallFeedback: typeof session.analysis_results === 'object' && session.analysis_results !== null && 'overallFeedback' in session.analysis_results 
-            ? String(session.analysis_results.overallFeedback) 
-            : "Analysis completed."
-        });
-        setIsLoading(false);
-      } else {
-        // Generate new analysis
-        generateFeedback({
-          interviewer: session.interviewer_name,
-          interviewType: session.interview_type,
-          transcript: session.transcript || '',
-          jobPosting: session.job_posting
-        }, session.id);
-      }
-    } catch (error) {
-      console.error('Error fetching interview session:', error);
+    if (!interviewData) {
       toast({
-        title: "Error",
-        description: "Could not load interview results. Redirecting to dashboard.",
+        title: "Missing Data",
+        description: "Interview results not found. Redirecting to dashboard.",
         variant: "destructive",
       });
       navigate('/dashboard');
+      return;
     }
-  };
+    
+    generateFeedback();
+  }, [interviewData, navigate, toast]);
 
-  const generateFeedback = async (data: InterviewResultsData, sessionId?: string) => {
-    if (!data) return;
+  const generateFeedback = async () => {
+    if (!interviewData) return;
 
     setIsLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const { data: analysisData, error } = await supabase.functions.invoke('analyze-interview', {
+      const { data, error } = await supabase.functions.invoke('analyze-interview', {
         body: {
-          transcript: data.transcript,
-          interviewType: data.interviewType,
-          jobPosting: data.jobPosting,
-          interviewer: data.interviewer,
-          sessionId: sessionId
+          transcript: interviewData.transcript,
+          interviewType: interviewData.interviewType,
+          jobPosting: interviewData.jobPosting,
+          interviewer: interviewData.interviewer
         },
         headers: {
           Authorization: `Bearer ${session?.access_token}`
@@ -158,7 +108,8 @@ export default function InterviewResults() {
           overallFeedback: "Overall, you showed good potential for this role. Your communication skills and enthusiasm are strong assets. Focus on developing more technical sales skills and quantifying your achievements to improve your interview performance."
         });
       } else {
-        setFeedback(analysisData);
+        console.log('Received feedback data:', data);
+        setFeedback(data);
       }
     } catch (error) {
       console.error('Error generating feedback:', error);
@@ -181,8 +132,83 @@ export default function InterviewResults() {
     }
   };
 
+  // Helper functions to handle both string and object formats
+  const renderStrength = (strength: StrengthItem | string, index: number) => {
+    if (typeof strength === 'string') {
+      return (
+        <li key={index} className="flex items-start gap-2">
+          <div className="w-2 h-2 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
+          <span>{strength}</span>
+        </li>
+      );
+    }
+    
+    return (
+      <li key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+        <div className="w-2 h-2 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
+        <div className="flex-1">
+          <div className="font-medium text-green-800">{strength.skill}</div>
+          <div className="text-sm text-green-700 mt-1">{strength.evidence}</div>
+          <div className="flex items-center gap-2 mt-2">
+            <Badge variant="outline" className="text-xs">{strength.category}</Badge>
+            <span className="text-xs font-medium text-green-600">Score: {strength.score}/10</span>
+          </div>
+        </div>
+      </li>
+    );
+  };
+
+  const renderWeakness = (weakness: WeaknessItem | string, index: number) => {
+    if (typeof weakness === 'string') {
+      return (
+        <li key={index} className="flex items-start gap-2">
+          <div className="w-2 h-2 bg-yellow-600 rounded-full mt-2 flex-shrink-0"></div>
+          <span>{weakness}</span>
+        </li>
+      );
+    }
+    
+    return (
+      <li key={index} className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg">
+        <div className="w-2 h-2 bg-yellow-600 rounded-full mt-2 flex-shrink-0"></div>
+        <div className="flex-1">
+          <div className="font-medium text-yellow-800">{weakness.skill}</div>
+          <div className="text-sm text-yellow-700 mt-1">{weakness.issue}</div>
+          {weakness.improvementActions && weakness.improvementActions.length > 0 && (
+            <div className="mt-2">
+              <div className="text-xs font-medium text-yellow-600 mb-1">Actions:</div>
+              <ul className="text-xs text-yellow-700 list-disc list-inside">
+                {weakness.improvementActions.map((action, actionIndex) => (
+                  <li key={actionIndex}>{action}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="flex items-center gap-2 mt-2">
+            <Badge variant="outline" className="text-xs">{weakness.category}</Badge>
+            <span className="text-xs font-medium text-yellow-600">Score: {weakness.score}/10</span>
+          </div>
+        </div>
+      </li>
+    );
+  };
+
   const downloadResults = () => {
     if (!feedback || !interviewData) return;
+
+    const formatStrengthsForDownload = () => {
+      return feedback.strengths.map(s => {
+        if (typeof s === 'string') return `• ${s}`;
+        return `• ${s.skill}: ${s.evidence} (Score: ${s.score}/10)`;
+      }).join('\n');
+    };
+
+    const formatWeaknessesForDownload = () => {
+      return feedback.weaknesses.map(w => {
+        if (typeof w === 'string') return `• ${w}`;
+        return `• ${w.skill}: ${w.issue} (Score: ${w.score}/10)`;
+      }).join('\n');
+    };
 
     const results = `
 INTERVIEW RESULTS REPORT
@@ -193,10 +219,10 @@ Interviewer: ${interviewData.interviewer}
 Overall Score: ${feedback.overallScore}/100
 
 STRENGTHS:
-${feedback.strengths.map(s => `• ${s}`).join('\n')}
+${formatStrengthsForDownload()}
 
 AREAS FOR IMPROVEMENT:
-${feedback.weaknesses.map(w => `• ${w}`).join('\n')}
+${formatWeaknessesForDownload()}
 
 RECOMMENDED ACTIONS:
 ${feedback.improvements.map(i => `• ${i}`).join('\n')}
@@ -306,6 +332,43 @@ ${interviewData.transcript}
 
         {feedback && (
           <>
+            {/* Detailed Scores */}
+            {feedback.detailedScores && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Detailed Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.communication * 10)}`}>
+                        {feedback.detailedScores.communication}/10
+                      </div>
+                      <div className="text-sm text-muted-foreground">Communication</div>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.confidence * 10)}`}>
+                        {feedback.detailedScores.confidence}/10
+                      </div>
+                      <div className="text-sm text-muted-foreground">Confidence</div>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.salesSkills * 10)}`}>
+                        {feedback.detailedScores.salesSkills}/10
+                      </div>
+                      <div className="text-sm text-muted-foreground">Sales Skills</div>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.interviewMechanics * 10)}`}>
+                        {feedback.detailedScores.interviewMechanics}/10
+                      </div>
+                      <div className="text-sm text-muted-foreground">Interview Mechanics</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Overall Feedback */}
             <Card>
               <CardHeader>
@@ -328,13 +391,8 @@ ${interviewData.transcript}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
-                  {feedback.strengths.map((strength, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
-                      <span>{strength}</span>
-                    </li>
-                  ))}
+                <ul className="space-y-3">
+                  {feedback.strengths.map((strength, index) => renderStrength(strength, index))}
                 </ul>
               </CardContent>
             </Card>
@@ -348,13 +406,8 @@ ${interviewData.transcript}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
-                  {feedback.weaknesses.map((weakness, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-yellow-600 rounded-full mt-2 flex-shrink-0"></div>
-                      <span>{weakness}</span>
-                    </li>
-                  ))}
+                <ul className="space-y-3">
+                  {feedback.weaknesses.map((weakness, index) => renderWeakness(weakness, index))}
                 </ul>
               </CardContent>
             </Card>
