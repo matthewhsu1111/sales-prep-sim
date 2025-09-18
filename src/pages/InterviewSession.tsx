@@ -262,6 +262,44 @@ export default function InterviewSession() {
     });
   };
 
+  const handleViewResults = () => {
+  console.log('🔍 Interview completion started');
+  console.log('📝 Current transcript length:', messages.length);
+  console.log('👤 Interviewer:', interviewDetails?.interviewer);
+  console.log('📋 Interview type:', interviewDetails?.interviewType);
+  
+  // Create transcript from messages
+  const transcript = messages
+    .map(msg => `${msg.sender === 'ai' ? 'Interviewer' : 'You'}: ${msg.content}`)
+    .join('\n\n');
+  
+  console.log('📝 Generated transcript:', transcript.substring(0, 200) + '...');
+  
+  if (!interviewDetails) {
+    console.error('❌ No interview details available');
+    toast({
+      title: "Error",
+      description: "Interview details not available. Cannot show results.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  // Navigate to results with data
+  const navigationData = {
+    interviewer: interviewDetails.interviewer || 'Unknown',
+    interviewType: interviewDetails.interviewType || 'General',
+    transcript: transcript || 'No transcript available',
+    jobPosting: interviewDetails.jobPosting || null
+  };
+  
+  console.log('🚀 Navigating to results with data:', navigationData);
+  
+  navigate('/dashboard/interview-results', { 
+    state: navigationData 
+  });
+};
+  
   const saveInterviewSession = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -364,7 +402,7 @@ export default function InterviewSession() {
                     <div className="flex items-center justify-between">
                       <span className="text-green-600 font-medium">Interview Complete</span>
                       <Button
-                        onClick={() => navigate('/dashboard/interview-results')}
+                        onClick={handleViewResults}
                         size="sm"
                         className="ml-4"
                       >
