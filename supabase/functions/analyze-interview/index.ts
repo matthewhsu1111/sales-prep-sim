@@ -37,28 +37,26 @@ serve(async (req) => {
 
     const userId = userData.user.id;
 
-    const systemPrompt = `You are an expert interview analyst specializing in sales roles. Analyze this text-based interview transcript using the provided framework. Focus on content-based assessment areas like sales skills, company knowledge, response structure, and communication quality. 
+    // Enhanced analysis prompt using the framework
+    const systemPrompt = `Analyze this sales interview transcript critically and accurately. 
+
+    CRITICAL: Base your analysis ONLY on what actually happened in the transcript. Do not provide generic positive feedback.
     
-    Note: Voice/audio analysis (pace, filler words, voice trembling) cannot be assessed from text alone.
+    If responses were:
+    - Unprofessional (nonsense words, "idk", "no"): Score 10-30
+    - Unprepared (no examples, vague answers): Score 30-50  
+    - Adequate but basic: Score 50-70
+    - Strong with good examples: Score 70-90
+    - Exceptional: Score 90-100
     
-    FRAMEWORK CATEGORIES:
-    1. Communication Skills (storytelling, listening, response relevance)
-    2. Confidence & Presence (composure from word choice, professional tone)
-    3. Sales-Specific Skills (objection handling, value articulation, questioning)
-    4. Interview Mechanics (preparation, structure, experience translation)
-    
-    For each category, identify strengths and improvement areas with specific examples from the transcript.
-    
-    SCORING: Use 1-10 scale where 1-3=needs improvement, 4-6=developing, 7-8=competent, 9-10=excellent.
-    
-    Respond with simple format for frontend compatibility:
+    Return this exact JSON format with NO complex objects:
     {
       "overallScore": number,
-      "overallFeedback": "string",
-      "strengths": ["string array of strengths"],
-      "weaknesses": ["string array of areas to improve"],
-      "improvements": ["string array of actionable recommendations"]
-    }`;
+      "overallFeedback": "specific feedback based on actual performance",
+      "strengths": ["actual strengths shown in transcript or state 'No clear strengths demonstrated'"],
+      "weaknesses": ["specific issues from the transcript"],
+      "improvements": ["actionable recommendations based on actual problems"]
+    }`
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -98,19 +96,32 @@ serve(async (req) => {
       analysisResult = {
         overallScore: 75,
         overallFeedback: "Interview completed successfully. Continue practicing to improve your skills.",
+        detailedScores: {
+          communication: 75,
+          confidence: 70,
+          salesSkills: 72,
+          interviewMechanics: 78
+        },
         strengths: [
-          "Engaged throughout the interview",
-          "Provided relevant examples",
-          "Maintained professional tone"
+          {
+            skill: "Engagement",
+            category: "communication",
+            evidence: "Maintained conversation throughout interview",
+            score: 8
+          }
         ],
         weaknesses: [
-          "Could improve company research",
-          "Practice more specific examples",
-          "Work on response structure"
+          {
+            skill: "Technical Analysis",
+            category: "system",
+            issue: "Could not fully analyze audio patterns",
+            improvementActions: ["Review transcript manually", "Practice with clearer audio"],
+            score: 5
+          }
         ],
         improvements: [
-          "Research the company and role more thoroughly",
           "Practice answering common interview questions",
+          "Research the company and role more thoroughly",
           "Work on speaking clearly and confidently"
         ]
       };
@@ -126,7 +137,7 @@ serve(async (req) => {
           strengths: analysisResult.strengths,
           weaknesses: analysisResult.weaknesses,
           improvements: analysisResult.improvements,
-          scores: analysisResult.detailedScores || null,
+          scores: analysisResult.detailedScores,
           transcript: transcript
         })
         .eq('id', sessionId)
