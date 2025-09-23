@@ -584,7 +584,7 @@ const Index = () => {
                 }`}
                 onClick={() => setIsTriMonthly(true)}
               >
-                Tri-Monthly (20% off)
+                Tri-Monthly (Save 20%)
               </button>
               <button 
                 className={`px-6 py-2 rounded-md font-medium transition-colors ${
