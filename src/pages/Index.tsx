@@ -163,7 +163,7 @@ const Index = () => {
     <div className="min-h-screen bg-white">{/* Clean white background */}
 
       {/* Navigation */}
-      <nav className="fixed top-4 left-4 right-4 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200 rounded-lg px-6 lg:px-8">
+      <nav className="fixed top-4 left-6 right-6 z-50 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-2">
