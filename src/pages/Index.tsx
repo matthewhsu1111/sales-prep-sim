@@ -163,8 +163,8 @@ const Index = () => {
     <div className="min-h-screen bg-white">{/* Clean white background */}
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-8 lg:px-12">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200 px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
@@ -178,7 +178,7 @@ const Index = () => {
               <a href="#testimonials" className="text-gray-600 hover:text-foreground transition-colors">Testimonials</a>
               <a href="#pricing" className="text-gray-600 hover:text-foreground transition-colors">Pricing</a>
             </div>
-
+      
             <div className="flex items-center space-x-4">
               <Button variant="outline" size="sm">
                 Watch Demo
