@@ -199,17 +199,12 @@ const Index = () => {
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center space-y-6">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight max-w-5xl mx-auto">
-              Stop Getting Rejected,
-              <br />
-              <span className="text-primary">Start Getting Job Offers</span>
+              Stop Failing Sales Interviews
             </h1>
             
             <div className="space-y-4">
               <p className="text-xl md:text-2xl leading-relaxed max-w-3xl mx-auto" style={{color: 'rgb(75 85 99)'}}>
-                Practice with AI interviewers who simulate real hiring managers.
-              </p>
-              <p className="text-lg max-w-2xl mx-auto" style={{color: 'rgb(75 85 99)'}}>
-                Build confidence, master role-plays, and turn interviews into job offers.
+                Practice with AI interviewers, get real-time coaching, and finally break into that SDR or AE role.
               </p>
             </div>
 
@@ -238,13 +233,51 @@ const Index = () => {
               </div>
             </div>
 
-            {/* VSL Placeholder */}
-            <div className="relative max-w-4xl mx-auto mt-16">
-              <div className="relative z-10 bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
-                <div className="aspect-video bg-gray-50 rounded-xl flex items-center justify-center">
-                  <div className="text-center">
-                    <Play className="h-16 w-16 mx-auto mb-4" style={{color: 'rgb(75 85 99)'}} />
-                    <p style={{color: 'rgb(75 85 99)'}}>Video Demo Placeholder</p>
+          </div>
+        </div>
+      </section>
+
+      {/* VSL Demo Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-6">
+              See How It Works
+            </h2>
+            <p className="text-xl max-w-3xl mx-auto" style={{color: 'rgb(75 85 99)'}}>
+              Watch how our AI interviewers help you practice and improve your interview skills.
+            </p>
+          </div>
+
+          <div className="relative max-w-4xl mx-auto">
+            <div className="relative z-10 bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+              <div className="aspect-video bg-gray-50 rounded-xl flex items-center justify-center">
+                <div className="text-center">
+                  <Play className="h-16 w-16 mx-auto mb-4" style={{color: 'rgb(75 85 99)'}} />
+                  <p className="text-lg font-medium" style={{color: 'rgb(75 85 99)'}}>VSL Demo Placeholder</p>
+                  <p className="text-sm mt-2" style={{color: 'rgb(107 114 128)'}}>Click to watch how InterviewAce works</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quote Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="bg-gray-50 rounded-2xl p-12">
+            <div className="flex flex-col lg:flex-row items-center gap-12">
+              <div className="flex-1">
+                <blockquote className="text-2xl md:text-3xl font-medium text-foreground leading-relaxed">
+                  "You can crush quotas, close deals, and be the best salesman in the world, but if you can't sell yourself in the interview, you'll never get the chance. 73% of sales candidates fail at the interview stage - not because they can't sell, but because they can't interview."
+                </blockquote>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Founder of CadenceAI</p>
                   </div>
                 </div>
               </div>
@@ -253,21 +286,15 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Problem/Solution Callout */}
-      <section className="py-20 bg-gray-50">
+      {/* Main Value Proposition */}
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-4xl text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
-            Before You Sell Anything to Anyone, You First Have to Sell Yourself
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
+            That's Why We Created The Most Realistic Interview Practice Experience Possible
           </h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto leading-relaxed" style={{color: 'rgb(75 85 99)'}}>
-            You can crush quotas, close deals, and be the best salesman in the world, but if you can't sell yourself in the interview, you'll never get the chance. 73% of sales candidates fail at the interview stage - not because they can't sell, but because they <em>can't interview</em>.
+          <p className="text-xl max-w-3xl mx-auto leading-relaxed" style={{color: 'rgb(75 85 99)'}}>
+            Practice with AI interviewers who think, respond, and challenge you just like real hiring managers.
           </p>
-          
-          <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 mt-12">
-            <h3 className="text-2xl font-bold text-foreground mb-4">
-              That's Why We Created The Most Realistic Interview Practice Experience Possible…
-            </h3>
-          </div>
         </div>
       </section>
 
