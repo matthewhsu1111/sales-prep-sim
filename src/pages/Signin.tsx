@@ -98,29 +98,6 @@ const Signin = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="flex h-16 items-center justify-between">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-          
-          <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <Mic className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-xl">Cadence</span>
-          </div>
-          
-          <div className="w-16"></div> {/* Spacer for center alignment */}
-        </div>
-      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4">
