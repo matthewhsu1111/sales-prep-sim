@@ -162,8 +162,8 @@ const Index = () => {
     <div className="min-h-screen bg-white">{/* Clean white background */}
 
       {/* Navigation */}
-      <nav className="relative border-b border-gray-200 bg-white">
-        <div className="container mx-auto px-4 max-w-7xl">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
@@ -195,9 +195,15 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 bg-white">
+      <section className="relative pt-32 pb-16 bg-white">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center space-y-6">
+            {/* New Release Bar */}
+            <div className="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-medium mb-8">
+              <Star className="h-4 w-4 mr-2" />
+              NEW! Cadence v0.1 released
+            </div>
+            
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight max-w-5xl mx-auto">
               Stop Failing Sales Interviews
             </h1>
@@ -240,15 +246,6 @@ const Index = () => {
       {/* VSL Demo Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-6">
-              See How It Works
-            </h2>
-            <p className="text-xl max-w-3xl mx-auto" style={{color: 'rgb(75 85 99)'}}>
-              Watch how our AI interviewers help you practice and improve your interview skills.
-            </p>
-          </div>
-
           <div className="relative max-w-4xl mx-auto">
             <div className="relative z-10 bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
               <div className="aspect-video bg-gray-50 rounded-xl flex items-center justify-center">
@@ -267,18 +264,16 @@ const Index = () => {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="bg-gray-50 rounded-2xl p-12">
-            <div className="flex flex-col lg:flex-row items-center gap-12">
-              <div className="flex-1">
-                <blockquote className="text-2xl md:text-3xl font-medium text-foreground leading-relaxed">
-                  "You can crush quotas, close deals, and be the best salesman in the world, but if you can't sell yourself in the interview, you'll never get the chance. 73% of sales candidates fail at the interview stage - not because they can't sell, but because they can't interview."
-                </blockquote>
-                <div className="mt-8 flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                    <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">Founder of CadenceAI</p>
-                  </div>
+            <div className="text-center max-w-4xl mx-auto">
+              <blockquote className="text-2xl md:text-3xl font-medium text-foreground leading-relaxed mb-8">
+                "You can crush quotas, close deals, and be the best salesman in the world, but if you can't sell yourself in the interview, you'll never get the chance. 73% of sales candidates fail at the interview stage - not because they can't sell, but because they can't interview."
+              </blockquote>
+              <div className="flex items-center justify-center gap-4">
+                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">Founder of CadenceAI</p>
                 </div>
               </div>
             </div>
@@ -287,7 +282,7 @@ const Index = () => {
       </section>
 
       {/* Main Value Proposition */}
-      <section className="py-20 bg-white">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
             That's Why We Created The Most Realistic Interview Practice Experience Possible
@@ -299,7 +294,7 @@ const Index = () => {
       </section>
 
       {/* Meet Your AI Interview Team */}
-      <section className="py-20 bg-white">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-foreground mb-4">
@@ -569,82 +564,145 @@ const Index = () => {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <section id="pricing" className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Choose Your Plan
+            <Badge className="mb-4 bg-primary text-primary-foreground">Plans</Badge>
+            <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
+              Flexible plans for growth
             </h2>
-            <p style={{color: 'rgb(75 85 99)'}}>Save 20% with annual billing</p>
+            <p className="text-xl" style={{color: 'rgb(75 85 99)'}}>Transparent pricing designed to fit your requirements.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            <Card className="border-2 border-gray-200 bg-white">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl">Starter</CardTitle>
-                <div className="text-4xl font-bold text-primary">$49<span className="text-lg" style={{color: 'rgb(75 85 99)'}}>/month</span></div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    <span>10 credits per month</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    <span>3 AI interviewers</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    <span>Basic feedback</span>
-                  </li>
-                </ul>
-                <Button className="w-full" onClick={() => navigate('/signup')}>
-                  Get Started
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-primary bg-white">
-              <CardHeader className="text-center">
-                <Badge className="mb-2">Popular</Badge>
-                <CardTitle className="text-2xl">Pro</CardTitle>
-                <div className="text-4xl font-bold text-primary">$99<span className="text-lg" style={{color: 'rgb(75 85 99)'}}>/month</span></div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    <span>Unlimited credits</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    <span>All AI interviewers</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    <span>Priority support</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    <span>Advanced analytics</span>
-                  </li>
-                </ul>
-                <Button className="w-full" onClick={() => navigate('/signup')}>
-                  Start Pro Trial
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="text-center mt-12 space-y-4">
-            <p style={{color: 'rgb(75 85 99)'}}>Get hired in 60 days or money back</p>
-            <div className="border-t border-gray-200 pt-6">
-              <p className="mb-4" style={{color: 'rgb(75 85 99)'}}>Or start with 3 free practice sessions</p>
-              <Button variant="outline" size="lg" onClick={() => navigate('/signup')}>
-                Try For Free
-              </Button>
+          {/* Billing Toggle */}
+          <div className="flex justify-center mb-12">
+            <div className="bg-gray-100 rounded-lg p-1 flex">
+              <button className="px-6 py-2 rounded-md bg-primary text-primary-foreground font-medium">
+                Annually
+              </button>
+              <button className="px-6 py-2 rounded-md text-gray-600 font-medium">
+                Monthly
+              </button>
             </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Basic Plan */}
+            <Card className="bg-gray-900 text-white border-gray-800">
+              <CardHeader className="text-center pb-8">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <CheckCircle className="h-5 w-5" />
+                  <CardTitle className="text-xl">Basic</CardTitle>
+                </div>
+                <div className="text-4xl font-bold">$480<span className="text-lg text-gray-400">/month</span></div>
+                <p className="text-gray-400 mt-4">Essential tools and features for starting your journey with ease.</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Button variant="secondary" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  Go with this plan →
+                </Button>
+                <ul className="space-y-4">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">Basic workflow automation</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">Basic chatbot development</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">60 content request</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">E-mail support</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">1 consultation a month</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Professional Plan */}
+            <Card className="bg-gray-900 text-white border-gray-800">
+              <CardHeader className="text-center pb-8">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <DollarSign className="h-5 w-5" />
+                  <CardTitle className="text-xl">Professional</CardTitle>
+                </div>
+                <div className="text-4xl font-bold">$960<span className="text-lg text-gray-400">/month</span></div>
+                <p className="text-gray-400 mt-4">Advanced capabilities designed to meet growing business needs.</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Button variant="secondary" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  Go with this plan →
+                </Button>
+                <ul className="space-y-4">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">Advance workflow automation</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">Advance chatbot development</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">150 content request</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">E-mail support</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">2 consultation a month</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Enterprise Plan */}
+            <Card className="bg-gray-900 text-white border-gray-800">
+              <CardHeader className="text-center pb-8">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <DollarSign className="h-5 w-5" />
+                  <CardTitle className="text-xl">Enterprise</CardTitle>
+                </div>
+                <div className="text-4xl font-bold">Custom</div>
+                <p className="text-gray-400 mt-4">Comprehensive solutions tailored for large-scale business success.</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Button variant="secondary" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  Schedule a call →
+                </Button>
+                <ul className="space-y-4">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">Custom workflow automation</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">Custom chatbot development</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">Unlimited content request</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">24hr priority support</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">Unlimited consultation a month</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
