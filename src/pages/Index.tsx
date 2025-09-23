@@ -36,6 +36,7 @@ import heroImage from '@/assets/hero-interview.jpg';
 
 const Index = () => {
   const navigate = useNavigate();
+  const [isTriMonthly, setIsTriMonthly] = useState(true);
   const [selectedInterviewer, setSelectedInterviewer] = useState<string | null>(null);
 
   const interviewers = [
@@ -577,128 +578,102 @@ const Index = () => {
           {/* Billing Toggle */}
           <div className="flex justify-center mb-12">
             <div className="bg-gray-100 rounded-lg p-1 flex">
-              <button className="px-6 py-2 rounded-md bg-primary text-primary-foreground font-medium">
-                Annually
+              <button 
+                className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                  isTriMonthly ? 'bg-primary text-primary-foreground' : 'text-gray-600 hover:text-gray-900'
+                }`}
+                onClick={() => setIsTriMonthly(true)}
+              >
+                Tri-Monthly (20% off)
               </button>
-              <button className="px-6 py-2 rounded-md text-gray-600 font-medium">
+              <button 
+                className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                  !isTriMonthly ? 'bg-primary text-primary-foreground' : 'text-gray-600 hover:text-gray-900'
+                }`}
+                onClick={() => setIsTriMonthly(false)}
+              >
                 Monthly
               </button>
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Basic Plan */}
-            <Card className="bg-gray-900 text-white border-gray-800">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Pro Plan */}
+            <Card className="bg-white text-black border border-gray-200 shadow-lg">
               <CardHeader className="text-center pb-8">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <CheckCircle className="h-5 w-5" />
-                  <CardTitle className="text-xl">Basic</CardTitle>
+                  <CheckCircle className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-xl">Pro</CardTitle>
                 </div>
-                <div className="text-4xl font-bold">$480<span className="text-lg text-gray-400">/month</span></div>
-                <p className="text-gray-400 mt-4">Essential tools and features for starting your journey with ease.</p>
+                <div className="text-4xl font-bold">
+                  ${isTriMonthly ? '40' : '50'}
+                  <span className="text-lg text-gray-600">/month</span>
+                </div>
+                <p className="text-gray-600 mt-4">Everything you need to ace your sales interviews</p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <Button variant="secondary" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Go with this plan →
+                <Button variant="default" className="w-full">
+                  Get Started →
                 </Button>
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">Basic workflow automation</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Unlimited AI interview practice</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">Basic chatbot development</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Real-time feedback & coaching</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">60 content request</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Sales-specific scenarios</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">E-mail support</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Performance analytics</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">1 consultation a month</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Professional Plan */}
-            <Card className="bg-gray-900 text-white border-gray-800">
-              <CardHeader className="text-center pb-8">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <DollarSign className="h-5 w-5" />
-                  <CardTitle className="text-xl">Professional</CardTitle>
-                </div>
-                <div className="text-4xl font-bold">$960<span className="text-lg text-gray-400">/month</span></div>
-                <p className="text-gray-400 mt-4">Advanced capabilities designed to meet growing business needs.</p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Button variant="secondary" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Go with this plan →
-                </Button>
-                <ul className="space-y-4">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">Advance workflow automation</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">Advance chatbot development</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">150 content request</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">E-mail support</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">2 consultation a month</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Email support</span>
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
             {/* Enterprise Plan */}
-            <Card className="bg-gray-900 text-white border-gray-800">
+            <Card className="bg-white text-black border border-gray-200 shadow-lg">
               <CardHeader className="text-center pb-8">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <DollarSign className="h-5 w-5" />
+                  <DollarSign className="h-5 w-5 text-primary" />
                   <CardTitle className="text-xl">Enterprise</CardTitle>
                 </div>
                 <div className="text-4xl font-bold">Custom</div>
-                <p className="text-gray-400 mt-4">Comprehensive solutions tailored for large-scale business success.</p>
+                <p className="text-gray-600 mt-4">Custom solutions for teams and organizations</p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <Button variant="secondary" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button variant="outline" className="w-full">
                   Schedule a call →
                 </Button>
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">Custom workflow automation</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Everything in Pro</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">Custom chatbot development</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Custom interview scenarios</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">Unlimited content request</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Team management dashboard</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">24hr priority support</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Advanced analytics</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">Unlimited consultation a month</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Priority support</span>
                   </li>
                 </ul>
               </CardContent>
