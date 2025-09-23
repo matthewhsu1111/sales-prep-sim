@@ -282,7 +282,7 @@ ${interviewData.transcript}
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
-        <div className="text-xl font-bold text-foreground">~ InterviewAce</div>
+        <div className="text-xl font-bold text-foreground">~ Cadence</div>
         <div className="flex gap-2">
           {feedback && (
             <Button

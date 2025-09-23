@@ -138,11 +138,11 @@ const Index = () => {
       answer: "Get hired in 60 days or get your money back. We're confident that consistent practice with our AI interviewers will dramatically improve your interview performance."
     },
     {
-      question: "What is InterviewAce?",
-      answer: "InterviewAce is an AI-powered sales interview simulator that helps you practice with realistic AI interviewers, get instant feedback, and build confidence before real interviews. Watch our 2-minute demo to see it in action."
+      question: "What is Cadence?",
+      answer: "Cadence is an AI-powered sales interview simulator that helps you practice with realistic AI interviewers, get instant feedback, and build confidence before real interviews. Watch our 2-minute demo to see it in action."
     },
     {
-      question: "Does InterviewAce work for my specific use case?",
+      question: "Does Cadence work for my specific use case?",
       answer: "Whether you're an SDR, AE, Sales Manager, or changing careers into sales, our AI adapts to your role and experience level. We support all sales verticals including SaaS, insurance, real estate, and more."
     },
     {
@@ -154,7 +154,7 @@ const Index = () => {
       answer: "Absolutely. Practice makes perfect, and AI lets you practice unlimited interviews in a judgment-free environment. Users report 40-60% improvement in confidence after just one week of daily practice."
     },
     {
-      question: "Why InterviewAce over other tools?",
+      question: "Why Cadence over other tools?",
       answer: "We're the only platform built specifically for sales interviews. Generic interview prep doesn't prepare you for role-plays, objection handling, and sales-specific scenarios that make or break sales interviews."
     }
   ];
@@ -170,7 +170,7 @@ const Index = () => {
               <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
                 <Mic className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-xl text-foreground">InterviewAce</span>
+              <span className="font-bold text-xl text-foreground">Cadence</span>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
@@ -253,7 +253,7 @@ const Index = () => {
                 <div className="text-center">
                   <Play className="h-16 w-16 mx-auto mb-4" style={{color: 'rgb(75 85 99)'}} />
                   <p className="text-lg font-medium" style={{color: 'rgb(75 85 99)'}}>VSL Demo Placeholder</p>
-                  <p className="text-sm mt-2" style={{color: 'rgb(107 114 128)'}}>Click to watch how InterviewAce works</p>
+                  <p className="text-sm mt-2" style={{color: 'rgb(107 114 128)'}}>Click to watch how Cadence works</p>
                 </div>
               </div>
             </div>
@@ -452,7 +452,7 @@ const Index = () => {
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-3xl font-bold text-foreground mb-12">Real People, Real Job Offers</h2>
           <blockquote className="text-2xl md:text-3xl font-medium text-foreground mb-8">
-            "I was bombing every role-play for 3 months. After 2 weeks with InterviewAce, I aced my Salesforce interview and got a $75K SDR offer. The confidence coaching was a game-changer."
+            "I was bombing every role-play for 3 months. After 2 weeks with Cadence, I aced my Salesforce interview and got a $75K SDR offer. The confidence coaching was a game-changer."
           </blockquote>
           <div className="flex items-center justify-center gap-4">
             <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">

@@ -2,51 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* InterviewAce Design System - Professional, calming, confidence-boosting */
+/* Cadence Design System - Professional, calming, confidence-boosting */
 
 @layer base {
   :root {
     /* Core Brand Colors - Clean & Minimalistic */
     --background: 0 0% 100%;
-    --foreground: 220 25% 15%;
+    --foreground: 0 0% 0%;
     
     /* Custom gray for subheadlines and descriptions */
-    --text-gray: 210 14% 35%;
+    --text-gray: 220 15% 35%;
 
-    --card: 220 15% 98%;
-    --card-foreground: 220 25% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 220 15% 98%;
-    --popover-foreground: 220 25% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
     /* Primary - Confidence Blue */
     --primary: 217 91% 60%;
-    --primary-foreground: 220 15% 98%;
+    --primary-foreground: 0 0% 100%;
     --primary-glow: 217 91% 70%;
 
     /* Secondary - Calming Light Blue */
     --secondary: 217 25% 95%;
-    --secondary-foreground: 217 91% 45%;
+    --secondary-foreground: 0 0% 0%;
 
     /* Success - Achievement Green */
     --success: 142 76% 36%;
-    --success-foreground: 220 15% 98%;
+    --success-foreground: 0 0% 100%;
     --success-light: 142 76% 94%;
 
     /* Warning - Attention Orange */
     --warning: 38 92% 50%;
-    --warning-foreground: 220 15% 98%;
+    --warning-foreground: 0 0% 100%;
     --warning-light: 38 92% 95%;
 
     /* Muted - Neutral Grays */
     --muted: 220 13% 95%;
-    --muted-foreground: 220 13% 50%;
+    --muted-foreground: 220 15% 35%;
 
     --accent: 217 25% 93%;
-    --accent-foreground: 217 91% 45%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 220 15% 98%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 220 13% 91%;
     --input: 220 13% 96%;
