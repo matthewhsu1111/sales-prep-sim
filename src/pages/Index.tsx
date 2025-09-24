@@ -191,6 +191,11 @@ const Index = () => {
                 Practice with AI interviewers, get real-time coaching, and finally break into that SDR or AE role.
               </p>
             </div>
+
+            <div className="pt-4">
+              <p className="text-sm mb-6" style={{color: 'rgb(75 85 99)'}}>
+                
+              </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
