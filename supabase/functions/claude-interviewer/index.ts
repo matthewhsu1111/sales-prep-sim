@@ -415,12 +415,21 @@ INTERVIEW CONTEXT:
 
 ${shouldProvideClosing ? `
 🚨 CRITICAL: FINAL MESSAGE INSTRUCTIONS 🚨
-The interview is complete. The candidate just answered the final question. You MUST provide a closing statement now.
+The interview is complete. The candidate just answered question ${currentQuestionNumber} of ${numberOfQuestions}. 
+You MUST provide your closing statement now.
 
 Your closing MUST be: "${selectedPersonality.closingMessage || 'Thank you for your time today. You will receive feedback on your interview performance shortly.'}"
 
-DO NOT ask another question. DO NOT continue the interview. Use EXACTLY the closing message above.
+DO NOT ask another question. DO NOT continue the interview. The interview is over.
+` : currentQuestionNumber >= numberOfQuestions ? `
+🚨 APPROACHING FINAL QUESTION 🚨
+This is question ${currentQuestionNumber} of ${numberOfQuestions} - the LAST question of the interview.
+After the candidate responds to this question, you MUST end with your closing message.
+Ask this final question, then prepare to close the interview.
 ` : `
+QUESTION ${currentQuestionNumber} of ${numberOfQuestions}
+Continue the interview with the next appropriate question from ${interviewType} category.
+`}
 
 CRITICAL JOB-SPECIFIC INTEGRATION:
 - Always use "${companyName}" instead of generic "our company"
