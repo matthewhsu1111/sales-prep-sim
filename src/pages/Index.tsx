@@ -250,7 +250,7 @@ const Index = () => {
                   <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
                 </div>
                 <div>
-                  <p className="font-semibold text-foreground">Founder of CadenceAI</p>
+                  <p className="font-semibold text-foreground">Founder of Cadence</p>
                 </div>
               </div>
             </div>
@@ -528,7 +528,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center gap-3 text-primary">
                   <CheckCircle className="h-5 w-5" />
-                  <span>Unlimited practice for $49/month</span>
+                  <span>Unlimited practice for $50/month</span>
                 </div>
                 <div className="flex items-center gap-3 text-primary">
                   <CheckCircle className="h-5 w-5" />
@@ -667,7 +667,7 @@ const Index = () => {
             </h2>
           </div>
 
-          <Accordion type="single" collapsible={true} className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-4">
             {faqItems.map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`} className="border border-gray-200 rounded-lg px-6 bg-white">
                 <AccordionTrigger className="text-left font-semibold">
