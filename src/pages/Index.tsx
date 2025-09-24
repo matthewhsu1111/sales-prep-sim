@@ -524,7 +524,7 @@ const Index = () => {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 bg-white scroll-mt-16">
+      <section id="pricing" className="py-20 bg-white scroll-mt-12">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary text-primary-foreground">Plans</Badge>
