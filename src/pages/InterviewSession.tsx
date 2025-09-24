@@ -163,24 +163,23 @@ export default function InterviewSession() {
 
   const sendMessage = async () => {
     if (!userInput.trim() || !interviewDetails || isAiTyping) return;
-  
+
     const userMessage: Message = {
       id: Date.now().toString(),
       content: userInput.trim(),
       sender: 'user',
       timestamp: new Date()
     };
-  
+
     setMessages(prev => [...prev, userMessage]);
     setUserInput("");
     setIsAiTyping(true);
-  
+
     try {
-      // FIXED: Check if this will be the last exchange
-      const willBeLastQuestion = currentQuestionNumber >= interviewDetails.numberOfQuestions;
-      
-      console.log(`🎯 Question tracking: current=${currentQuestionNumber}, total=${interviewDetails.numberOfQuestions}, willBeLastQuestion=${willBeLastQuestion}`);
-  
+      // Check if this should be the last question
+      const nextQuestionNumber = currentQuestionNumber + 1;
+      const isLastQuestion = nextQuestionNumber > interviewDetails.numberOfQuestions;
+
       const { data, error } = await supabase.functions.invoke('claude-interviewer', {
         body: { 
           message: userInput.trim(),
@@ -189,7 +188,7 @@ export default function InterviewSession() {
           conversationHistory: messages,
           isFirstMessage: false,
           numberOfQuestions: interviewDetails.numberOfQuestions,
-          currentQuestionNumber: currentQuestionNumber,
+          currentQuestionNumber: isLastQuestion ? interviewDetails.numberOfQuestions : nextQuestionNumber,
           interviewType: interviewDetails.interviewType
         }
       });
@@ -214,13 +213,13 @@ export default function InterviewSession() {
         // Simulate typing effect
         await typeMessage(data.response, aiMessage.id);
         
-        // FIXED: Check if interview is complete based on response
-        if (data.isComplete || willBeLastQuestion) {
-          console.log('🏁 Interview completed!');
+        // Update question number or mark interview complete
+        if (isLastQuestion) {
           setIsInterviewComplete(true);
+          // Save interview session to database
           await saveInterviewSession();
         } else {
-          setCurrentQuestionNumber(prev => prev + 1);
+          setCurrentQuestionNumber(nextQuestionNumber);
         }
       }
     } catch (error) {
