@@ -667,7 +667,7 @@ const Index = () => {
             </h2>
           </div>
 
-          <Accordion type="single" collapsible defaultValue="" className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-4">
             {faqItems.map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`} className="border border-gray-200 rounded-lg px-6 bg-white">
                 <AccordionTrigger className="text-left font-semibold">
