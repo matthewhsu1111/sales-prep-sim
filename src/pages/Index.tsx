@@ -114,48 +114,24 @@ const Index = () => {
 
   const faqItems = [
     {
-      question: "How is this better than practicing with friends?",
-      answer: "Friends won't give you the brutal honesty of a real hiring manager. Our AI interviewers simulate real pressure, ask tough questions, and provide objective feedback without sugar-coating your weaknesses."
+      question: "What is Cadence?",
+      answer: "Cadence is an AI-powered simulator to help aspiring SDRs/AEs practice realistic sales interview scenarios with real-time coaching and build confidence before real interviews."
+    },
+    {
+      question: "Why tri-monthly billing instead of monthly?",
+      answer: "Unlike other SaaS companies, Cadence is designed to get you hired, not keep you subscribed forever. Our tri-monthly billing aligns with realistic job search timelines of 30-90 days. Once you get hired, you won't need us anymore - and that's exactly the goal."
     },
     {
       question: "Will this actually help me get hired?", 
-      answer: "73% of sales candidates fail at interviews - not because they can't sell, but because they can't interview. Our platform addresses the exact skills needed to pass sales interviews with realistic practice and instant feedback."
+      answer: "Yes, but your success depends entirely on how much time and effort you dedicate to becoming better. While we can't guarantee you'll get hired (that depends on many factors), we can guarantee you'll be better prepared than 90% of other candidates."
     },
     {
       question: "How realistic are the AI interviewers?",
-      answer: "Our AI interviewers are trained on thousands of real sales interviews. Each has distinct personalities, testing styles, and will challenge you just like real hiring managers - some are tough, some are friendly, some are analytical."
+      answer: "Our AI interviewers go beyond basic Q&A. They have distinct personalities, interrupt poor answers, ask follow-up questions based on what you say, and even show skepticism when appropriate."
     },
     {
       question: "What if I'm changing careers into sales?",
-      answer: "Perfect! Career changers are our specialty. We'll help you practice explaining your transition story, demonstrate transferable skills, and build confidence for sales-specific scenarios you've never experienced."
-    },
-    {
-      question: "Can I practice for specific companies?",
-      answer: "Yes! Upload any job description and we'll create company-specific interview scenarios, including their sales methodology, company culture, and typical interview questions."
-    },
-    {
-      question: "What's your money-back guarantee?",
-      answer: "Get hired in 60 days or get your money back. We're confident that consistent practice with our AI interviewers will dramatically improve your interview performance."
-    },
-    {
-      question: "What is Cadence?",
-      answer: "Cadence is an AI-powered sales interview simulator that helps you practice with realistic AI interviewers, get instant feedback, and build confidence before real interviews. Watch our 2-minute demo to see it in action."
-    },
-    {
-      question: "Does Cadence work for my specific use case?",
-      answer: "Whether you're an SDR, AE, Sales Manager, or changing careers into sales, our AI adapts to your role and experience level. We support all sales verticals including SaaS, insurance, real estate, and more."
-    },
-    {
-      question: "How does pricing work?",
-      answer: "Start with 3 free practice sessions, then choose: Starter ($49/month) for 10 credits and 3 interviewers, or Pro ($99/month) for unlimited credits and all features. Save 20% with annual billing."
-    },
-    {
-      question: "Does AI interview training actually work?",
-      answer: "Absolutely. Practice makes perfect, and AI lets you practice unlimited interviews in a judgment-free environment. Users report 40-60% improvement in confidence after just one week of daily practice."
-    },
-    {
-      question: "Why Cadence over other tools?",
-      answer: "We're the only platform built specifically for sales interviews. Generic interview prep doesn't prepare you for role-plays, objection handling, and sales-specific scenarios that make or break sales interviews."
+      answer: "Perfect! Career changers are actually our specialty. Build confidence for scenarios you've never faced before with Rebecca, practice explaining your transition story with Jake, and translate your previous experience into sales terms with Michael - they're here to help!"
     }
   ];
 
