@@ -368,11 +368,6 @@ serve(async (req) => {
       throw new Error(`Unknown interviewer: ${interviewer}`);
     }
 
-    const isLastQuestion = currentQuestionNumber >= numberOfQuestions;
-    const shouldProvideClosing = !isFirstMessage && isLastQuestion && message; // User just responded to final question
-
-    console.log(`🎯 Interview status: isLastQuestion=${isLastQuestion}, shouldProvideClosing=${shouldProvideClosing}`);
-
     // Get relevant questions for the interview type
     const availableQuestions = questionBanks[interviewType as keyof typeof questionBanks];
     if (!availableQuestions) {
@@ -399,8 +394,8 @@ serve(async (req) => {
     // Special handling for Technical/Role-Play category
     const isRolePlayCategory = interviewType === "Technical/Role-Play";
     
-    // Create comprehensive system prompt with enhanced job integration
-    const systemPrompt = `${selectedPersonality.systemPrompt}
+    // Simple system prompt without complex closing logic
+const systemPrompt = `${selectedPersonality.systemPrompt}
 
 INTERVIEW CONTEXT:
 - Interview Type: ${interviewType}
@@ -413,15 +408,6 @@ INTERVIEW CONTEXT:
 - CRM/Tools mentioned: ${crmTools}
 - Competitors: ${competitors}
 
-${shouldProvideClosing ? `
-🚨 CRITICAL: FINAL MESSAGE INSTRUCTIONS 🚨
-The interview is complete. The candidate just answered the final question. You MUST provide a closing statement now.
-
-Your closing MUST be: "${selectedPersonality.closingMessage || 'Thank you for your time today. You will receive feedback on your interview performance shortly.'}"
-
-DO NOT ask another question. DO NOT continue the interview. Use EXACTLY the closing message above.
-` : `
-
 CRITICAL JOB-SPECIFIC INTEGRATION:
 - Always use "${companyName}" instead of generic "our company"
 - Reference "${jobTitle}" role specifically
@@ -431,28 +417,6 @@ CRITICAL JOB-SPECIFIC INTEGRATION:
 - Use ${industry} context for industry questions
 - Reference ${competitors} when discussing competition
 
-${isRolePlayCategory ? `
-TECHNICAL/ROLE-PLAY SPECIAL INSTRUCTIONS:
-This is a Technical/Role-Play interview. You MUST immediately begin role-play scenarios:
-
-1. If this is the FIRST message, start role-play immediately with:
-   - "I'm going to play a [prospect title] at ${companyName}. You're cold calling me. Ready? [Ring ring] Hello?"
-   
-2. Once role-play begins, you ARE THE PROSPECT, not the interviewer:
-   - Respond as a busy ${targetCustomers} professional would
-   - Give realistic objections and skepticism
-   - Be challenging but realistic
-   - Test their sales skills with real prospect behavior
-   - Reference ${competitors} as existing solutions
-   - Challenge them on ${keyProducts} value proposition
-
-3. Use these role-play scenarios from the question bank:
-${Object.entries(availableQuestions).map(([category, questions]) => 
-  `${category}:\n${questions.map((q, i) => `${i + 1}. ${q.replace(/\[specific persona\]/g, targetCustomers || "VP of Sales").replace(/\[specific company\]/g, companyName).replace(/\[competitor\]/g, competitors || "your current solution")}`).join('\n')}`
-).join('\n\n')}
-
-NO BACKGROUND QUESTIONS - Go straight into role-play mode!
-` : `
 STRUCTURED QUESTION FLOW FOR ${interviewType}:
 ${Object.entries(availableQuestions).map(([category, questions]) => 
   `${category}:\n${questions.map((q, i) => `${i + 1}. ${q.replace(/our company/g, companyName).replace(/our products\/services/g, `${companyName}'s ${keyProducts}`).replace(/our target customer/g, targetCustomers || "our target customer")}`).join('\n')}`
@@ -465,15 +429,10 @@ CRITICAL RULES:
 4. Integrate job-specific details into EVERY question
 5. Track which areas have been covered
 6. Provide follow-ups from same category when needed
-`}
 
 ${isFirstMessage ? 
-  (isRolePlayCategory ? 
-    `This is your FIRST message for Technical/Role-Play. START ROLE-PLAY IMMEDIATELY - no background questions!` :
-    `This is your FIRST message. Start with your greeting and first question from ${interviewType} category, fully customized with job details.`) : 
-  (!shouldProvideClosing && (isRolePlayCategory ?
-    `Continue the role-play as the prospect. Stay in character and challenge them with realistic objections.` :
-    `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`))
+  `This is your FIRST message. Start with your greeting and first question from ${interviewType} category, fully customized with job details.` : 
+  `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`
 }`;
 
     const messages = [];
@@ -516,14 +475,14 @@ if (messages.length === 0) {
     console.log(`✅ Claude response generated: ${response.substring(0, 100)}...
 `);
 
-    return new Response(JSON.stringify({
-        response,
-        interviewer,
-        currentQuestionNumber: shouldProvideClosing ? numberOfQuestions : currentQuestionNumber,
-        isComplete: shouldProvideClosing  // ✅ CORRECT
-      }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+  return new Response(JSON.stringify({
+    response,
+    interviewer,
+    currentQuestionNumber,
+    isComplete: currentQuestionNumber >= numberOfQuestions
+  }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  });
 
   } catch (error) {
     console.error('❌ Claude interviewer error:', error);

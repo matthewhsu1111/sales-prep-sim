@@ -163,23 +163,23 @@ export default function InterviewSession() {
 
   const sendMessage = async () => {
     if (!userInput.trim() || !interviewDetails || isAiTyping) return;
-
+  
     const userMessage: Message = {
       id: Date.now().toString(),
       content: userInput.trim(),
       sender: 'user',
       timestamp: new Date()
     };
-
+  
     setMessages(prev => [...prev, userMessage]);
     setUserInput("");
     setIsAiTyping(true);
-
+  
     try {
       // Check if this should be the last question
       const nextQuestionNumber = currentQuestionNumber + 1;
       const isLastQuestion = nextQuestionNumber > interviewDetails.numberOfQuestions;
-
+  
       const { data, error } = await supabase.functions.invoke('claude-interviewer', {
         body: { 
           message: userInput.trim(),
