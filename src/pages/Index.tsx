@@ -151,9 +151,9 @@ const Index = () => {
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-foreground transition-colors">Features</a>
-              <a href="#testimonials" className="text-gray-600 hover:text-foreground transition-colors">Testimonials</a>
+              <a href="#realistic-section" className="text-gray-600 hover:text-foreground transition-colors">Features</a>
               <a href="#pricing" className="text-gray-600 hover:text-foreground transition-colors">Pricing</a>
+              <a href="#faq" className="text-gray-600 hover:text-foreground transition-colors">FAQ</a>
             </div>
       
             <div className="flex items-center space-x-4">
@@ -260,7 +260,7 @@ const Index = () => {
       </section>
 
       {/* Main Value Proposition */}
-      <section className="py-12 bg-white">
+      <section id="realistic-section" className="py-12 bg-white">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
             That's Why We Created The Most Realistic Interview Practice Experience Possible
@@ -660,7 +660,7 @@ const Index = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-white">
+      <section id="faq" className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
