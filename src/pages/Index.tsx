@@ -424,7 +424,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonial */}
+      {/* Testimonial}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-3xl font-bold text-foreground mb-12">Real People, Real Job Offers</h2>
@@ -442,7 +442,8 @@ const Index = () => {
           </div>
         </div>
       </section>
-
+*/
+      
       {/* ROI Calculator */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 max-w-4xl">
