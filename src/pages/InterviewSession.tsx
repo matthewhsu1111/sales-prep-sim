@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowLeft, Bot, User, Send, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -66,6 +67,7 @@ export default function InterviewSession() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(1);
   const [isInterviewComplete, setIsInterviewComplete] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -348,6 +350,14 @@ export default function InterviewSession() {
   };
 
   const handleBackToDashboard = () => {
+    if (isInterviewStarted && !isInterviewComplete) {
+      setShowExitDialog(true);
+    } else {
+      navigate('/dashboard');
+    }
+  };
+
+  const confirmExit = () => {
     navigate('/dashboard');
   };
 
@@ -358,29 +368,45 @@ export default function InterviewSession() {
   const currentInterviewer = interviewerData[interviewDetails.interviewer as keyof typeof interviewerData];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen bg-background flex flex-col">
       {/* Top Navigation Bar */}
-      <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
-        <div className="text-xl font-bold text-foreground">~ Cadence</div>
-        <Button
-          variant="outline"
-          onClick={handleBackToDashboard}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
-        </Button>
+      <div className="flex justify-between items-center p-3 bg-background border-b">
+        <div className="text-lg font-bold text-foreground">~ Cadence</div>
+        <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              onClick={handleBackToDashboard}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Interview Currently in Session</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to exit? Your interview progress will be lost.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Stay in Interview</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmExit}>Exit Interview</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Main Content */}
-      <div className="flex h-[calc(100vh-112px)] p-4 gap-4">
+      <div className="flex flex-1 p-3 gap-3 overflow-hidden">
         {/* Left Panel - Transcript */}
-        <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
-            <div className="border-b p-4">
+        <div className="flex-1 bg-background border rounded-lg flex flex-col">
+            <div className="border-b p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold">Interview Transcript</h2>
-                  <div className="text-sm text-muted-foreground">
+                  <h2 className="text-base font-semibold">Interview Transcript</h2>
+                  <div className="text-xs text-muted-foreground">
                     {interviewDetails.interviewType} Interview
                   </div>
                 </div>
@@ -389,22 +415,22 @@ export default function InterviewSession() {
                     variant="outline"
                     size="sm"
                     onClick={exportTranscript}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-1 h-7"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download className="w-3 h-3" />
                     Export
                   </Button>
                 )}
               </div>
               {isInterviewStarted && (
-                <div className="mt-2 text-sm text-muted-foreground">
+                <div className="mt-1 text-xs text-muted-foreground">
                   {isInterviewComplete ? (
                     <div className="flex items-center justify-between">
                       <span className="text-green-600 font-medium">Interview Complete</span>
                       <Button
                         onClick={handleViewResults}
                         size="sm"
-                        className="ml-4"
+                        className="ml-4 h-7"
                       >
                         View Results
                       </Button>
@@ -416,12 +442,12 @@ export default function InterviewSession() {
               )}
             </div>
           
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-3">
             {!isInterviewStarted ? (
               <div className="h-full flex items-center justify-center">
-                <div className="text-center space-y-4 max-w-md">
-                  <h3 className="text-lg font-medium">Ready to begin?</h3>
-                  <p className="text-sm text-muted-foreground">
+                <div className="text-center space-y-3 max-w-sm">
+                  <h3 className="text-base font-medium">Ready to begin?</h3>
+                  <p className="text-xs text-muted-foreground">
                     Your interview with <strong>{interviewDetails.interviewer}</strong> is ready to start. 
                     This will be a {interviewDetails.numberOfQuestions}-question text-based interview 
                     for the {interviewDetails.interviewType} position.
@@ -430,8 +456,7 @@ export default function InterviewSession() {
                   <Button 
                     onClick={startInterview}
                     disabled={isLoading}
-                    size="lg"
-                    className="px-8"
+                    className="px-6"
                   >
                     {isLoading ? "Starting..." : "Start Interview"}
                   </Button>
@@ -439,44 +464,44 @@ export default function InterviewSession() {
               </div>
             ) : messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-sm text-muted-foreground">Starting conversation...</p>
+                <p className="text-xs text-muted-foreground">Starting conversation...</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex items-start space-x-3 ${
+                    className={`flex items-start space-x-2 ${
                       message.sender === 'ai' ? 'justify-start' : 'justify-end'
                     }`}
                   >
                     {message.sender === 'ai' && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                      <Avatar className="h-6 w-6 flex-shrink-0">
                         <AvatarImage src={currentInterviewer?.image} />
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          <Bot className="h-4 w-4" />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                          <Bot className="h-3 w-3" />
                         </AvatarFallback>
                       </Avatar>
                     )}
                     <div
-                      className={`max-w-[80%] rounded-lg p-3 ${
+                      className={`max-w-[80%] rounded-lg p-2 ${
                         message.sender === 'ai'
                           ? 'bg-muted'
                           : 'bg-primary text-primary-foreground'
                       }`}
                     >
-                      <p className={`text-sm ${message.isTyping ? 'opacity-75' : ''}`}>
+                      <p className={`text-xs ${message.isTyping ? 'opacity-75' : ''}`}>
                         {message.content}
                         {message.isTyping && <span className="animate-pulse ml-1">...</span>}
                       </p>
-                      <p className="text-xs opacity-70 mt-1">
+                      <p className="text-[10px] opacity-70 mt-1">
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                     {message.sender === 'user' && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarFallback className="bg-secondary">
-                          <User className="h-4 w-4" />
+                      <Avatar className="h-6 w-6 flex-shrink-0">
+                        <AvatarFallback className="bg-secondary text-xs">
+                          <User className="h-3 w-3" />
                         </AvatarFallback>
                       </Avatar>
                     )}
@@ -489,7 +514,7 @@ export default function InterviewSession() {
           
           {/* Input Area */}
           {isInterviewStarted && !isInterviewComplete && (
-            <div className="border-t p-4">
+            <div className="border-t p-2">
               <div className="flex space-x-2 items-end">
                 <div className="flex-1">
                   <Textarea
@@ -502,27 +527,27 @@ export default function InterviewSession() {
                         sendMessage();
                       }
                     }}
-                    placeholder={isAiTyping ? "AI is typing..." : "Type your response... (Press Enter to send, Shift+Enter for new line)"}
+                    placeholder={isAiTyping ? "AI is typing..." : "Type your response..."}
                     disabled={isAiTyping}
-                    className="min-h-[60px] max-h-[200px] resize-none"
-                    rows={3}
+                    className="min-h-[50px] max-h-[100px] resize-none text-xs"
+                    rows={2}
                   />
                 </div>
                 <Button
                   onClick={sendMessage}
                   disabled={!userInput.trim() || isAiTyping}
-                  size="icon"
+                  size="sm"
                   className="flex-shrink-0"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-3 w-3" />
                 </Button>
               </div>
               {isAiTyping && (
-                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce"></div>
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
                   <span>{interviewDetails.interviewer} is typing...</span>
                 </div>
@@ -532,63 +557,63 @@ export default function InterviewSession() {
         </div>
 
         {/* Right Panel - Split Sections */}
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="w-80 flex flex-col gap-3">
           {/* AI Interviewer Section */}
-          <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
-            <div className="border-b p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`w-3 h-3 rounded-full ${
+          <div className="flex-1 bg-background border rounded-lg flex flex-col">
+            <div className="border-b p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <div className={`w-2 h-2 rounded-full ${
                   isAiTyping ? 'bg-green-500 animate-pulse' : 'bg-muted-foreground/30'
                 }`}></div>
-                <h3 className="text-lg font-semibold">
+                <h3 className="text-sm font-semibold">
                   {isAiTyping ? 'AI is Typing' : 'AI Interviewer'}
                 </h3>
               </div>
               {currentInterviewer && (
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs text-muted-foreground">
                   <div className="font-medium">{interviewDetails.interviewer}</div>
                   <div>{currentInterviewer.title}</div>
-                  <div className="text-xs">{currentInterviewer.style}</div>
+                  <div className="text-[10px]">{currentInterviewer.style}</div>
                 </div>
               )}
             </div>
             <div className="flex-1 flex items-center justify-center bg-muted/20">
               {currentInterviewer ? (
                 <div className="text-center">
-                  <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-muted">
+                  <div className="w-20 h-20 mx-auto mb-2 rounded-full overflow-hidden bg-muted">
                     <img 
                       src={currentInterviewer.image} 
                       alt={interviewDetails.interviewer}
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="text-lg font-medium">{interviewDetails.interviewer}</div>
-                  <div className="text-sm text-muted-foreground">{currentInterviewer.title}</div>
+                  <div className="text-sm font-medium">{interviewDetails.interviewer}</div>
+                  <div className="text-xs text-muted-foreground">{currentInterviewer.title}</div>
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground">
-                  <Bot className="w-16 h-16 mx-auto mb-2" />
-                  <p>AI Interviewer</p>
+                  <Bot className="w-12 h-12 mx-auto mb-2" />
+                  <p className="text-xs">AI Interviewer</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* User Section (Placeholder) */}
-          <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
-            <div className="border-b p-4">
-              <h3 className="text-lg font-semibold">Your Space</h3>
-              <div className="text-sm text-muted-foreground">
+          <div className="flex-1 bg-background border rounded-lg flex flex-col">
+            <div className="border-b p-3">
+              <h3 className="text-sm font-semibold">Your Space</h3>
+              <div className="text-xs text-muted-foreground">
                 Take notes, prepare responses
               </div>
             </div>
             <div className="flex-1 flex items-center justify-center bg-muted/10">
               <div className="text-center text-muted-foreground">
-                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
-                  <User className="w-12 h-12" />
+                <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-muted/50 flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
+                  <User className="w-8 h-8" />
                 </div>
-                <p className="text-sm">Your preparation space</p>
-                <p className="text-xs text-muted-foreground/70">
+                <p className="text-xs">Your preparation space</p>
+                <p className="text-[10px] text-muted-foreground/70">
                   Use this area for notes or preparation
                 </p>
               </div>
