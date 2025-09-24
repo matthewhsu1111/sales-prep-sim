@@ -1,6 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Anthropic from "npm:@anthropic-ai/sdk@^0.29.0";
+import Anthropic from "npm:@anthropic-ai/sdk@^0.60.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -461,7 +461,7 @@ if (messages.length === 0) {
 }
 
     const completion = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-latest",
+      model: "claude-3-5-sonnet-20241022",
       max_tokens: 2000,
       system: systemPrompt,
       messages: messages.map(msg => ({
@@ -470,7 +470,7 @@ if (messages.length === 0) {
 }))
     });
 
-    const response = completion.content[0].text;
+    const response = completion.content[0].type === 'text' ? completion.content[0].text : '';
 
     console.log(`✅ Claude response generated: ${response.substring(0, 100)}...
 `);
@@ -488,7 +488,7 @@ if (messages.length === 0) {
     console.error('❌ Claude interviewer error:', error);
     return new Response(JSON.stringify({ 
       error: 'Failed to generate interview response',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

@@ -142,7 +142,7 @@ Return ONLY valid JSON in this exact format:
     const data = await response.json();
     console.log('Anthropic response received:', { hasContent: !!data.content?.[0]?.text });
 
-    let analysisResult;
+    let analysisResult: any;
     try {
       const content = data.content[0].text;
       console.log('Raw AI response:', content.substring(0, 200) + '...');
@@ -279,7 +279,7 @@ Return ONLY valid JSON in this exact format:
   } catch (error) {
     console.error('Error in analyze-interview function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       overallScore: 2,
       overallFeedback: "Interview analysis failed. This indicates significant issues with the interview process or responses.",
       detailedScores: {
