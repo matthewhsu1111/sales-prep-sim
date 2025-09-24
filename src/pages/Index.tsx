@@ -34,12 +34,11 @@ import jakeImage from '@/assets/jake-thompson.jpg';
 import michaelImage from '@/assets/michael-chen.jpg';
 import heroImage from '@/assets/hero-interview.jpg';
 
-const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(null);
-
 const Index = () => {
   const navigate = useNavigate();
   const [isTriMonthly, setIsTriMonthly] = useState(true);
   const [selectedInterviewer, setSelectedInterviewer] = useState<string | null>(null);
+  const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(null);
 
   const interviewers = [
     {
