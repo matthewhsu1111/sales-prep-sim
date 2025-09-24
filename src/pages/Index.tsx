@@ -260,7 +260,7 @@ const Index = () => {
       </section>
 
       {/* Main Value Proposition */}
-      <section id="realistic-section" className="py-12 bg-white">
+      <section id="realistic-section" className="py-12 bg-white scroll-mt-24">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
             That's Why We Created The Most Realistic Interview Practice Experience Possible
@@ -424,24 +424,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonial */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 max-w-4xl text-center">
-          <h2 className="text-3xl font-bold text-foreground mb-12">Real People, Real Job Offers</h2>
-          <blockquote className="text-2xl md:text-3xl font-medium text-foreground mb-8">
-            "I was bombing every role-play for 3 months. After 2 weeks with Cadence, I aced my Salesforce interview and got a $75K SDR offer. The confidence coaching was a game-changer."
-          </blockquote>
-          <div className="flex items-center justify-center gap-4">
-            <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
-              <Star className="h-6 w-6 text-primary" />
-            </div>
-            <div className="text-left">
-              <div className="font-semibold">Sarah Chen</div>
-              <div style={{color: 'rgb(75 85 99)'}}>SDR at Salesforce</div>
-            </div>
-          </div>
-        </div>
-      </section>
       
       {/* ROI Calculator */}
       <section className="py-20 bg-gray-50">
@@ -542,7 +524,7 @@ const Index = () => {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 bg-white">
+      <section id="pricing" className="py-20 bg-white scroll-mt-24">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary text-primary-foreground">Plans</Badge>
@@ -660,7 +642,7 @@ const Index = () => {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-20 bg-white">
+      <section id="faq" className="py-20 bg-white scroll-mt-24">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
