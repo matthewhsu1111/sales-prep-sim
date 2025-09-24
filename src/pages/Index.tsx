@@ -697,10 +697,10 @@ const Index = () => {
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
-            Ready to Turn Interviews Into Job Offers?
+            Ready to Never Bomb Another Sales Interview?
           </h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto" style={{color: 'rgb(75 85 99)'}}>
-            Join 1,200+ sales professionals who stopped getting rejected and started getting hired.
+            Build the confidence and skills you need to land that SDR or AE role you've been chasing.
           </p>
           <Button 
             size="lg" 
