@@ -34,6 +34,8 @@ import jakeImage from '@/assets/jake-thompson.jpg';
 import michaelImage from '@/assets/michael-chen.jpg';
 import heroImage from '@/assets/hero-interview.jpg';
 
+const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(null);
+
 const Index = () => {
   const navigate = useNavigate();
   const [isTriMonthly, setIsTriMonthly] = useState(true);
@@ -666,19 +668,29 @@ const Index = () => {
               Frequently Asked Questions
             </h2>
           </div>
-
-          <Accordion type="multiple" className="space-y-4">
+      
+          <div className="space-y-4">
             {faqItems.map((item, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border border-gray-200 rounded-lg px-6 bg-white">
-                <AccordionTrigger className="text-left font-semibold">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="pt-2" style={{color: 'rgb(75 85 99)'}}>
-                  {item.answer}
-                </AccordionContent>
-              </AccordionItem>
+              <div key={index} className="border border-gray-200 rounded-lg px-6 bg-white">
+                <button
+                  className="w-full py-6 flex justify-between items-center text-left font-semibold"
+                  onClick={() => setOpenFAQIndex(openFAQIndex === index ? null : index)}
+                >
+                  <span>{item.question}</span>
+                  <ChevronDown 
+                    className={`h-5 w-5 transition-transform duration-200 ${
+                      openFAQIndex === index ? 'rotate-180' : ''
+                    }`} 
+                  />
+                </button>
+                {openFAQIndex === index && (
+                  <div className="pb-6 pt-2" style={{color: 'rgb(75 85 99)'}}>
+                    {item.answer}
+                  </div>
+                )}
+              </div>
             ))}
-          </Accordion>
+          </div>
         </div>
       </section>
 
