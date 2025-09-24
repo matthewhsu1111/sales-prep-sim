@@ -211,7 +211,7 @@ const Index = () => {
                   size="lg"
                   className="text-lg px-8 py-6"
                 >
-                  Watch 2-Minute Demo
+                  Watch Demo
                   <Play className="h-5 w-5 ml-2" />
                 </Button>
               </div>
