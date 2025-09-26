@@ -75,7 +75,7 @@ const Register = () => {
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
             Everything You Need To Land Your First{" "}
             <span className="bg-gradient-hero bg-clip-text text-transparent">
-              $10k/Month AI Operating Client
+              $10k+/Month Sales Role
             </span>{" "}
             in the Next 90 Days
           </h1>
