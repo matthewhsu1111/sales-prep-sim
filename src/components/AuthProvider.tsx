@@ -33,24 +33,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
-        // Only handle actual sign-in events, not session recovery
-        if (event === 'SIGNED_IN' && session?.user) {
-          // Check if user has a profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
-          
-          // Redirect based on profile existence
-          const destination = profile ? '/dashboard' : '/profile-setup';
-          window.location.href = destination;
-        }
       }
     );
   
-    // Check for existing session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
