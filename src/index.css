@@ -19,10 +19,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 0%;
 
-    /* Primary - Confidence Blue */
-    --primary: 217 91% 60%;
+    /* Primary - Single Blue Color */
+    --primary: 217 89% 61%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 91% 70%;
+    --primary-glow: 217 89% 61%;
 
     /* Secondary - Calming Light Blue */
     --secondary: 217 25% 95%;
@@ -33,10 +33,10 @@
     --success-foreground: 0 0% 100%;
     --success-light: 142 76% 94%;
 
-    /* Warning - Attention Orange */
-    --warning: 38 92% 50%;
+    /* Warning - Same as Primary */
+    --warning: 217 89% 61%;
     --warning-foreground: 0 0% 100%;
-    --warning-light: 38 92% 95%;
+    --warning-light: 217 89% 95%;
 
     /* Muted - Neutral Grays */
     --muted: 220 13% 95%;
@@ -59,8 +59,8 @@
     --startup-accent: 142 76% 36%;
     --enterprise-accent: 217 91% 60%;
 
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
+    /* Gradients - Removed, using solid colors */
+    --gradient-hero: hsl(217 89% 61%);
     --gradient-card: linear-gradient(145deg, hsl(220 15% 98%), hsl(220 13% 95%));
     --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 46%));
 

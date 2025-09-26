@@ -36,46 +36,27 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
-      {/* Navigation */}
-      <nav className="relative z-10 p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/" className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-            Cadence
-          </Link>
-          <div className="hidden md:flex items-center gap-8">
-            <Link to="/#features" className="text-foreground/80 hover:text-foreground transition-colors">
-              Features
-            </Link>
-            <Link to="/#pricing" className="text-foreground/80 hover:text-foreground transition-colors">
-              Pricing
-            </Link>
-            <Link to="/#faq" className="text-foreground/80 hover:text-foreground transition-colors">
-              FAQ
-            </Link>
+      {/* Logo Only Header */}
+      <div className="relative z-10 p-6 text-center">
+        <Link to="/" className="inline-block">
+          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+            <span className="text-primary-foreground text-xl font-bold">🎤</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link to="/signin">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link to="/signup">
-              <Button>Get Started</Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+        </Link>
+      </div>
 
       {/* Hero Section */}
       <section className="relative py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-muted/50 backdrop-blur-sm px-4 py-2 rounded-full mb-8">
-            <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">📹 Free Live Webinar Reveals:</span>
+          <div className="inline-flex items-center gap-2 bg-muted/50 backdrop-blur-sm px-6 py-3 rounded-full mb-8">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+            <span className="text-base font-medium">📹 Free Live Webinar Reveals:</span>
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
             Everything You Need To Land Your First{" "}
-            <span className="bg-gradient-hero bg-clip-text text-transparent">
-              $10k+/Month Sales Role
+            <span className="text-primary">
+              $10k+/Month AI Operating Client
             </span>{" "}
             in the Next 90 Days
           </h1>
@@ -85,26 +66,26 @@ const Register = () => {
           </p>
 
           {/* Webinar Details */}
-          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 mb-8">
-            <div className="text-lg font-semibold text-warning mb-2">Free Live Webinar:</div>
+            <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 mb-8">
+            <div className="text-lg font-semibold text-primary mb-2">Free Live Webinar:</div>
             <div className="text-xl mb-6">September 24, 2025 7 PM EST</div>
             
             {/* Countdown Timer */}
             <div className="flex justify-center gap-8 mb-8">
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-warning">
+                <div className="text-3xl md:text-4xl font-bold text-primary">
                   {timeLeft.hours.toString().padStart(2, '0')}
                 </div>
                 <div className="text-sm uppercase tracking-wider text-muted-foreground">Hour</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-warning">
+                <div className="text-3xl md:text-4xl font-bold text-primary">
                   {timeLeft.minutes.toString().padStart(2, '0')}
                 </div>
                 <div className="text-sm uppercase tracking-wider text-muted-foreground">Minute</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-warning">
+                <div className="text-3xl md:text-4xl font-bold text-primary">
                   {timeLeft.seconds.toString().padStart(2, '0')}
                 </div>
                 <div className="text-sm uppercase tracking-wider text-muted-foreground">Second</div>
@@ -123,7 +104,7 @@ const Register = () => {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
             Introducing The{" "}
-            <span className="italic bg-gradient-hero bg-clip-text text-transparent">
+            <span className="italic text-primary">
               "Authority Bypass"
             </span>{" "}
             System
@@ -136,7 +117,7 @@ const Register = () => {
           {/* Reasons */}
           <div className="space-y-12 text-left">
             <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl p-8">
-              <h3 className="text-xl font-bold text-warning mb-4">
+              <h3 className="text-xl font-bold text-primary mb-4">
                 Reason #1: Skip The "Prove Yourself" Phase By Demonstrating Competency Upfront
               </h3>
               <p className="text-lg leading-relaxed text-muted-foreground">
@@ -145,7 +126,7 @@ const Register = () => {
             </div>
 
             <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl p-8">
-              <h3 className="text-xl font-bold text-warning mb-4">
+              <h3 className="text-xl font-bold text-primary mb-4">
                 Reason #2: Bypass Traditional Gatekeepers By Going Straight To Decision Makers
               </h3>
               <p className="text-lg leading-relaxed text-muted-foreground">
@@ -154,7 +135,7 @@ const Register = () => {
             </div>
 
             <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl p-8">
-              <h3 className="text-xl font-bold text-warning mb-4">
+              <h3 className="text-xl font-bold text-primary mb-4">
                 Reason #3: Transform From "Another Service Provider" To "The Expert They Need" In One Interaction
               </h3>
               <p className="text-lg leading-relaxed text-muted-foreground">
@@ -176,7 +157,7 @@ const Register = () => {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-16">
             What Are We Covering On This Free Webinar To Help You Get Your First{" "}
-            <span className="bg-gradient-hero bg-clip-text text-transparent">
+            <span className="text-primary">
               $10k/Mo Client ASAP?
             </span>
           </h2>
@@ -230,32 +211,6 @@ const Register = () => {
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-16">
-            <span className="bg-gradient-hero bg-clip-text text-transparent">
-              Are Other People Seeing Success With AI Operating?
-            </span>
-          </h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Mock testimonials/screenshots would go here */}
-            <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl p-6">
-              <div className="text-2xl font-bold text-success mb-2">$200k/month</div>
-              <p className="text-sm text-muted-foreground">Client revenue increase</p>
-            </div>
-            <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl p-6">
-              <div className="text-2xl font-bold text-success mb-2">90 days</div>
-              <p className="text-sm text-muted-foreground">To first $10k client</p>
-            </div>
-            <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl p-6">
-              <div className="text-2xl font-bold text-success mb-2">30%</div>
-              <p className="text-sm text-muted-foreground">Revenue share deals</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Final CTA */}
       <section className="py-20 px-6 bg-gradient-to-br from-primary/5 to-background">
