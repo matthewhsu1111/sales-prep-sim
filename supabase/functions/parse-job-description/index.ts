@@ -85,42 +85,52 @@ Analyze this job description and return the extracted information:`;
 
     console.log('Sending request to Claude...');
     
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      temperature: 0.1,
-      system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: jobDescription
-        }
-      ]
-    });
-
-    console.log('Claude response received');
-
-    if (!response.content || !response.content[0] || response.content[0].type !== 'text') {
-      console.error('Invalid Claude response structure:', response);
-      return new Response(
-        JSON.stringify({ error: 'Invalid response from AI service' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    const aiResponse = response.content[0].text;
-    console.log('AI response content:', aiResponse);
-
     try {
-      // Parse the AI response as JSON
-      const parsedData = JSON.parse(aiResponse);
-      
-      // Validate required fields
-      const requiredFields = ['jobTitle', 'level', 'companyName', 'companySize', 'industry', 'description', 'keyRequirements', 'niceToHaves'];
-      const missingFields = requiredFields.filter(field => !parsedData.hasOwnProperty(field));
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: jobDescription
+          }
+        ]
+      });
+
+      console.log('Claude response received:', JSON.stringify(response));
+
+      if (!response.content || !response.content[0] || response.content[0].type !== 'text') {
+        console.error('Invalid Claude response structure:', response);
+        return new Response(
+          JSON.stringify({ error: 'Invalid response from AI service' }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      const aiResponse = response.content[0].text;
+      console.log('AI response content:', aiResponse);
+
+      try {
+        // Clean the AI response - remove any potential markdown formatting
+        let cleanedResponse = aiResponse.trim();
+        if (cleanedResponse.startsWith('```json')) {
+          cleanedResponse = cleanedResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (cleanedResponse.startsWith('```')) {
+          cleanedResponse = cleanedResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+        
+        console.log('Cleaned AI response:', cleanedResponse);
+        
+        // Parse the AI response as JSON
+        const parsedData = JSON.parse(cleanedResponse);
+        
+        // Validate required fields
+        const requiredFields = ['jobTitle', 'level', 'companyName', 'companySize', 'industry', 'description', 'keyRequirements', 'niceToHaves'];
+        const missingFields = requiredFields.filter(field => !parsedData.hasOwnProperty(field));
       
       if (missingFields.length > 0) {
         console.error('Missing fields in AI response:', missingFields);
@@ -159,10 +169,23 @@ Analyze this job description and return the extracted information:`;
       );
     }
 
+    } catch (claudeError) {
+      console.error('Claude API error:', claudeError);
+      const errorMessage = claudeError instanceof Error ? claudeError.message : 'Unknown Claude API error';
+      return new Response(
+        JSON.stringify({ error: 'AI service error: ' + errorMessage }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
   } catch (error) {
     console.error('Error in parse-job-description function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error: ' + errorMessage }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
