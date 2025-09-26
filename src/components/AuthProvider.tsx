@@ -30,21 +30,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
         // Only redirect on explicit sign-in events, not on session recovery
         if (event === 'SIGNED_IN' && session?.user && !loading) {
-          setTimeout(() => {
+          setTimeout(async () => {
             const currentPath = window.location.pathname;
             // Don't redirect during development session recovery
             if (!currentPath.includes('/profile-setup') && 
                 !currentPath.includes('/dashboard') && 
                 currentPath !== '/signin' && 
                 currentPath !== '/signup') {
-              window.location.href = '/profile-setup';
+              
+              // Check if user has a profile
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+              
+              // If no profile exists, redirect to profile setup
+              // If profile exists, redirect to dashboard
+              window.location.href = profile ? '/dashboard' : '/profile-setup';
             }
           }, 100);
         }
