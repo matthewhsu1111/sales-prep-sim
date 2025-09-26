@@ -50,7 +50,7 @@ const Register = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative py-12 px-6">
+      <section className="relative pt-4 pb-12 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-muted/50 backdrop-blur-sm px-6 py-3 rounded-full mb-8">
             <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
