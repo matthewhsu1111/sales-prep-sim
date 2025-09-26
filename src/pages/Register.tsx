@@ -60,7 +60,7 @@ const Register = () => {
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
             Everything You Need To Land Your First{" "}
             <span className="text-primary">
-              $10k+/Month Sales Role
+              $60k+ Sales Role
             </span>{" "}
             in the Next 90 Days
           </h1>
@@ -109,42 +109,39 @@ const Register = () => {
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
             Introducing The{" "}
             <span className="italic text-primary">
-              "Authority Bypass"
+              "Cadence"
             </span>{" "}
             System
           </h2>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-16">
-            The Ultimate Way To Land High-Paying AI Operating Clients Without Spamming Outbound Or Facing Constant Rejection
+            The Complete System To Get Interviews AND Ace Them Without Applying Through Job Boards or Facing Constant Rejection
           </p>
 
           {/* Reasons */}
           <div className="space-y-12 text-left">
             <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl p-8">
               <h3 className="text-xl font-bold text-primary mb-4">
-                Reason #1: Skip The "Prove Yourself" Phase By Demonstrating Competency Upfront
+                Reason #1: The Direct Access Method - Skip The "Black Hole" Application Process
               </h3>
               <p className="text-lg leading-relaxed text-muted-foreground">
-                While other marketers spend months trying to build credibility through content and testimonials, The Authority Bypass system allows you to show your expertise through samples and audits. When prospects see your work before your resume, experience becomes irrelevant.
-              </p>
+                While other candidates spend months submitting applications that disappear into ATS systems, The Cadence System teaches you how to identify and reach hiring managers directly on LinkedIn. When decision makers see your targeted outreach combined with interview-ready skills, traditional application requirements become irrelevant.              </p>
             </div>
 
             <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl p-8">
               <h3 className="text-xl font-bold text-primary mb-4">
-                Reason #2: Bypass Traditional Gatekeepers By Going Straight To Decision Makers
+                Reason #2: The Practice-to-Performance Pipeline - Show Up Interview-Ready From Day One
               </h3>
               <p className="text-lg leading-relaxed text-muted-foreground">
-                Instead of competing with dozens of other pitches that get filtered out by assistants or ignored in crowded inboxes, you cut through the noise by delivering immediate value. Decision makers pay attention when you solve their problems before asking for anything.
-              </p>
+                Instead of competing with hundreds of nervous candidates who freeze under pressure, you use AI-powered practice to master every interview scenario before the real call. Hiring managers notice when you handle objections smoothly and demonstrate sales thinking that other candidates lack - because you've already practiced it dozens of times.              </p>
             </div>
 
             <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl p-8">
               <h3 className="text-xl font-bold text-primary mb-4">
-                Reason #3: Transform From "Another Service Provider" To "The Expert They Need" In One Interaction
+                Reason #3: The Systematic Job Search - From Outreach To Offer In 30-60 Days
               </h3>
               <p className="text-lg leading-relaxed text-muted-foreground">
-                Why spend years building authority when you can demonstrate it instantly? The Authority Bypass System positions you as the obvious choice by showing prospects exactly how you'll improve their business through free samples and strategic insights.
-              </p>
+                Why spend 6+ months applying randomly and hoping when you can create opportunities methodically? The Cadence System combines strategic direct outreach (that actually gets responses) with interview mastery (that closes the deal) to position you as the obvious hire before other candidates even get callbacks.              </p>
             </div>
           </div>
 
@@ -160,49 +157,49 @@ const Register = () => {
       <section className="py-20 px-6 bg-gradient-to-br from-card/20 to-background">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-16">
-            What Are We Covering On This Free Webinar To Help You Get Your First{" "}
+            What Are We Covering On This Free Webinar To Help You Land Your First{" "}
             <span className="text-primary">
-              $10k/Mo Client ASAP?
+              $60k+ Sales Role ASAP?
             </span>
           </h2>
 
           <div className="space-y-8 text-left">
             <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6">
               <h3 className="text-lg font-bold mb-2">
-                Introduction: How AI Operating Works And Why It's Replacing Traditional Agencies
+                Introduction: Why Traditional Job Applications Fail And How Top Candidates Actually Get Hired
               </h3>
             </div>
 
             <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6">
               <h3 className="text-lg font-bold mb-2">
-                Secret #1: The $10K Client Blueprint
+                Secret #1: The Hiring Manager Direct Access Blueprint
               </h3>
               <p className="text-muted-foreground">
-                How To Identify Personal Brands With Million-Dollar Potential And Broken Systems (The 3 Client Situations That Pay The Most)
+                How To Find Decision Makers, Research Their Actual Pain Points, And Craft Outreach Messages That Get Responses (The 3-Part Cold Call Framework That Book Interviews)
               </p>
             </div>
 
             <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6">
               <h3 className="text-lg font-bold mb-2">
-                Secret #2: The AI-Powered Authority Engine
+                Secret #2: The AI-Powered Interview Readiness System
               </h3>
               <p className="text-muted-foreground">
-                How To Use AI To Research Any Prospect In 15 Minutes And Create Samples That Position You As The Obvious Expert Choice
+                How To Use AI Practice To Master Any Interview Scenario In 15 Minutes So When Your Direct Outreach Works, You're Ready To Close (The Confidence That Makes Hiring Managers Say Yes)
               </p>
             </div>
 
             <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6">
               <h3 className="text-lg font-bold mb-2">
-                Secret #3: The Partnership Revenue Formula
+                Secret #3: The Complete Job Search Formula
               </h3>
               <p className="text-muted-foreground">
-                How To Structure 20-30% Revenue Share Deals That Make Clients Eager To Pay You Like A Business Partner (Not A Service Provider)
+                How To Combine Direct Outreach With Interview Mastery To Skip The Application Black Hole And Land Offers In 30-60 Days (Not 6+ Months Of Hoping)
               </p>
             </div>
 
             <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6">
               <h3 className="text-lg font-bold mb-2">
-                Live Q+A With Ben, Guest Speakers (Students Landing $10k+ Clients), And Special Bonuses For Attendees
+                Live Q+A With Founder, Guest Speakers (Students Landing $60K+ Roles), And Special Bonuses For Attendees
               </h3>
             </div>
           </div>
