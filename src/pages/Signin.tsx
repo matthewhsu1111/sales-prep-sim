@@ -63,14 +63,14 @@ const Signin = () => {
       });
       return;
     }
-
+  
     setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
+  
       if (error) {
         toast({
           title: "Sign In Error", 
@@ -78,12 +78,20 @@ const Signin = () => {
           variant: "destructive"
         });
       } else if (data.user) {
+        // Check if profile exists
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', data.user.id)
+          .maybeSingle();
+        
         toast({
           title: "Welcome back!",
           description: "You've been signed in successfully",
         });
-        // Use React Router navigation instead of window.location
-        navigate('/profile-setup');
+        
+        // Redirect based on profile existence
+        navigate(profile ? '/dashboard' : '/profile-setup');
       }
     } catch (error) {
       toast({
