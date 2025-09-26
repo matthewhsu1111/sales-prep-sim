@@ -1,10 +1,15 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import Anthropic from "npm:@anthropic-ai/sdk@^0.60.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const anthropic = new Anthropic({
+  apiKey: Deno.env.get('ANTHROPIC_API_KEY'),
+});
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -25,11 +30,11 @@ serve(async (req) => {
       );
     }
 
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY is not set');
+    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+    if (!ANTHROPIC_API_KEY) {
+      console.error('ANTHROPIC_API_KEY is not set');
       return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        JSON.stringify({ error: 'Anthropic API key not configured' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -78,42 +83,25 @@ Example output format:
 
 Analyze this job description and return the extracted information:`;
 
-    console.log('Sending request to OpenAI...');
+    console.log('Sending request to Claude...');
     
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: jobDescription }
-        ],
-        max_tokens: 1000,
-        temperature: 0.1, // Low temperature for consistent, structured output
-      }),
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      temperature: 0.1,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: jobDescription
+        }
+      ]
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI API error:', response.status, errorText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to parse job description' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
+    console.log('Claude response received');
 
-    const data = await response.json();
-    console.log('OpenAI response received');
-
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('Invalid OpenAI response structure:', data);
+    if (!response.content || !response.content[0] || response.content[0].type !== 'text') {
+      console.error('Invalid Claude response structure:', response);
       return new Response(
         JSON.stringify({ error: 'Invalid response from AI service' }),
         { 
@@ -123,7 +111,7 @@ Analyze this job description and return the extracted information:`;
       );
     }
 
-    const aiResponse = data.choices[0].message.content;
+    const aiResponse = response.content[0].text;
     console.log('AI response content:', aiResponse);
 
     try {
