@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import cadenceLogo from "@/assets/cadence-logo.png";
+import { Mic } from "lucide-react";
 
 const Register = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -39,8 +39,13 @@ const Register = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
       {/* Logo Header */}
       <div className="relative z-10 p-4 text-center">
-        <Link to="/" className="inline-flex items-center gap-2">
-          <img src={cadenceLogo} alt="Cadence Logo" className="h-8" />
+        <Link to="/" className="inline-block">
+          <div className="flex items-center space-x-2">
+            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
+              <Mic className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-bold text-xl text-foreground">Cadence</span>
+          </div>
         </Link>
       </div>
 
