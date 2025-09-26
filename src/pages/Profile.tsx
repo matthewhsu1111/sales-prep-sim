@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 import JobPostingModal from "@/components/JobPostingModal";
 import { User, Briefcase, Plus, Trash2, Calendar } from "lucide-react";
 
@@ -273,9 +274,9 @@ export default function Profile() {
               <Briefcase className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <CardTitle>Job Applications</CardTitle>
+              <CardTitle>Job Postings</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Track and manage your job applications
+                Track and manage your job postings
               </p>
             </div>
           </div>
@@ -303,9 +304,9 @@ export default function Profile() {
                 <Briefcase className="h-8 w-8 text-muted-foreground" />
               </div>
               <div>
-                <h3 className="font-medium text-foreground mb-2">No job applications yet</h3>
+                <h3 className="font-medium text-foreground mb-2">No job postings yet</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Start tracking your job applications by adding your first one.
+                  Start tracking your job postings by adding your first one.
                 </p>
                 <Button onClick={() => setIsJobModalOpen(true)} className="gap-2">
                   <Plus className="h-4 w-4" />
@@ -345,14 +346,34 @@ export default function Profile() {
                         </div>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteJob(job.id)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Job Posting</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this job posting for <strong>{job.job_title}</strong> at <strong>{job.company_name}</strong>? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteJob(job.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))}
