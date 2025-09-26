@@ -28,46 +28,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Only redirect on explicit sign-in events, not on session recovery
-        if (event === 'SIGNED_IN' && session?.user && !loading) {
-          setTimeout(async () => {
-            const currentPath = window.location.pathname;
-            // Don't redirect during development session recovery
-            if (!currentPath.includes('/profile-setup') && 
-                !currentPath.includes('/dashboard') && 
-                currentPath !== '/signin' && 
-                currentPath !== '/signup') {
-              
-              // Check if user has a profile
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('id')
-                .eq('user_id', session.user.id)
-                .maybeSingle();
-              
-              // If no profile exists, redirect to profile setup
-              // If profile exists, redirect to dashboard
-              window.location.href = profile ? '/dashboard' : '/profile-setup';
-            }
-          }, 100);
+        // Only handle actual sign-in events, not session recovery
+        if (event === 'SIGNED_IN' && session?.user) {
+          // Check if user has a profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+          
+          // Redirect based on profile existence
+          const destination = profile ? '/dashboard' : '/profile-setup';
+          window.location.href = destination;
         }
       }
     );
-
-    // Check for existing session
+  
+    // Check for existing session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
-
+  
     return () => subscription.unsubscribe();
   }, []);
 
