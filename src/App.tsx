@@ -14,6 +14,8 @@ import InterviewSession from "./pages/InterviewSession";
 import InterviewResults from "./pages/InterviewResults";
 import Signin from "./pages/Signin";
 import ProfileSetup from "./pages/ProfileSetup";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Careers from "./pages/Careers";
 import { DashboardLayout } from "./layouts/DashboardLayout";
@@ -53,6 +55,16 @@ const App = () => (
             <Route path="/dashboard/careers" element={
               <DashboardLayout>
                 <Careers />
+              </DashboardLayout>
+            } />
+            <Route path="/dashboard/profile" element={
+              <DashboardLayout>
+                <Profile />
+              </DashboardLayout>
+            } />
+            <Route path="/dashboard/settings" element={
+              <DashboardLayout>
+                <Settings />
               </DashboardLayout>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

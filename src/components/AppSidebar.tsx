@@ -9,7 +9,9 @@ import {
   HelpCircle,
   LayoutDashboard,
   Mic,
-  Clock
+  Clock,
+  User,
+  Settings
 } from "lucide-react";
 
 import {
@@ -31,6 +33,8 @@ const dashboardItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Interview Roleplay", url: "/dashboard/interview-roleplay", icon: Mic },
   { title: "Careers", url: "/dashboard/careers", icon: Target },
+  { title: "Profile", url: "/dashboard/profile", icon: User },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
