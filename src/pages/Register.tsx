@@ -175,7 +175,7 @@ const Register = () => {
                 Secret #1: The Hiring Manager Direct Access Blueprint
               </h3>
               <p className="text-muted-foreground">
-                How To Find Decision Makers, Research Their Actual Pain Points, And Craft Outreach Messages That Get Responses (The 3-Part Cold Call Framework That Book Interviews)
+                How To Find Decision Makers, Research Their Actual Pain Points, And Craft Outreach Messages That Get Responses (The 3-Part Cold Call Framework That Books Interviews)
               </p>
             </div>
 
