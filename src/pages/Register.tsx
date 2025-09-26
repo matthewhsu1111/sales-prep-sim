@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import cadenceLogo from "@/assets/cadence-logo.png";
 
 const Register = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -36,17 +37,15 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
-      {/* Logo Only Header */}
-      <div className="relative z-10 p-6 text-center">
-        <Link to="/" className="inline-block">
-          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-            <span className="text-primary-foreground text-xl font-bold">🎤</span>
-          </div>
+      {/* Logo Header */}
+      <div className="relative z-10 p-4 text-center">
+        <Link to="/" className="inline-flex items-center gap-2">
+          <img src={cadenceLogo} alt="Cadence Logo" className="h-8" />
         </Link>
       </div>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-6">
+      <section className="relative py-12 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-muted/50 backdrop-blur-sm px-6 py-3 rounded-full mb-8">
             <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
