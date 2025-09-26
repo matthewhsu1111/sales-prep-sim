@@ -157,7 +157,11 @@ const Index = () => {
             </div>
       
             <div className="flex items-center space-x-4">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/register')}
+              >
                 Watch Demo
               </Button>
               <Button 
@@ -210,6 +214,7 @@ const Index = () => {
                   variant="outline" 
                   size="lg"
                   className="text-lg px-8 py-6"
+                  onClick={() => navigate('/register')}
                 >
                   Watch Demo
                   <Play className="h-5 w-5 ml-2" />

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/AuthProvider";
 import Index from "./pages/Index";
+import Register from "./pages/Register";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import InterviewRoleplay from "./pages/InterviewRoleplay";
@@ -26,11 +27,12 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/signin" element={<Signin />} />
-            <Route path="/profile-setup" element={<ProfileSetup />} />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/dashboard" element={
               <DashboardLayout>
                 <Dashboard />
