@@ -17,6 +17,7 @@ interface Profile {
   name: string;
   target_role: string;
   background: string;
+  subscription_tier?: 'free' | 'pro';
 }
 
 interface JobPosting {
@@ -33,7 +34,7 @@ interface JobPosting {
 export default function Profile() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<Profile>({ name: "", target_role: "", background: "" });
+  const [profile, setProfile] = useState<Profile>({ name: "", target_role: "", background: "", subscription_tier: "free" });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([]);
@@ -53,7 +54,7 @@ export default function Profile() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('name, target_role, background')
+        .select('name, target_role, background, subscription_tier')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -63,7 +64,8 @@ export default function Profile() {
         setProfile({
           name: data.name || "",
           target_role: data.target_role || "",
-          background: data.background || ""
+          background: data.background || "",
+          subscription_tier: (data.subscription_tier as 'free' | 'pro') || 'free'
         });
       }
     } catch (error) {
@@ -188,7 +190,12 @@ export default function Profile() {
             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
               <User className="h-5 w-5 text-primary" />
             </div>
-            <CardTitle>Personal Information</CardTitle>
+            <div>
+              <CardTitle>Personal Information</CardTitle>
+              <Badge variant={profile.subscription_tier === 'pro' ? 'default' : 'secondary'} className="mt-2">
+                {profile.subscription_tier === 'pro' ? 'Pro Plan' : 'Free Plan'}
+              </Badge>
+            </div>
           </div>
           {!isEditing && (
             <Button variant="outline" onClick={() => setIsEditing(true)}>

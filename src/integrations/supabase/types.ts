@@ -149,6 +149,7 @@ export type Database = {
           created_at: string
           id: string
           name: string | null
+          subscription_tier: string | null
           target_role: string | null
           updated_at: string
           user_id: string
@@ -158,6 +159,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string | null
+          subscription_tier?: string | null
           target_role?: string | null
           updated_at?: string
           user_id: string
@@ -167,8 +169,33 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string | null
+          subscription_tier?: string | null
           target_role?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_interview_counts: {
+        Row: {
+          created_at: string | null
+          id: string
+          total_interviews: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          total_interviews?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          total_interviews?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []

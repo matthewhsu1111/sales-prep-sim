@@ -562,18 +562,63 @@ const Index = () => {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Pro Plan */}
+            {/* Free Plan */}
             <Card className="bg-white text-black border border-gray-200 shadow-lg">
               <CardHeader className="text-center pb-8">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <CheckCircle className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-xl">Free</CardTitle>
+                </div>
+                <div className="text-4xl font-bold">
+                  $0
+                  <span className="text-lg text-gray-600">/month</span>
+                </div>
+                <p className="text-gray-600 mt-4">Get started with interview practice</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Button variant="outline" className="w-full">
+                  Start Free →
+                </Button>
+                <ul className="space-y-4">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">3 complete interview sessions</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Access to all 3 interviewer personalities</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Full interview transcripts</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Detailed performance feedback</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Performance analytics dashboard</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Pro Plan */}
+            <Card className="bg-white text-black border-2 border-primary shadow-lg relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
+              </div>
+              <CardHeader className="text-center pb-8 pt-12">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <CheckCircle className="h-5 w-5 text-primary" />
                   <CardTitle className="text-xl">Pro</CardTitle>
                 </div>
                 <div className="text-4xl font-bold">
-                  ${isTriMonthly ? '40' : '50'}
-                  <span className="text-lg text-gray-600">/month</span>
+                  ${isTriMonthly ? '48' : '20'}
+                  <span className="text-lg text-gray-600">/{isTriMonthly ? '3 months' : 'month'}</span>
                 </div>
-                <p className="text-gray-600 mt-4">Everything you need to ace your sales interviews</p>
+                <p className="text-gray-600 mt-4">Unlimited interview practice</p>
               </CardHeader>
               <CardContent className="space-y-6">
                 <Button variant="default" className="w-full">
@@ -582,62 +627,23 @@ const Index = () => {
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Unlimited AI interview practice</span>
+                    <span className="text-sm">Unlimited interview sessions</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Real-time feedback & coaching</span>
+                    <span className="text-sm">Access to all 3 interviewer personalities</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Sales-specific scenarios</span>
+                    <span className="text-sm">Full interview transcripts</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Performance analytics</span>
+                    <span className="text-sm">Detailed performance feedback</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Email support</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Enterprise Plan */}
-            <Card className="bg-white text-black border border-gray-200 shadow-lg">
-              <CardHeader className="text-center pb-8">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <DollarSign className="h-5 w-5 text-primary" />
-                  <CardTitle className="text-xl">Enterprise</CardTitle>
-                </div>
-                <div className="text-4xl font-bold">Custom</div>
-                <p className="text-gray-600 mt-4">Custom solutions for teams and organizations</p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Button variant="outline" className="w-full">
-                  Schedule a call →
-                </Button>
-                <ul className="space-y-4">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Everything in Pro</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Custom interview scenarios</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Team management dashboard</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Advanced analytics</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Priority support</span>
+                    <span className="text-sm">Performance analytics dashboard</span>
                   </li>
                 </ul>
               </CardContent>

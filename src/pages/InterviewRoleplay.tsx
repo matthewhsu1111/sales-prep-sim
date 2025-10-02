@@ -9,6 +9,7 @@ import jakeThompson from "@/assets/jake-thompson.jpg";
 import michaelChen from "@/assets/michael-chen.jpg";
 import JobPostingModal from "@/components/JobPostingModal";
 import InterviewDetailsModal from "@/components/InterviewDetailsModal";
+import UpgradeModal from "@/components/UpgradeModal";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -71,12 +72,16 @@ export default function InterviewRoleplay() {
   const { toast } = useToast();
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [isInterviewDetailsModalOpen, setIsInterviewDetailsModalOpen] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [hasJobPostings, setHasJobPostings] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedInterviewer, setSelectedInterviewer] = useState<string | null>(null);
+  const [userTier, setUserTier] = useState<'free' | 'pro'>('free');
+  const [interviewCount, setInterviewCount] = useState(0);
 
   useEffect(() => {
     checkExistingJobPostings();
+    checkUserSubscription();
   }, []);
 
   const checkExistingJobPostings = async () => {
@@ -95,7 +100,42 @@ export default function InterviewRoleplay() {
     }
   };
 
+  const checkUserSubscription = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get user profile with subscription tier
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_tier')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile) {
+        setUserTier((profile.subscription_tier as 'free' | 'pro') || 'free');
+      }
+
+      // Get interview count
+      const { data: countData } = await supabase
+        .from('user_interview_counts')
+        .select('total_interviews')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setInterviewCount(countData?.total_interviews || 0);
+    } catch (error) {
+      console.error('Error checking user subscription:', error);
+    }
+  };
+
   const handleStartTraining = (templateId: string) => {
+    // Check if free user has reached interview limit
+    if (userTier === 'free' && interviewCount >= 3) {
+      setIsUpgradeModalOpen(true);
+      return;
+    }
+
     // Find the interviewer template to get the name
     const template = interviewerTemplates.find(t => t.id === templateId);
     setSelectedInterviewer(template?.name || null);
@@ -117,8 +157,34 @@ export default function InterviewRoleplay() {
     setIsInterviewDetailsModalOpen(true);
   };
 
-  const handleStartInterview = (details: any) => {
+  const handleStartInterview = async (details: any) => {
     console.log("Starting interview with details:", details, "Selected interviewer:", selectedInterviewer);
+    
+    // Increment interview count
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: existing } = await supabase
+          .from('user_interview_counts')
+          .select('total_interviews')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (existing) {
+          await supabase
+            .from('user_interview_counts')
+            .update({ total_interviews: existing.total_interviews + 1 })
+            .eq('user_id', user.id);
+        } else {
+          await supabase
+            .from('user_interview_counts')
+            .insert({ user_id: user.id, total_interviews: 1 });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating interview count:', error);
+    }
+
     toast({
       title: "Starting Interview",
       description: "Interview training session is beginning...",
@@ -145,9 +211,11 @@ export default function InterviewRoleplay() {
           <p className="text-muted-foreground mt-2 max-w-2xl">
             Create custom interviewers or use pre-built templates to practice and refine your answers in realistic scenarios.
           </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Each training session costs 1 credit
-          </p>
+          {userTier === 'free' && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Free plan: {interviewCount}/3 interviews used
+            </p>
+          )}
         </div>
         <Button className="bg-primary hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-2" />
@@ -207,6 +275,11 @@ export default function InterviewRoleplay() {
         isOpen={isInterviewDetailsModalOpen}
         onClose={() => setIsInterviewDetailsModalOpen(false)}
         onStartInterview={handleStartInterview}
+      />
+
+      <UpgradeModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
       />
     </div>
   );
