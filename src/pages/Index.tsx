@@ -548,7 +548,7 @@ const Index = () => {
                 }`}
                 onClick={() => setIsTriMonthly(true)}
               >
-                $40/month (Save 20%)
+                Tri-Monthly (Save 20%)
               </button>
               <button 
                 className={`px-6 py-2 rounded-md font-medium transition-colors ${
@@ -556,7 +556,7 @@ const Index = () => {
                 }`}
                 onClick={() => setIsTriMonthly(false)}
               >
-                $50/month
+                Monthly
               </button>
             </div>
           </div>
