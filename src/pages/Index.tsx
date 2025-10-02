@@ -548,7 +548,7 @@ const Index = () => {
                 }`}
                 onClick={() => setIsTriMonthly(true)}
               >
-                Tri-Monthly (Save 20%)
+                $40/month (Save 20%)
               </button>
               <button 
                 className={`px-6 py-2 rounded-md font-medium transition-colors ${
@@ -556,7 +556,7 @@ const Index = () => {
                 }`}
                 onClick={() => setIsTriMonthly(false)}
               >
-                Monthly
+                $50/month
               </button>
             </div>
           </div>
@@ -605,18 +605,15 @@ const Index = () => {
             </Card>
 
             {/* Pro Plan */}
-            <Card className="bg-white text-black border-2 border-primary shadow-lg relative">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
-              </div>
-              <CardHeader className="text-center pb-8 pt-12">
+            <Card className="bg-white text-black border-2 border-primary shadow-lg">
+              <CardHeader className="text-center pb-8">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <CheckCircle className="h-5 w-5 text-primary" />
                   <CardTitle className="text-xl">Pro</CardTitle>
                 </div>
                 <div className="text-4xl font-bold">
-                  ${isTriMonthly ? '48' : '20'}
-                  <span className="text-lg text-gray-600">/{isTriMonthly ? '3 months' : 'month'}</span>
+                  ${isTriMonthly ? '40' : '50'}
+                  <span className="text-lg text-gray-600">/month</span>
                 </div>
                 <p className="text-gray-600 mt-4">Unlimited interview practice</p>
               </CardHeader>
