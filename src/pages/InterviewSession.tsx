@@ -545,24 +545,31 @@ export default function InterviewSession() {
             </div>
             <div className="flex-1 flex items-center justify-center bg-muted/20">
               <div className="text-center">
-                <div className={`w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden ${
-                  isAiTyping 
-                    ? 'ring-4 ring-primary ring-offset-4 ring-offset-background animate-pulse' 
-                    : 'ring-2 ring-muted'
-                }`}>
-                  <img 
-                    src={currentInterviewer.image} 
-                    alt={interviewDetails.interviewer}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative w-32 h-32 mx-auto mb-4">
+                  {/* Pulsing ring */}
+                  {isAiTyping && (
+                    <div className="absolute inset-0 rounded-full ring-4 ring-primary animate-ping" />
+                  )}
+                  
+                  {/* Static outer ring */}
+                  <div className="absolute inset-0 rounded-full ring-2 ring-muted" />
+                  
+                  {/* Actual image */}
+                  <div className="relative w-full h-full rounded-full overflow-hidden">
+                    <img 
+                      src={currentInterviewer.image} 
+                      alt={interviewDetails.interviewer}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 </div>
                 <div className="text-lg font-medium">{interviewDetails.interviewer}</div>
                 <div className="text-sm text-muted-foreground">{currentInterviewer.title}</div>
               </div>
             </div>
           </div>
-
-          {/* User Section (Placeholder) */}
+        
+          {/* User Section */}
           <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
             <div className="border-b p-4">
               <h3 className="text-lg font-semibold">Your Space</h3>
