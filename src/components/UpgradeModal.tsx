@@ -43,26 +43,12 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
             <span className={`text-sm font-medium ${isTriMonthly ? 'text-foreground' : 'text-muted-foreground'}`}>
               Tri-Monthly
             </span>
-            {isTriMonthly && (
-              <Badge variant="secondary" className="ml-1">
-                Save 20%
-              </Badge>
-            )}
-          </div>
-
-          {/* Pricing Display */}
-          <div className="text-center p-6 bg-primary/5 rounded-lg border border-primary/20">
-            <div className="text-4xl font-bold text-primary mb-2">
-              ${isTriMonthly ? '40' : '50'}
-              <span className="text-lg font-normal text-muted-foreground">
-                /{isTriMonthly ? 'month' : 'month'}
-              </span>
-            </div>
-            {isTriMonthly && (
-              <p className="text-sm text-muted-foreground">
-                Billed as $48 every 3 months
-              </p>
-            )}
+            <Badge 
+              variant="secondary" 
+              className={`ml-1 ${isTriMonthly ? 'bg-green-100 text-green-700 border-green-200' : 'opacity-50'}`}
+            >
+              Save 20%
+            </Badge>
           </div>
 
           {/* Upgrade Button */}
@@ -71,8 +57,13 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
             className="w-full"
             size="lg"
           >
-            Upgrade Now
+            Upgrade Now (${isTriMonthly ? '40' : '50'}/month)
           </Button>
+          {isTriMonthly && (
+            <p className="text-xs text-center text-muted-foreground -mt-2">
+              Billed as $120 every 3 months
+            </p>
+          )}
 
           <p className="text-xs text-center text-muted-foreground">
             You'll be redirected to Stripe to complete your purchase
