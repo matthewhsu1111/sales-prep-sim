@@ -193,6 +193,68 @@ export default function Profile() {
         </p>
       </div>
 
+      {/* Upgrade Section for Free Users */}
+      {profile.subscription_tier === 'free' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Upgrade Your Subscription</CardTitle>
+            <p className="text-base text-muted-foreground pt-2">
+              Ready to practice until you're confident?
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Billing Toggle */}
+            <div className="flex items-center justify-center gap-3 p-4 bg-muted/50 rounded-lg">
+              <span className={`text-sm font-medium ${!isTriMonthly ? 'text-foreground' : 'text-muted-foreground'}`}>
+                Monthly
+              </span>
+              <Switch
+                checked={isTriMonthly}
+                onCheckedChange={setIsTriMonthly}
+              />
+              <span className={`text-sm font-medium ${isTriMonthly ? 'text-foreground' : 'text-muted-foreground'}`}>
+                Tri-Monthly
+              </span>
+              <Badge 
+                variant="secondary" 
+                className={`ml-1 ${isTriMonthly ? 'bg-green-100 text-green-700 border-green-200' : 'bg-green-100/50 text-green-700/50 border-green-200/50'}`}
+              >
+                Save 20%
+              </Badge>
+            </div>
+
+            {/* Features List */}
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <span>Unlimited interview sessions</span>
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <span>Unlimited report generation</span>
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <span>Access to all interview types</span>
+              </li>
+            </ul>
+
+            {/* Upgrade Button */}
+            <Button 
+              onClick={handleUpgrade}
+              className="w-full"
+              size="lg"
+            >
+              Upgrade Now (${isTriMonthly ? '40' : '50'}/month)
+            </Button>
+
+            <p className="text-xs text-center text-muted-foreground">
+              You'll be redirected to Stripe to complete your purchase
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Profile Information */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -282,52 +344,6 @@ export default function Profile() {
           )}
         </CardContent>
       </Card>
-
-      {/* Upgrade Section for Free Users */}
-      {profile.subscription_tier === 'free' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Upgrade Your Subscription</CardTitle>
-            <p className="text-base text-muted-foreground pt-2">
-              You've reached the maximum number of interviews for free users. Upgrade your subscription to practice unlimited interviews.
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Billing Toggle */}
-            <div className="flex items-center justify-center gap-3 p-4 bg-muted/50 rounded-lg">
-              <span className={`text-sm font-medium ${!isTriMonthly ? 'text-foreground' : 'text-muted-foreground'}`}>
-                Monthly
-              </span>
-              <Switch
-                checked={isTriMonthly}
-                onCheckedChange={setIsTriMonthly}
-              />
-              <span className={`text-sm font-medium ${isTriMonthly ? 'text-foreground' : 'text-muted-foreground'}`}>
-                Tri-Monthly
-              </span>
-              <Badge 
-                variant="secondary" 
-                className={`ml-1 ${isTriMonthly ? 'bg-green-100 text-green-700 border-green-200' : 'bg-green-100/50 text-green-700/50 border-green-200/50'}`}
-              >
-                Save 20%
-              </Badge>
-            </div>
-
-            {/* Upgrade Button */}
-            <Button 
-              onClick={handleUpgrade}
-              className="w-full"
-              size="lg"
-            >
-              Upgrade Now (${isTriMonthly ? '40' : '50'}/month)
-            </Button>
-
-            <p className="text-xs text-center text-muted-foreground">
-              You'll be redirected to Stripe to complete your purchase
-            </p>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Job Listings */}
       <Card>
