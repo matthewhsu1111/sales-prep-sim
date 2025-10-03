@@ -536,41 +536,29 @@ export default function InterviewSession() {
           {/* AI Interviewer Section */}
           <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
             <div className="border-b p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`w-3 h-3 rounded-full ${
-                  isAiTyping ? 'bg-green-500 animate-pulse' : 'bg-muted-foreground/30'
-                }`}></div>
-                <h3 className="text-lg font-semibold">
-                  {isAiTyping ? 'AI is Typing' : 'AI Interviewer'}
-                </h3>
+              <h3 className="text-lg font-semibold mb-2">AI Interviewer</h3>
+              <div className="text-sm text-muted-foreground">
+                <div className="font-medium">{interviewDetails.interviewer}</div>
+                <div>{currentInterviewer.title}</div>
+                <div className="text-xs">{currentInterviewer.style}</div>
               </div>
-              {currentInterviewer && (
-                <div className="text-sm text-muted-foreground">
-                  <div className="font-medium">{interviewDetails.interviewer}</div>
-                  <div>{currentInterviewer.title}</div>
-                  <div className="text-xs">{currentInterviewer.style}</div>
-                </div>
-              )}
             </div>
             <div className="flex-1 flex items-center justify-center bg-muted/20">
-              {currentInterviewer ? (
-                <div className="text-center">
-                  <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-muted">
-                    <img 
-                      src={currentInterviewer.image} 
-                      alt={interviewDetails.interviewer}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="text-lg font-medium">{interviewDetails.interviewer}</div>
-                  <div className="text-sm text-muted-foreground">{currentInterviewer.title}</div>
+              <div className="text-center">
+                <div className={`w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden ${
+                  isAiTyping 
+                    ? 'ring-4 ring-primary ring-offset-4 ring-offset-background animate-pulse' 
+                    : 'ring-2 ring-muted'
+                }`}>
+                  <img 
+                    src={currentInterviewer.image} 
+                    alt={interviewDetails.interviewer}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              ) : (
-                <div className="text-center text-muted-foreground">
-                  <Bot className="w-16 h-16 mx-auto mb-2" />
-                  <p>AI Interviewer</p>
-                </div>
-              )}
+                <div className="text-lg font-medium">{interviewDetails.interviewer}</div>
+                <div className="text-sm text-muted-foreground">{currentInterviewer.title}</div>
+              </div>
             </div>
           </div>
 
