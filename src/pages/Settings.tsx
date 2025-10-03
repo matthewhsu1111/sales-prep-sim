@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Settings as SettingsIcon, Shield, Bell, Trash2 } from "lucide-react";
+import { Settings as SettingsIcon, Shield, Bell, Trash2, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -29,6 +30,27 @@ export default function Settings() {
     dataSharing: false
   });
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [subscriptionTier, setSubscriptionTier] = useState<string>('free');
+  const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('subscription_tier, subscription_end_date')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (data) {
+        setSubscriptionTier(data.subscription_tier || 'free');
+        setSubscriptionEndDate(data.subscription_end_date);
+      }
+    };
+    
+    fetchProfile();
+  }, [user]);
 
   const handlePasswordChange = async () => {
     if (newPassword !== confirmPassword) {
@@ -283,6 +305,50 @@ export default function Settings() {
               }
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Subscription */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+              <CreditCard className="h-5 w-5 text-primary" />
+            </div>
+            <CardTitle>Subscription</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Current Plan</p>
+              <Badge variant={subscriptionTier === 'pro' ? 'default' : 'secondary'} className="mt-1">
+                {subscriptionTier === 'pro' ? 'Pro Plan' : 'Free Plan'}
+              </Badge>
+            </div>
+          </div>
+          
+          {subscriptionEndDate && (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Next Billing Date</p>
+                <p className="text-sm text-muted-foreground">
+                  {new Date(subscriptionEndDate).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
+          
+          <Button 
+            onClick={() => window.open('https://billing.stripe.com/p/login/eVq4gygs2eP18s07FfdZ600', '_blank')}
+            className="w-full"
+          >
+            Manage Subscription
+          </Button>
         </CardContent>
       </Card>
 
