@@ -358,7 +358,7 @@ export default function InterviewSession() {
   const currentInterviewer = interviewerData[interviewDetails.interviewer as keyof typeof interviewerData];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen overflow-hidden bg-background">
       {/* Top Navigation Bar */}
       <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
         <div className="text-xl font-bold text-foreground">~ Cadence</div>
