@@ -53,9 +53,9 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           {/* Pricing Display */}
           <div className="text-center p-6 bg-primary/5 rounded-lg border border-primary/20">
             <div className="text-4xl font-bold text-primary mb-2">
-              ${isTriMonthly ? '48' : '20'}
+              ${isTriMonthly ? '40' : '50'}
               <span className="text-lg font-normal text-muted-foreground">
-                /{isTriMonthly ? '3 months' : 'month'}
+                /{isTriMonthly ? 'month' : 'month'}
               </span>
             </div>
             {isTriMonthly && (
