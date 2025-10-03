@@ -78,6 +78,7 @@ export default function InterviewRoleplay() {
   const [selectedInterviewer, setSelectedInterviewer] = useState<string | null>(null);
   const [userTier, setUserTier] = useState<'free' | 'pro'>('free');
   const [interviewCount, setInterviewCount] = useState(0);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
 
   useEffect(() => {
     checkExistingJobPostings();
@@ -105,15 +106,16 @@ export default function InterviewRoleplay() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get user profile with subscription tier
+      // Get user profile with subscription tier and status
       const { data: profile } = await supabase
         .from('profiles')
-        .select('subscription_tier')
+        .select('subscription_tier, subscription_status')
         .eq('user_id', user.id)
         .single();
 
       if (profile) {
         setUserTier((profile.subscription_tier as 'free' | 'pro') || 'free');
+        setSubscriptionStatus(profile.subscription_status);
       }
 
       // Get interview count
@@ -130,8 +132,8 @@ export default function InterviewRoleplay() {
   };
 
   const handleStartTraining = (templateId: string) => {
-    // Check if free user has reached interview limit
-    if (userTier === 'free' && interviewCount >= 3) {
+    // Check if user has reached interview limit (free users OR users without active subscription)
+    if ((userTier === 'free' || subscriptionStatus !== 'active') && interviewCount >= 3) {
       setIsUpgradeModalOpen(true);
       return;
     }
@@ -211,7 +213,7 @@ export default function InterviewRoleplay() {
           <p className="text-muted-foreground mt-2 max-w-2xl">
             Create custom interviewers or use pre-built templates to practice and refine your answers in realistic scenarios.
           </p>
-          {userTier === 'free' && (
+          {(userTier === 'free' || subscriptionStatus !== 'active') && (
             <p className="text-sm text-muted-foreground mt-1">
               Free plan: {interviewCount}/3 interviews used
             </p>

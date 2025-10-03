@@ -576,7 +576,11 @@ const Index = () => {
                 <p className="text-gray-600 mt-4">Get started with interview practice</p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate('/signup')}
+                >
                   Start Free →
                 </Button>
                 <ul className="space-y-4">
@@ -618,7 +622,16 @@ const Index = () => {
                 <p className="text-gray-600 mt-4">Unlimited interview practice</p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <Button variant="default" className="w-full">
+                <Button 
+                  variant="default" 
+                  className="w-full"
+                  onClick={() => {
+                    const checkoutUrl = isTriMonthly
+                      ? "https://buy.stripe.com/6oU6oGdfQ5er8s0cZzdZ601"
+                      : "https://buy.stripe.com/eVq4gygs2eP18s07FfdZ600";
+                    window.open(checkoutUrl, '_blank');
+                  }}
+                >
                   Get Started →
                 </Button>
                 <ul className="space-y-4">
