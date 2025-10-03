@@ -544,19 +544,19 @@ const Index = () => {
             <div className="bg-gray-100 rounded-lg p-1 flex">
               <button 
                 className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                  isTriMonthly ? 'bg-primary text-primary-foreground' : 'text-gray-600 hover:text-gray-900'
-                }`}
-                onClick={() => setIsTriMonthly(true)}
-              >
-                Tri-Monthly (Save 20%)
-              </button>
-              <button 
-                className={`px-6 py-2 rounded-md font-medium transition-colors ${
                   !isTriMonthly ? 'bg-primary text-primary-foreground' : 'text-gray-600 hover:text-gray-900'
                 }`}
                 onClick={() => setIsTriMonthly(false)}
               >
                 Monthly
+              </button>
+              <button 
+                className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                  isTriMonthly ? 'bg-primary text-primary-foreground' : 'text-gray-600 hover:text-gray-900'
+                }`}
+                onClick={() => setIsTriMonthly(true)}
+              >
+                Tri-Monthly (Save 20%)
               </button>
             </div>
           </div>
