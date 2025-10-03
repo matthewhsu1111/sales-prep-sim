@@ -59,11 +59,6 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           >
             Upgrade Now (${isTriMonthly ? '40' : '50'}/month)
           </Button>
-          {isTriMonthly && (
-            <p className="text-xs text-center text-muted-foreground -mt-2">
-              Billed as $120 every 3 months
-            </p>
-          )}
 
           <p className="text-xs text-center text-muted-foreground">
             You'll be redirected to Stripe to complete your purchase
