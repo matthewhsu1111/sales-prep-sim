@@ -73,12 +73,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
           
           <div className="flex items-center gap-3">
-            <Card className="bg-muted border-border/50">
-              <CardContent className="p-2">
-                <div className="text-sm font-medium text-foreground">999 Credits</div>
-              </CardContent>
-            </Card>
-            
             <Button variant="ghost" size="sm">
               <HelpCircle className="h-4 w-4" />
             </Button>

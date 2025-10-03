@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import JobPostingModal from "@/components/JobPostingModal";
@@ -40,6 +41,7 @@ export default function Profile() {
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([]);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [isTriMonthly, setIsTriMonthly] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -173,6 +175,14 @@ export default function Profile() {
     });
   };
 
+  const handleUpgrade = () => {
+    const checkoutUrl = isTriMonthly
+      ? "https://buy.stripe.com/6oU6oGdfQ5er8s0cZzdZ601"
+      : "https://buy.stripe.com/eVq4gygs2eP18s07FfdZ600";
+    
+    window.open(checkoutUrl, '_blank');
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
       {/* Header */}
@@ -272,6 +282,52 @@ export default function Profile() {
           )}
         </CardContent>
       </Card>
+
+      {/* Upgrade Section for Free Users */}
+      {profile.subscription_tier === 'free' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Upgrade Your Subscription</CardTitle>
+            <p className="text-base text-muted-foreground pt-2">
+              You've reached the maximum number of interviews for free users. Upgrade your subscription to practice unlimited interviews.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Billing Toggle */}
+            <div className="flex items-center justify-center gap-3 p-4 bg-muted/50 rounded-lg">
+              <span className={`text-sm font-medium ${!isTriMonthly ? 'text-foreground' : 'text-muted-foreground'}`}>
+                Monthly
+              </span>
+              <Switch
+                checked={isTriMonthly}
+                onCheckedChange={setIsTriMonthly}
+              />
+              <span className={`text-sm font-medium ${isTriMonthly ? 'text-foreground' : 'text-muted-foreground'}`}>
+                Tri-Monthly
+              </span>
+              <Badge 
+                variant="secondary" 
+                className={`ml-1 ${isTriMonthly ? 'bg-green-100 text-green-700 border-green-200' : 'bg-green-100/50 text-green-700/50 border-green-200/50'}`}
+              >
+                Save 20%
+              </Badge>
+            </div>
+
+            {/* Upgrade Button */}
+            <Button 
+              onClick={handleUpgrade}
+              className="w-full"
+              size="lg"
+            >
+              Upgrade Now (${isTriMonthly ? '40' : '50'}/month)
+            </Button>
+
+            <p className="text-xs text-center text-muted-foreground">
+              You'll be redirected to Stripe to complete your purchase
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Job Listings */}
       <Card>
