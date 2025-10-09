@@ -51,55 +51,56 @@ serve(async (req) => {
       hasSubstantialContent 
     });
 
-    // CRITICAL ANALYSIS PROMPT - Much more strict
-    const systemPrompt = `You are a TOUGH, CRITICAL sales interview analyst. You have 20+ years of experience hiring sales professionals and you DO NOT give participation trophies.
+    // Updated scoring system with 1-100 scale
+    const systemPrompt = `You are an experienced interview analyst with expertise in evaluating sales and professional interview performance.
 
-CRITICAL SCORING STANDARDS:
-- 1-3: Completely unprepared, unprofessional, or nonsensical responses
-- 4-5: Poor performance with major gaps in sales knowledge/professionalism  
-- 6-7: Acceptable but needs significant improvement
-- 8-9: Strong performance with minor areas to improve
-- 10: Exceptional, hire-ready performance
+SCORING SYSTEM (1-100 SCALE):
+Start with base score of 50 for completing interview professionally.
 
-RED FLAGS (automatic score reduction):
-- Unprofessional language (slang, "idk", "bruh", "whatever")
-- Generic answers without specific examples
-- Cannot articulate value propositions
-- Poor grammar or communication skills
-- Admits to not knowing basic sales concepts
-- Gives up easily or shows lack of preparation
+ADD POINTS FOR:
+- Quantified business results (revenue numbers, conversion rates, specific metrics): +10-20
+- Specific, detailed examples with context: +5-15
+- Strategic business thinking and industry insights: +5-15
+- Advanced preparation/research evident in responses: +5-10
+- Sophisticated, professional communication: +5-10
+- Industry/role knowledge demonstrated: +5-10
+- Problem-solving approach with clear methodology: +5-10
+- Leadership/initiative examples: +5-10
 
-TRANSCRIPT ANALYSIS REQUIREMENTS:
-1. Count specific examples given (score lower if none)
-2. Evaluate communication clarity and professionalism
-3. Assess sales methodology knowledge
-4. Check for company/role research evidence
-5. Rate confidence and composure
+SUBTRACT POINTS FOR:
+- Unprofessional language (idk, bruh, whatever, etc): -20 to -40
+- Vague/generic responses without specifics: -5 to -15
+- Poor preparation or no research: -5 to -15
+- Inability to provide concrete examples: -10 to -20
+- Evasive or incomplete answers: -5 to -15
 
-If transcript shows:
-- Unprofessional language: Max score 4/10
-- No specific examples: Max score 5/10  
-- Generic responses only: Max score 6/10
-- Poor preparation evident: Max score 5/10
+SCORING RANGES:
+- 1-20: Unprofessional, unprepared, nonsensical
+- 21-40: Poor performance, major gaps
+- 41-60: Adequate but unremarkable
+- 61-70: Good performance with solid fundamentals
+- 71-80: Strong performance with quantified results and strategic thinking
+- 81-90: Excellent with sophisticated insights
+- 91-100: Exceptional (rare)
 
-STRICT GRADING: Most candidates should score 4-6. Only exceptional performances deserve 7+.
+CRITICAL: Base the score on ACTUAL CONTENT demonstrated in the transcript. If the candidate provides quantified results, specific examples, strategic thinking, and professional communication, they should score 70-85. Apply the point system accurately based on what you observe in their responses.
 
 Return ONLY valid JSON in this exact format:
 {
-  "overallScore": number,
+  "overallScore": number (1-100),
   "overallFeedback": "string",
   "detailedScores": {
-    "communication": number,
-    "confidence": number,
-    "salesSkills": number,
-    "interviewMechanics": number
+    "communication": number (1-100),
+    "confidence": number (1-100),
+    "salesSkills": number (1-100),
+    "interviewMechanics": number (1-100)
   },
   "strengths": [
     {
       "skill": "string",
       "category": "string", 
       "evidence": "string",
-      "score": number
+      "score": number (1-100)
     }
   ],
   "weaknesses": [
@@ -108,17 +109,17 @@ Return ONLY valid JSON in this exact format:
       "category": "string",
       "issue": "string", 
       "improvementActions": ["string"],
-      "score": number
+      "score": number (1-100)
     }
   ],
   "improvements": ["specific actionable recommendations"]
 }`;
 
-    // Force lower scores for poor quality transcripts
-    let maxAllowedScore = 10;
-    if (!hasSubstantialContent) maxAllowedScore = 3;
-    if (unprofessionalRatio > 0.05) maxAllowedScore = Math.min(maxAllowedScore, 4);
-    if (unprofessionalRatio > 0.1) maxAllowedScore = Math.min(maxAllowedScore, 2);
+    // Force lower scores for poor quality transcripts (updated to 100-point scale)
+    let maxAllowedScore = 100;
+    if (!hasSubstantialContent) maxAllowedScore = 30;
+    if (unprofessionalRatio > 0.05) maxAllowedScore = Math.min(maxAllowedScore, 40);
+    if (unprofessionalRatio > 0.1) maxAllowedScore = Math.min(maxAllowedScore, 20);
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -128,8 +129,8 @@ Return ONLY valid JSON in this exact format:
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 2000,
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
         messages: [
           {
             role: 'user',
@@ -144,8 +145,12 @@ Return ONLY valid JSON in this exact format:
 
     let analysisResult: any;
     try {
+      if (!data.content || !data.content[0] || !data.content[0].text) {
+        throw new Error('No content in API response');
+      }
+      
       const content = data.content[0].text;
-      console.log('Raw AI response:', content.substring(0, 200) + '...');
+      console.log('Full response content:', content);
       
       // Extract JSON from the response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -161,7 +166,7 @@ Return ONLY valid JSON in this exact format:
           const ratio = maxAllowedScore / Math.max(analysisResult.overallScore, 1);
           if (analysisResult.detailedScores) {
             Object.keys(analysisResult.detailedScores).forEach(key => {
-              analysisResult.detailedScores[key] = Math.min(analysisResult.detailedScores[key] * ratio, maxAllowedScore);
+              analysisResult.detailedScores[key] = Math.round(Math.min(analysisResult.detailedScores[key] * ratio, maxAllowedScore));
             });
           }
         }
@@ -170,19 +175,19 @@ Return ONLY valid JSON in this exact format:
       }
     } catch (error) {
       console.error('Failed to parse AI response:', error);
-      console.log('Full response content:', data.content?.[0]?.text);
+      console.log('Full API response:', JSON.stringify(data));
       
-      // Critical fallback - much lower scores
-      const fallbackScore = Math.max(Math.min(maxAllowedScore, 3), 1);
+      // Fallback scoring based on transcript quality
+      const fallbackScore = !hasSubstantialContent ? 25 : Math.min(maxAllowedScore, 30);
       analysisResult = {
         overallScore: fallbackScore,
         overallFeedback: hasSubstantialContent 
-          ? "Analysis could not be completed properly. Performance appears below expectations based on available data."
+          ? "Analysis could not be completed properly. Based on transcript quality, performance appears to need significant improvement."
           : "Interview appears incomplete or contains insufficient content for proper evaluation.",
         detailedScores: {
           communication: fallbackScore,
-          confidence: Math.max(fallbackScore - 1, 1),
-          salesSkills: Math.max(fallbackScore - 1, 1),
+          confidence: Math.max(fallbackScore - 5, 20),
+          salesSkills: Math.max(fallbackScore - 10, 15),
           interviewMechanics: fallbackScore
         },
         strengths: [
@@ -190,7 +195,7 @@ Return ONLY valid JSON in this exact format:
             skill: "Interview Participation",
             category: "engagement",
             evidence: "Participated in the interview process",
-            score: Math.min(fallbackScore + 1, 5)
+            score: Math.min(fallbackScore + 10, 40)
           }
         ],
         weaknesses: [
@@ -224,7 +229,7 @@ Return ONLY valid JSON in this exact format:
         category: "communication", 
         issue: `Used unprofessional language ${unprofessionalMatches.length} times`,
         improvementActions: ["Practice formal interview language", "Record yourself practicing to identify casual speech patterns"],
-        score: 2
+        score: Math.max(analysisResult.overallScore - 30, 20)
       });
     }
 
@@ -280,26 +285,26 @@ Return ONLY valid JSON in this exact format:
     console.error('Error in analyze-interview function:', error);
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Unknown error',
-      overallScore: 2,
+      overallScore: 25,
       overallFeedback: "Interview analysis failed. This indicates significant issues with the interview process or responses.",
       detailedScores: {
-        communication: 2,
-        confidence: 1,
-        salesSkills: 1,
-        interviewMechanics: 2
+        communication: 25,
+        confidence: 20,
+        salesSkills: 20,
+        interviewMechanics: 25
       },
       strengths: [{
         skill: "Basic Participation",
         category: "engagement", 
         evidence: "Attempted to complete interview",
-        score: 3
+        score: 30
       }],
       weaknesses: [{
         skill: "Technical Issues",
         category: "system",
         issue: "Interview could not be properly analyzed",
         improvementActions: ["Ensure stable internet connection", "Speak clearly", "Complete full interview"],
-        score: 1
+        score: 25
       }],
       improvements: [
         "Complete the full interview without technical issues",
