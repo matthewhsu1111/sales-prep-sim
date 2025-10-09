@@ -24,9 +24,17 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
       const { data: sessions, error } = await supabase
         .from('interview_sessions')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -115,13 +123,21 @@ const Dashboard = () => {
       setStrengths(strengthsFormatted);
       setImprovements(improvementsFormatted);
 
-      // Recent interviews
-      const recentFormatted = sessions.slice(0, 4).map(session => ({
+      // Recent interviews with full data for navigation
+      const recentFormatted = sessions.slice(0, 5).map(session => ({
         id: session.id,
+        interviewer_name: session.interviewer_name,
+        interview_type: session.interview_type,
+        overall_score: session.overall_score,
+        created_at: session.created_at,
+        transcript: session.transcript,
+        strengths: session.strengths,
+        weaknesses: session.weaknesses,
+        improvements: session.improvements,
+        scores: session.scores,
         title: `${session.interview_type} - ${session.interviewer_name}`,
         time: getTimeAgo(session.created_at),
-        score: session.overall_score,
-        created_at: session.created_at
+        score: session.overall_score
       }));
 
       setRecentInterviews(recentFormatted);
@@ -152,8 +168,16 @@ const Dashboard = () => {
   const handleInterviewClick = (interview: any) => {
     navigate('/dashboard/interview-results', {
       state: {
-        sessionId: interview.id,
-        fromDashboard: true
+        interviewData: {
+          interviewer_name: interview.interviewer_name,
+          interview_type: interview.interview_type,
+          transcript: interview.transcript,
+          overall_score: interview.overall_score,
+          strengths: interview.strengths,
+          weaknesses: interview.weaknesses,
+          improvements: interview.improvements,
+          scores: interview.scores
+        }
       }
     });
   };

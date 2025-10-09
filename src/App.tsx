@@ -12,6 +12,7 @@ import InterviewRoleplay from "./pages/InterviewRoleplay";
 import InterviewPreparation from "./pages/InterviewPreparation";
 import InterviewSession from "./pages/InterviewSession";
 import InterviewResults from "./pages/InterviewResults";
+import InterviewHistory from "./pages/InterviewHistory";
 import Signin from "./pages/Signin";
 import ProfileSetup from "./pages/ProfileSetup";
 import Profile from "./pages/Profile";
@@ -52,6 +53,11 @@ const App = () => (
             } />
             <Route path="/dashboard/interview-session" element={<InterviewSession />} />
             <Route path="/dashboard/interview-results" element={<InterviewResults />} />
+            <Route path="/dashboard/interview-history" element={
+              <DashboardLayout>
+                <InterviewHistory />
+              </DashboardLayout>
+            } />
             <Route path="/dashboard/careers" element={
               <DashboardLayout>
                 <Careers />
