@@ -169,14 +169,10 @@ const Dashboard = () => {
     navigate('/dashboard/interview-results', {
       state: {
         interviewData: {
-          interviewer_name: interview.interviewer_name,
-          interview_type: interview.interview_type,
+          interviewer: interview.interviewer_name,
+          interviewType: interview.interview_type,
           transcript: interview.transcript,
-          overall_score: interview.overall_score,
-          strengths: interview.strengths,
-          weaknesses: interview.weaknesses,
-          improvements: interview.improvements,
-          scores: interview.scores
+          jobPosting: interview.job_posting
         }
       }
     });
