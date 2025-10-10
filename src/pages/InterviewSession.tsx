@@ -296,7 +296,7 @@ export default function InterviewSession() {
   console.log('🚀 Navigating to results with data:', navigationData);
   
   navigate('/dashboard/interview-results', { 
-    state: navigationData 
+    state: { interviewData: navigationData }
   });
 };
   

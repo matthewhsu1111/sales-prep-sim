@@ -160,7 +160,7 @@ export default function InterviewResults() {
           <div className="text-sm text-green-700 mt-1">{strength.evidence}</div>
           <div className="flex items-center gap-2 mt-2">
             <Badge variant="outline" className="text-xs">{strength.category}</Badge>
-            <span className="text-xs font-medium text-green-600">Score: {strength.score}/10</span>
+            <span className="text-xs font-medium text-green-600">Score: {(strength.score / 10).toFixed(1)}/10</span>
           </div>
         </div>
       </li>
@@ -195,7 +195,7 @@ export default function InterviewResults() {
           )}
           <div className="flex items-center gap-2 mt-2">
             <Badge variant="outline" className="text-xs">{weakness.category}</Badge>
-            <span className="text-xs font-medium text-yellow-600">Score: {weakness.score}/10</span>
+            <span className="text-xs font-medium text-yellow-600">Score: {(weakness.score / 10).toFixed(1)}/10</span>
           </div>
         </div>
       </li>
@@ -208,14 +208,14 @@ export default function InterviewResults() {
     const formatStrengthsForDownload = () => {
       return feedback.strengths.map(s => {
         if (typeof s === 'string') return `• ${s}`;
-        return `• ${s.skill}: ${s.evidence} (Score: ${s.score}/10)`;
+        return `• ${s.skill}: ${s.evidence} (Score: ${(s.score / 10).toFixed(1)}/10)`;
       }).join('\n');
     };
 
     const formatWeaknessesForDownload = () => {
       return feedback.weaknesses.map(w => {
         if (typeof w === 'string') return `• ${w}`;
-        return `• ${w.skill}: ${w.issue} (Score: ${w.score}/10)`;
+        return `• ${w.skill}: ${w.issue} (Score: ${(w.score / 10).toFixed(1)}/10)`;
       }).join('\n');
     };
 
@@ -350,26 +350,26 @@ ${interviewData.transcript}
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center">
-                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.communication * 10)}`}>
-                        {feedback.detailedScores.communication}/10
+                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.communication)}`}>
+                        {(feedback.detailedScores.communication / 10).toFixed(1)}/10
                       </div>
                       <div className="text-sm text-muted-foreground">Communication</div>
                     </div>
                     <div className="text-center">
-                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.confidence * 10)}`}>
-                        {feedback.detailedScores.confidence}/10
+                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.confidence)}`}>
+                        {(feedback.detailedScores.confidence / 10).toFixed(1)}/10
                       </div>
                       <div className="text-sm text-muted-foreground">Confidence</div>
                     </div>
                     <div className="text-center">
-                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.salesSkills * 10)}`}>
-                        {feedback.detailedScores.salesSkills}/10
+                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.salesSkills)}`}>
+                        {(feedback.detailedScores.salesSkills / 10).toFixed(1)}/10
                       </div>
                       <div className="text-sm text-muted-foreground">Sales Skills</div>
                     </div>
                     <div className="text-center">
-                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.interviewMechanics * 10)}`}>
-                        {feedback.detailedScores.interviewMechanics}/10
+                      <div className={`text-2xl font-bold ${getScoreColor(feedback.detailedScores.interviewMechanics)}`}>
+                        {(feedback.detailedScores.interviewMechanics / 10).toFixed(1)}/10
                       </div>
                       <div className="text-sm text-muted-foreground">Interview Mechanics</div>
                     </div>
