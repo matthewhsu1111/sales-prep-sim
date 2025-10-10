@@ -13,10 +13,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
+  const [allSessions, setAllSessions] = useState<any[]>([]);
   const [progressData, setProgressData] = useState<any[]>([]);
   const [strengths, setStrengths] = useState<any[]>([]);
   const [improvements, setImprovements] = useState<any[]>([]);
   const [recentInterviews, setRecentInterviews] = useState<any[]>([]);
+  const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'all'>('all');
 
   useEffect(() => {
     fetchDashboardData();
@@ -46,6 +48,7 @@ const Dashboard = () => {
 
       if (!sessions || sessions.length === 0) {
         // No interviews yet - set empty state
+        setAllSessions([]);
         setProgressData([]);
         setStrengths([]);
         setImprovements([]);
@@ -54,17 +57,11 @@ const Dashboard = () => {
         return;
       }
 
-      // Build progress data from individual sessions (chronological)
-      const progressDataFormatted = sessions.length < 2 ? [] : sessions.map((session) => {
-        const date = new Date(session.created_at);
-        const dateLabel = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        return {
-          date: dateLabel,
-          score: session.overall_score,
-          fullDate: session.created_at
-        };
-      });
-
+      // Store all sessions for filtering
+      setAllSessions(sessions);
+      
+      // Build initial progress data (all time)
+      const progressDataFormatted = buildProgressData(sessions, 'all');
       setProgressData(progressDataFormatted);
 
       // Aggregate strengths and weaknesses - exclude fallback values
@@ -171,6 +168,78 @@ const Dashboard = () => {
     }
   };
 
+  const buildProgressData = (sessions: any[], range: 'today' | 'week' | 'month' | 'all') => {
+    if (sessions.length === 0) return [];
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    // Filter sessions based on time range
+    let filteredSessions = sessions;
+    
+    if (range === 'today') {
+      filteredSessions = sessions.filter(s => {
+        const sessionDate = new Date(s.created_at);
+        return sessionDate >= today;
+      });
+    } else if (range === 'week') {
+      const weekAgo = new Date(today);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      filteredSessions = sessions.filter(s => new Date(s.created_at) >= weekAgo);
+    } else if (range === 'month') {
+      const monthAgo = new Date(today);
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+      filteredSessions = sessions.filter(s => new Date(s.created_at) >= monthAgo);
+    }
+
+    if (filteredSessions.length === 0) return [];
+
+    // For today view, show individual interviews
+    if (range === 'today') {
+      return filteredSessions.map((session) => {
+        const date = new Date(session.created_at);
+        const timeLabel = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        return {
+          date: timeLabel,
+          score: session.overall_score,
+          fullDate: session.created_at
+        };
+      });
+    }
+
+    // For other views, group by date and average scores
+    const groupedByDate: { [key: string]: { scores: number[], date: Date } } = {};
+    
+    filteredSessions.forEach(session => {
+      const sessionDate = new Date(session.created_at);
+      const dateKey = sessionDate.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      
+      if (!groupedByDate[dateKey]) {
+        groupedByDate[dateKey] = { scores: [], date: sessionDate };
+      }
+      groupedByDate[dateKey].scores.push(session.overall_score);
+    });
+
+    // Convert to array and calculate averages
+    return Object.entries(groupedByDate)
+      .map(([dateKey, data]) => {
+        const avgScore = Math.round(data.scores.reduce((sum, score) => sum + score, 0) / data.scores.length);
+        const dateLabel = data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return {
+          date: dateLabel,
+          score: avgScore,
+          fullDate: data.date.toISOString()
+        };
+      })
+      .sort((a, b) => new Date(a.fullDate).getTime() - new Date(b.fullDate).getTime());
+  };
+
+  const handleTimeRangeChange = (range: 'today' | 'week' | 'month' | 'all') => {
+    setTimeRange(range);
+    const newData = buildProgressData(allSessions, range);
+    setProgressData(newData);
+  };
+
   const getTimeAgo = (dateString: string) => {
     const now = new Date();
     const past = new Date(dateString);
@@ -223,29 +292,67 @@ const Dashboard = () => {
       {/* Progress Over Time Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Progress Over Time</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Progress Over Time</CardTitle>
+            <div className="flex gap-2">
+              <Button
+                variant={timeRange === 'today' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTimeRangeChange('today')}
+              >
+                Today
+              </Button>
+              <Button
+                variant={timeRange === 'week' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTimeRangeChange('week')}
+              >
+                This Week
+              </Button>
+              <Button
+                variant={timeRange === 'month' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTimeRangeChange('month')}
+              >
+                This Month
+              </Button>
+              <Button
+                variant={timeRange === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTimeRangeChange('all')}
+              >
+                All Time
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="h-[300px] flex items-center justify-center">
+            <div className="h-[400px] flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
           ) : progressData.length === 0 ? (
-            <div className="h-[300px] flex items-center justify-center text-center">
+            <div className="h-[400px] flex items-center justify-center text-center">
               <div>
                 <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">
-                  Complete more interviews to track progress
+                  {timeRange === 'today' && 'No interviews completed today'}
+                  {timeRange === 'week' && 'No interviews completed this week'}
+                  {timeRange === 'month' && 'No interviews completed this month'}
+                  {timeRange === 'all' && 'Complete more interviews to track progress'}
                 </p>
               </div>
             </div>
           ) : (
-            <ChartContainer config={chartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[400px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={progressData}>
+                <LineChart data={progressData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                   <XAxis 
                     dataKey="date" 
                     tick={{ fontSize: 12 }}
+                    angle={progressData.length > 10 ? -45 : 0}
+                    textAnchor={progressData.length > 10 ? "end" : "middle"}
+                    height={progressData.length > 10 ? 60 : 30}
                   />
                   <YAxis 
                     domain={[0, 100]}
