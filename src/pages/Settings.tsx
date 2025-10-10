@@ -32,6 +32,9 @@ export default function Settings() {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [subscriptionTier, setSubscriptionTier] = useState<string>('free');
   const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
+  const [interviewCount, setInterviewCount] = useState(0);
+  const [isClearingHistory, setIsClearingHistory] = useState(false);
+  const [confirmClearHistory, setConfirmClearHistory] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -48,8 +51,20 @@ export default function Settings() {
         setSubscriptionEndDate(data.subscription_end_date);
       }
     };
+
+    const fetchInterviewCount = async () => {
+      if (!user) return;
+      
+      const { count } = await supabase
+        .from('interview_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+      
+      setInterviewCount(count || 0);
+    };
     
     fetchProfile();
+    fetchInterviewCount();
   }, [user]);
 
   const handlePasswordChange = async () => {
@@ -151,6 +166,37 @@ export default function Settings() {
       });
     } finally {
       setIsDeletingAccount(false);
+    }
+  };
+
+  const handleClearInterviewHistory = async () => {
+    if (!user) return;
+
+    setIsClearingHistory(true);
+    try {
+      const { error } = await supabase
+        .from('interview_sessions')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Interview History Cleared",
+        description: `Successfully deleted ${interviewCount} interview${interviewCount !== 1 ? 's' : ''}`,
+      });
+
+      setInterviewCount(0);
+      setConfirmClearHistory(false);
+    } catch (error) {
+      console.error('Error clearing interview history:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear interview history",
+        variant: "destructive"
+      });
+    } finally {
+      setIsClearingHistory(false);
     }
   };
 
@@ -367,7 +413,63 @@ export default function Settings() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Clear Interview History */}
+          <div className="p-4 border border-destructive/20 rounded-lg bg-destructive/5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-destructive">Clear Interview History</h3>
+                <p className="text-sm text-muted-foreground">
+                  Delete all interview sessions, transcripts, and scores. This action cannot be undone.
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    Clear History
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription className="space-y-4">
+                      <p>
+                        This will permanently delete all <strong>{interviewCount}</strong> interview{interviewCount !== 1 ? 's' : ''}, 
+                        transcripts, and scores. This cannot be undone.
+                      </p>
+                      <div className="flex items-center space-x-2 pt-4">
+                        <input
+                          type="checkbox"
+                          id="confirm-clear"
+                          checked={confirmClearHistory}
+                          onChange={(e) => setConfirmClearHistory(e.target.checked)}
+                          className="h-4 w-4 rounded border-gray-300 text-destructive focus:ring-destructive"
+                        />
+                        <label
+                          htmlFor="confirm-clear"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          I understand this is permanent
+                        </label>
+                      </div>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setConfirmClearHistory(false)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleClearInterviewHistory}
+                      disabled={!confirmClearHistory || isClearingHistory}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {isClearingHistory ? "Clearing..." : "Yes, clear all history"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+
+          {/* Delete Account */}
           <div className="p-4 border border-destructive/20 rounded-lg bg-destructive/5">
             <div className="flex items-center justify-between">
               <div>
