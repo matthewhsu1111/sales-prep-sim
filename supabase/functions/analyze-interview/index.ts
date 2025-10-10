@@ -143,10 +143,12 @@ Return ONLY valid JSON in this exact format:
     // Calculate filler penalty (minor deduction, not a hard cap)
     const fillerPenalty = Math.min(fillerMatches.length * 2, 15); // Max -15 points for fillers
 
+    console.log("🔑 Calling Claude API with key:", anthropicApiKey ? `${anthropicApiKey.substring(0, 10)}...` : "MISSING");
+    
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${anthropicApiKey}`,
+        "x-api-key": anthropicApiKey!,
         "Content-Type": "application/json",
         "anthropic-version": "2023-06-01",
       },
@@ -162,60 +164,84 @@ Return ONLY valid JSON in this exact format:
       }),
     });
 
+    console.log("📡 Claude API response status:", response.status);
     const data = await response.json();
-    console.log("Anthropic response received:", { hasContent: !!data.content?.[0]?.text });
+    console.log("📦 Claude response structure:", { 
+      hasContent: !!data.content?.[0]?.text,
+      isError: !!data.error,
+      errorType: data.error?.type,
+      errorMessage: data.error?.message 
+    });
 
     let analysisResult: any;
+    
+    // Check for API errors first
+    if (data.error) {
+      console.error("❌ Claude API error:", data.error);
+      throw new Error(`Claude API error: ${data.error.type} - ${data.error.message}`);
+    }
+    
     try {
       if (!data.content || !data.content[0] || !data.content[0].text) {
+        console.error("❌ No content in Claude response:", JSON.stringify(data));
         throw new Error("No content in API response");
       }
 
       const content = data.content[0].text;
-      console.log("Full response content:", content);
+      console.log("✅ Received content from Claude, length:", content.length);
+      console.log("📄 First 500 chars:", content.substring(0, 500));
 
       // Extract JSON from the response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysisResult = JSON.parse(jsonMatch[0]);
-
-        // Enforce maximum score based on quality check (only for serious issues)
-        if (analysisResult.overallScore > maxAllowedScore) {
-          console.log(
-            `Enforcing max score due to serious issues: ${analysisResult.overallScore} -> ${maxAllowedScore}`,
-          );
-          analysisResult.overallScore = maxAllowedScore;
-
-          // Adjust detailed scores proportionally
-          const ratio = maxAllowedScore / Math.max(analysisResult.overallScore, 1);
-          if (analysisResult.detailedScores) {
-            Object.keys(analysisResult.detailedScores).forEach((key) => {
-              analysisResult.detailedScores[key] = Math.round(
-                Math.min(analysisResult.detailedScores[key] * ratio, maxAllowedScore),
-              );
-            });
-          }
-        } else if (fillerMatches.length > 3) {
-          // Apply filler penalty without hard cap (minor deduction)
-          const penalizedScore = Math.max(analysisResult.overallScore - fillerPenalty, 50);
-          console.log(
-            `Applying filler word penalty: ${analysisResult.overallScore} -> ${penalizedScore} (${fillerMatches.length} fillers, -${fillerPenalty} points)`,
-          );
-          analysisResult.overallScore = penalizedScore;
-        }
-      } else {
+      if (!jsonMatch) {
+        console.error("❌ No JSON found in response. Full content:", content);
         throw new Error("No JSON found in response");
       }
-    } catch (error) {
-      console.error("Failed to parse AI response:", error);
-      console.log("Full API response:", JSON.stringify(data));
+      
+      console.log("🔍 Attempting to parse JSON...");
+      analysisResult = JSON.parse(jsonMatch[0]);
+      console.log("✅ Successfully parsed analysis:", {
+        score: analysisResult.overallScore,
+        hasStrengths: !!analysisResult.strengths?.length,
+        hasWeaknesses: !!analysisResult.weaknesses?.length
+      });
 
-      // Fallback scoring based on transcript quality
+
+      // Enforce maximum score based on quality check (only for serious issues)
+      if (analysisResult.overallScore > maxAllowedScore) {
+        console.log(
+          `⚠️ Enforcing max score due to quality issues: ${analysisResult.overallScore} -> ${maxAllowedScore}`,
+        );
+        analysisResult.overallScore = maxAllowedScore;
+
+        // Adjust detailed scores proportionally
+        const ratio = maxAllowedScore / Math.max(analysisResult.overallScore, 1);
+        if (analysisResult.detailedScores) {
+          Object.keys(analysisResult.detailedScores).forEach((key) => {
+            analysisResult.detailedScores[key] = Math.round(
+              Math.min(analysisResult.detailedScores[key] * ratio, maxAllowedScore),
+            );
+          });
+        }
+      } else if (fillerMatches.length > 3) {
+        // Apply filler penalty without hard cap (minor deduction)
+        const penalizedScore = Math.max(analysisResult.overallScore - fillerPenalty, 50);
+        console.log(
+          `⚠️ Applying filler word penalty: ${analysisResult.overallScore} -> ${penalizedScore} (${fillerMatches.length} fillers, -${fillerPenalty} points)`,
+        );
+        analysisResult.overallScore = penalizedScore;
+      }
+    } catch (parseError) {
+      console.error("❌ Failed to parse AI response:", parseError);
+      console.error("❌ Parse error details:", parseError instanceof Error ? parseError.message : String(parseError));
+      
+      // Fallback scoring based on transcript quality - ONLY used when API/parsing completely fails
+      console.log("⚠️ Using fallback analysis due to parsing failure");
       const fallbackScore = !hasSubstantialContent ? 25 : Math.min(maxAllowedScore, 50);
       analysisResult = {
         overallScore: fallbackScore,
         overallFeedback: hasSubstantialContent
-          ? "Analysis could not be completed properly. Based on transcript quality, performance appears to need improvement."
+          ? "Analysis could not be completed properly due to API issues. Based on transcript quality, performance appears to need improvement."
           : "Interview appears incomplete or contains insufficient content for proper evaluation.",
         detailedScores: {
           communication: fallbackScore,
