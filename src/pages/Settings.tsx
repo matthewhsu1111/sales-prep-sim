@@ -35,6 +35,7 @@ export default function Settings() {
   const [interviewCount, setInterviewCount] = useState(0);
   const [isClearingHistory, setIsClearingHistory] = useState(false);
   const [confirmClearHistory, setConfirmClearHistory] = useState(false);
+  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -487,24 +488,39 @@ export default function Settings() {
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your account
-                      and remove all your data from our servers including:
-                      <br /><br />
-                      • Your profile information
-                      <br />
-                      • Interview sessions and results
-                      <br />
-                      • Job applications and progress
-                      <br />
-                      • All settings and preferences
+                    <AlertDialogDescription className="space-y-4">
+                      <p>
+                        This action cannot be undone. This will permanently delete your account
+                        and remove all your data from our servers including:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Your profile information</li>
+                        <li>Interview sessions and results</li>
+                        <li>Job applications and progress</li>
+                        <li>All settings and preferences</li>
+                      </ul>
+                      <div className="flex items-center space-x-2 pt-4">
+                        <input
+                          type="checkbox"
+                          id="confirm-delete"
+                          checked={confirmDeleteAccount}
+                          onChange={(e) => setConfirmDeleteAccount(e.target.checked)}
+                          className="h-4 w-4 rounded border-gray-300 text-destructive focus:ring-destructive"
+                        />
+                        <label
+                          htmlFor="confirm-delete"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          I understand this is permanent
+                        </label>
+                      </div>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel onClick={() => setConfirmDeleteAccount(false)}>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeleteAccount}
-                      disabled={isDeletingAccount}
+                      disabled={!confirmDeleteAccount || isDeletingAccount}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
                       {isDeletingAccount ? "Deleting..." : "Yes, delete my account"}
