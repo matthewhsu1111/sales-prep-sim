@@ -31,12 +31,12 @@ const Dashboard = () => {
         return;
       }
 
+      // Fetch all sessions for aggregation
       const { data: sessions, error } = await supabase
         .from('interview_sessions')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .order('created_at', { ascending: true }); // Oldest first for chronological chart
 
       if (error) {
         console.error('Error fetching sessions:', error);
@@ -54,77 +54,94 @@ const Dashboard = () => {
         return;
       }
 
-      // Build progress data from sessions
-      const progressByMonth = sessions.reduce((acc: any, session) => {
-        const month = new Date(session.created_at).toLocaleDateString('en-US', { month: 'short' });
-        if (!acc[month]) {
-          acc[month] = { month, scores: [], count: 0 };
-        }
-        acc[month].scores.push(session.overall_score);
-        acc[month].count++;
-        return acc;
-      }, {});
-
-      const progressDataFormatted = Object.values(progressByMonth).map((item: any) => ({
-        month: item.month,
-        score: Math.round(item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length)
-      }));
+      // Build progress data from individual sessions (chronological)
+      const progressDataFormatted = sessions.length < 2 ? [] : sessions.map((session) => {
+        const date = new Date(session.created_at);
+        const dateLabel = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return {
+          date: dateLabel,
+          score: session.overall_score,
+          fullDate: session.created_at
+        };
+      });
 
       setProgressData(progressDataFormatted);
 
-      // Aggregate strengths and weaknesses
-      const allStrengths: any = {};
-      const allWeaknesses: any = {};
+      // Aggregate strengths and weaknesses - exclude fallback values
+      const fallbackValues = ['Interview Participation', 'Overall Performance', 'General Performance'];
+      const strengthsCount: any = {};
+      const weaknessesCount: any = {};
 
       sessions.forEach(session => {
         if (session.strengths && Array.isArray(session.strengths)) {
           session.strengths.forEach((strength: any) => {
-            const key = strength.skill || strength;
-            if (!allStrengths[key]) {
-              allStrengths[key] = { skill: key, scores: [], category: strength.category || 'general' };
+            const skill = strength.skill || strength;
+            // Skip fallback values
+            if (typeof skill === 'string' && !fallbackValues.includes(skill)) {
+              if (!strengthsCount[skill]) {
+                strengthsCount[skill] = { 
+                  skill, 
+                  count: 0, 
+                  scores: [], 
+                  category: strength.category || 'General' 
+                };
+              }
+              strengthsCount[skill].count++;
+              strengthsCount[skill].scores.push(strength.score || 8);
             }
-            allStrengths[key].scores.push(strength.score || 8);
           });
         }
 
         if (session.weaknesses && Array.isArray(session.weaknesses)) {
           session.weaknesses.forEach((weakness: any) => {
-            const key = weakness.skill || weakness;
-            if (!allWeaknesses[key]) {
-              allWeaknesses[key] = { skill: key, scores: [], category: weakness.category || 'general' };
+            const skill = weakness.skill || weakness;
+            // Skip fallback values
+            if (typeof skill === 'string' && !fallbackValues.includes(skill)) {
+              if (!weaknessesCount[skill]) {
+                weaknessesCount[skill] = { 
+                  skill, 
+                  count: 0, 
+                  scores: [], 
+                  category: weakness.category || 'General' 
+                };
+              }
+              weaknessesCount[skill].count++;
+              weaknessesCount[skill].scores.push(weakness.score || 5);
             }
-            allWeaknesses[key].scores.push(weakness.score || 5);
           });
         }
       });
 
-      // Top strengths (highest average scores)
-      const strengthsFormatted = Object.values(allStrengths)
+      // Top 3 most frequent strengths with average score
+      const strengthsFormatted = Object.values(strengthsCount)
         .map((item: any) => ({
           skill: item.skill,
+          count: item.count,
           score: Math.round(item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length * 10),
           trend: "up",
           category: item.category
         }))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 4);
+        .sort((a, b) => b.count - a.count) // Sort by frequency
+        .slice(0, 3);
 
-      // Areas for improvement (lowest average scores)
-      const improvementsFormatted = Object.values(allWeaknesses)
+      // Top 3 most frequent weaknesses with average score
+      const improvementsFormatted = Object.values(weaknessesCount)
         .map((item: any) => ({
           skill: item.skill,
+          count: item.count,
           score: Math.round(item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length * 10),
           trend: "down",
           category: item.category
         }))
-        .sort((a, b) => a.score - b.score)
-        .slice(0, 4);
+        .sort((a, b) => b.count - a.count) // Sort by frequency
+        .slice(0, 3);
 
       setStrengths(strengthsFormatted);
       setImprovements(improvementsFormatted);
 
-      // Recent interviews with full data for navigation
-      const recentFormatted = sessions.slice(0, 5).map(session => ({
+      // Recent interviews with full data for navigation (newest first)
+      const recentSessions = [...sessions].reverse().slice(0, 5);
+      const recentFormatted = recentSessions.map(session => ({
         id: session.id,
         interviewer_name: session.interviewer_name,
         interview_type: session.interview_type,
@@ -218,7 +235,7 @@ const Dashboard = () => {
               <div>
                 <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">
-                  Complete some interviews to see your progress over time
+                  Complete more interviews to track progress
                 </p>
               </div>
             </div>
@@ -226,8 +243,14 @@ const Dashboard = () => {
             <ChartContainer config={chartConfig} className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={progressData}>
-                  <XAxis dataKey="month" />
-                  <YAxis />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis 
+                    domain={[0, 100]}
+                    tick={{ fontSize: 12 }}
+                  />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Line 
                     type="monotone" 
@@ -264,7 +287,7 @@ const Dashboard = () => {
             ) : strengths.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-sm text-muted-foreground">
-                  Complete interviews to discover your strengths
+                  Complete interviews to see your top strengths
                 </p>
               </div>
             ) : (
@@ -303,7 +326,7 @@ const Dashboard = () => {
             ) : improvements.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-sm text-muted-foreground">
-                  Complete interviews to identify improvement areas
+                  Complete interviews to see your top weaknesses
                 </p>
               </div>
             ) : (
