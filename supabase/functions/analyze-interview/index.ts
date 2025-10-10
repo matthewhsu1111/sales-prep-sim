@@ -63,29 +63,136 @@ serve(async (req) => {
       hasSubstantialContent,
     });
 
-    // Updated scoring system with 1-100 scale
+    // Interview type-specific evaluation criteria
+    const getTypeSpecificCriteria = (type: string) => {
+      switch(type) {
+        case 'Initial Screen':
+          return {
+            focus: 'Background Articulation, Company Research, Role Understanding, Career Motivation, Cultural Alignment, Professional Communication, Self-Awareness',
+            strengths: `
+- Background Articulation: Clear professional journey and transition reasoning (+10-15)
+- Company Research: Deep knowledge of company, products, market position (+10-15)
+- Role Understanding: Comprehension of SDR/BDR responsibilities (+5-10)
+- Career Motivation: Clear, compelling reasons for role/transition (+10-15)
+- Cultural Alignment: Demonstrated fit with company values (+5-10)
+- Professional Communication: Polished delivery without excessive fillers (+5-10)
+- Self-Awareness: Honest assessment of strengths/weaknesses/learning needs (+5-10)`,
+            weaknesses: `
+- Vague Career Goals: Unclear direction or poorly articulated story (-10 to -20)
+- Poor Company Knowledge: Insufficient research or generic understanding (-10 to -15)
+- Weak Motivation: Unconvincing reasons for role/company choice (-10 to -15)
+- Unprofessional Communication: Casual language, poor structure (-15 to -30)
+- Limited Technical Aptitude: Concerns about learning technical products (-5 to -10)
+- Unrealistic Expectations: Misunderstanding of role demands (-5 to -10)`
+          };
+        case 'Hiring Manager':
+          return {
+            focus: 'Qualification Technique, Objection Handling, Strategic Planning, Prospecting Methodology, Active Listening, Metrics Orientation, Adaptability, Collaboration',
+            strengths: `
+- Qualification Technique: Effective methods for determining prospect fit (+10-15)
+- Objection Handling: Graceful, confident responses to pushback (+10-15)
+- Strategic Planning: Thoughtful 30/60/90 day plans and goal-setting (+10-15)
+- Prospecting Methodology: Structured approach to outreach and research (+5-10)
+- Active Listening: Consultative vs. pushy approach demonstrated (+5-10)
+- Metrics Orientation: Understanding KPIs and data usage (+5-10)
+- Adaptability: Flexibility when strategies aren't working (+5-10)
+- Collaboration Skills: Working with teams and cross-functional partners (+5-10)`,
+            weaknesses: `
+- Poor Qualification: Can't determine fit or ask discovery questions (-15 to -25)
+- Weak Objection Responses: Defensive, avoiding tough questions, giving up (-10 to -20)
+- Lack of Strategy: No clear plan or prioritization understanding (-10 to -20)
+- Limited Sales Acumen: Unfamiliar with methodologies, frameworks, best practices (-10 to -15)
+- Talking vs. Listening: Overly focused on pitching vs. understanding needs (-10 to -15)
+- No Data Orientation: Failure to use metrics or track performance (-5 to -10)
+- Rigid Approach: Can't adapt when strategy isn't working (-5 to -10)`
+          };
+        case 'Technical/Role-Play':
+          return {
+            focus: 'Cold Call Execution, Objection Management, Personalization, Product Knowledge, Qualifying Questions, Email/LinkedIn Craft, Discovery Structure, Competitive Positioning',
+            strengths: `
+- Cold Call Execution: Confident opening, clear value prop, effective questioning (+15-20)
+- Objection Management: Handling "not interested" or competitor mentions smoothly (+10-15)
+- Personalization: Tailoring outreach based on prospect research (+10-15)
+- Product Knowledge: Explaining solutions clearly to different audiences (+10-15)
+- Qualifying Questions: Strategic questions to uncover fit and timing (+10-15)
+- Email/LinkedIn Craft: Compelling, personalized messages (+5-10)
+- Discovery Structure: Logical flow to uncover needs (+10-15)
+- Competitive Positioning: Differentiating against alternatives (+5-10)`,
+            weaknesses: `
+- Poor Call Execution: Weak opening, no value prop, talking too much (-15 to -25)
+- Objection Avoidance: Failing to address concerns or backing down (-10 to -20)
+- Generic Outreach: Templated messages without personalization (-10 to -15)
+- Limited Product Understanding: Can't explain solutions or match to pain points (-15 to -25)
+- Weak Qualifying: Not asking about budget, timeline, decision process (-10 to -20)
+- Poor Email Skills: Boring subject lines, no clear CTA, grammar issues (-5 to -15)
+- Disorganized Discovery: Jumping topics, missing key qualification areas (-10 to -15)
+- Can't Handle Pressure: Freezing up during roleplay or live scenarios (-10 to -20)`
+          };
+        case 'Executive Interview':
+          return {
+            focus: 'Industry Knowledge, Strategic Thinking, Business Acumen, Leadership Potential, Executive Communication, Company Alignment, Growth Mindset, Multi-Level Selling',
+            strengths: `
+- Industry Knowledge: Understanding market trends, competitive landscape, challenges (+15-20)
+- Strategic Thinking: Connecting business problems to solutions at high level (+15-20)
+- Business Acumen: Speaking to ROI, economic buyers, decision-making processes (+15-20)
+- Leadership Potential: Demonstrating initiative, mentorship, team contribution (+10-15)
+- Executive Communication: Confident, concise delivery for C-level (+10-15)
+- Company Alignment: Personal goals align with company objectives (+5-10)
+- Growth Mindset: Commitment to continuous learning and development (+5-10)
+- Multi-Level Selling: Adapting approach for different stakeholders (+10-15)`,
+            weaknesses: `
+- Shallow Industry Knowledge: Surface-level understanding without depth (-15 to -25)
+- Tactical Focus Only: Can't think strategically or connect to business outcomes (-15 to -25)
+- Poor Business Acumen: Not understanding ROI, budgets, decision processes (-15 to -20)
+- Individual Contributor Mindset: No interest in team success or knowledge sharing (-10 to -15)
+- Weak Executive Presence: Overly casual or unable to engage at C-level (-10 to -20)
+- Short-Term Thinking: Only immediate goals without long-term vision (-10 to -15)
+- Resistance to Feedback: Defensive about development areas or coaching (-10 to -15)
+- Single-Threaded Approach: Only targeting one person vs. navigating buying committees (-5 to -10)`
+          };
+        default:
+          return {
+            focus: 'Overall professional interview performance',
+            strengths: `
+- Quantified business results and specific metrics (+10-20)
+- Specific, detailed examples with context (+5-15)
+- Strategic business thinking and industry insights (+5-15)
+- Advanced preparation/research evident (+5-10)
+- Sophisticated, professional communication (+5-10)
+- Problem-solving approach with clear methodology (+5-10)`,
+            weaknesses: `
+- Vague/generic responses without specifics (-5 to -15)
+- Poor preparation or no research (-5 to -15)
+- Inability to provide concrete examples (-10 to -20)
+- Evasive or incomplete answers (-5 to -15)`
+          };
+      }
+    };
+
+    const criteria = getTypeSpecificCriteria(interviewType);
+
+    // Updated scoring system with 1-100 scale and type-specific evaluation
     const systemPrompt = `You are an experienced interview analyst with expertise in evaluating sales and professional interview performance.
+
+INTERVIEW TYPE: ${interviewType}
+
+CRITICAL: Evaluate this ${interviewType} interview based ONLY on type-specific competencies relevant to this stage. Do not evaluate competencies that belong to other interview types.
+
+TYPE-SPECIFIC EVALUATION FOCUS:
+${criteria.focus}
 
 SCORING SYSTEM (1-100 SCALE):
 Start with base score of 50 for completing interview professionally.
 
-ADD POINTS FOR:
-- Quantified business results (revenue numbers, conversion rates, specific metrics): +10-20
-- Specific, detailed examples with context: +5-15
-- Strategic business thinking and industry insights: +5-15
-- Advanced preparation/research evident in responses: +5-10
-- Sophisticated, professional communication: +5-10
-- Industry/role knowledge demonstrated: +5-10
-- Problem-solving approach with clear methodology: +5-10
-- Leadership/initiative examples: +5-10
+TYPE-SPECIFIC STRENGTHS TO EVALUATE:
+${criteria.strengths}
 
-SUBTRACT POINTS FOR:
+TYPE-SPECIFIC WEAKNESSES TO LOOK FOR:
+${criteria.weaknesses}
+
+UNIVERSAL DEDUCTIONS (Apply to all types):
 - Unprofessional language (idk, bruh, whatever, etc): -20 to -40
-- Vague/generic responses without specifics: -5 to -15
-- Poor preparation or no research: -5 to -15
-- Inability to provide concrete examples: -10 to -20
-- Evasive or incomplete answers: -5 to -15
-- Excessive filler words (um, uh, like): -2 to -5 per instance (minor penalty)
+- Excessive filler words (um, uh, like): -2 to -5 per instance (minor penalty, max -15 total)
 
 SCORING RANGES:
 - 1-20: Unprofessional, unprepared, nonsensical
@@ -96,13 +203,12 @@ SCORING RANGES:
 - 81-90: Excellent with sophisticated insights
 - 91-100: Exceptional (rare)
 
-CRITICAL: Base the score on ACTUAL CONTENT demonstrated in the transcript. If the candidate provides:
-- Quantified results ($1.1M revenue, specific conversion rates, etc.)
-- Strategic thinking about ICP, research, and sales methodology
-- Knowledge of frameworks (MEDDIC, BANT, etc.)
-- Professional communication with detailed examples
+CRITICAL: Base the score on ACTUAL CONTENT demonstrated in the transcript. If the candidate provides strong evidence of the type-specific competencies above, they should score in the 70-85 range. Normal filler words (um, uh, like) are common in spoken interviews and should only result in minor deductions (-2 to -5 points total), not failing scores.
 
-They should score in the 70-85 range. Normal filler words (um, uh, like) are common in spoken interviews and should only result in minor deductions (-2 to -5 points total), not failing scores.
+When identifying strengths and weaknesses in your response, ONLY reference competencies relevant to ${interviewType}. For example:
+- Initial Screen should NOT evaluate "objection handling" or "cold call execution"
+- Technical/Role-Play should NOT evaluate "strategic vision" or "career motivation"
+- Executive Interview should NOT focus on "email craft" or "call opening"
 
 Return ONLY valid JSON in this exact format:
 {
