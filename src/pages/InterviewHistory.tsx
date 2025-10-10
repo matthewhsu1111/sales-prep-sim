@@ -107,14 +107,18 @@ const InterviewHistory = () => {
     navigate('/dashboard/interview-results', {
       state: {
         interviewData: {
-          interviewer_name: interview.interviewer_name,
-          interview_type: interview.interview_type,
+          interviewer: interview.interviewer_name,
+          interviewType: interview.interview_type,
           transcript: interview.transcript,
-          overall_score: interview.overall_score,
+          jobPosting: interview.job_posting
+        },
+        savedFeedback: {
+          overallScore: interview.overall_score,
           strengths: interview.strengths,
           weaknesses: interview.weaknesses,
           improvements: interview.improvements,
-          scores: interview.scores
+          detailedScores: interview.scores,
+          overallFeedback: `Interview completed with a score of ${interview.overall_score}/100`
         }
       }
     });

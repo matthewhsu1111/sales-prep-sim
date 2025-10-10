@@ -173,6 +173,14 @@ const Dashboard = () => {
           interviewType: interview.interview_type,
           transcript: interview.transcript,
           jobPosting: interview.job_posting
+        },
+        savedFeedback: {
+          overallScore: interview.overall_score,
+          strengths: interview.strengths,
+          weaknesses: interview.weaknesses,
+          improvements: interview.improvements,
+          detailedScores: interview.scores,
+          overallFeedback: `Interview completed with a score of ${interview.overall_score}/100`
         }
       }
     });

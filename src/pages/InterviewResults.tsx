@@ -50,7 +50,8 @@ export default function InterviewResults() {
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  const interviewData = location.state as InterviewResultsData;
+  const interviewData = location.state?.interviewData as InterviewResultsData;
+  const savedFeedback = location.state?.savedFeedback as FeedbackData | undefined;
 
   console.log('InterviewResults mounted, location.state:', location.state);
 
@@ -65,8 +66,16 @@ export default function InterviewResults() {
       return;
     }
     
-    generateFeedback();
-  }, [interviewData, navigate, toast]);
+    // If we have saved feedback (from Dashboard), use it instead of re-analyzing
+    if (savedFeedback) {
+      console.log('Using saved feedback:', savedFeedback);
+      setFeedback(savedFeedback);
+      setIsLoading(false);
+    } else {
+      // Fresh interview - analyze it
+      generateFeedback();
+    }
+  }, [interviewData, savedFeedback, navigate, toast]);
 
   const generateFeedback = async () => {
     if (!interviewData) return;
