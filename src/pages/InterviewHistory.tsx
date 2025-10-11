@@ -55,10 +55,12 @@ const InterviewHistory = () => {
         return;
       }
 
+      // Only fetch completed interviews (with analysis_results)
       const { data, error } = await supabase
         .from('interview_sessions')
         .select('*')
         .eq('user_id', user.id)
+        .not('analysis_results', 'is', null)
         .order('created_at', { ascending: false });
 
       if (error) {

@@ -64,80 +64,90 @@ const Dashboard = () => {
       const progressDataFormatted = buildProgressData(sessions, 'all');
       setProgressData(progressDataFormatted);
 
-      // Aggregate strengths and weaknesses - exclude fallback values
-      const fallbackValues = ['Interview Participation', 'Overall Performance', 'General Performance'];
-      const strengthsCount: any = {};
-      const weaknessesCount: any = {};
+      // Filter only completed sessions (with analysis_results)
+      const completedSessions = sessions.filter(s => s.analysis_results !== null && s.analysis_results !== undefined);
 
-      sessions.forEach(session => {
-        if (session.strengths && Array.isArray(session.strengths)) {
-          session.strengths.forEach((strength: any) => {
-            const skill = strength.skill || strength;
-            // Skip fallback values
-            if (typeof skill === 'string' && !fallbackValues.includes(skill)) {
-              if (!strengthsCount[skill]) {
-                strengthsCount[skill] = { 
-                  skill, 
-                  count: 0, 
-                  scores: [], 
-                  category: strength.category || 'General' 
-                };
+      // If fewer than 2 completed interviews, show placeholders
+      if (completedSessions.length < 2) {
+        setStrengths([]);
+        setImprovements([]);
+      } else {
+        // Aggregate strengths and weaknesses across ALL completed interviews
+        const fallbackValues = ['Interview Participation', 'Overall Performance', 'General Performance', 'Basic Participation', 'Technical Issues'];
+        const strengthsCount: any = {};
+        const weaknessesCount: any = {};
+
+        completedSessions.forEach(session => {
+          if (session.strengths && Array.isArray(session.strengths)) {
+            session.strengths.forEach((strength: any) => {
+              const skill = strength.skill || strength;
+              // Skip fallback values
+              if (typeof skill === 'string' && !fallbackValues.includes(skill)) {
+                if (!strengthsCount[skill]) {
+                  strengthsCount[skill] = { 
+                    skill, 
+                    count: 0, 
+                    scores: [], 
+                    category: strength.category || 'General' 
+                  };
+                }
+                strengthsCount[skill].count++;
+                strengthsCount[skill].scores.push(strength.score || 80);
               }
-              strengthsCount[skill].count++;
-              strengthsCount[skill].scores.push(strength.score || 8);
-            }
-          });
-        }
+            });
+          }
 
-        if (session.weaknesses && Array.isArray(session.weaknesses)) {
-          session.weaknesses.forEach((weakness: any) => {
-            const skill = weakness.skill || weakness;
-            // Skip fallback values
-            if (typeof skill === 'string' && !fallbackValues.includes(skill)) {
-              if (!weaknessesCount[skill]) {
-                weaknessesCount[skill] = { 
-                  skill, 
-                  count: 0, 
-                  scores: [], 
-                  category: weakness.category || 'General' 
-                };
+          if (session.weaknesses && Array.isArray(session.weaknesses)) {
+            session.weaknesses.forEach((weakness: any) => {
+              const skill = weakness.skill || weakness;
+              // Skip fallback values
+              if (typeof skill === 'string' && !fallbackValues.includes(skill)) {
+                if (!weaknessesCount[skill]) {
+                  weaknessesCount[skill] = { 
+                    skill, 
+                    count: 0, 
+                    scores: [], 
+                    category: weakness.category || 'General' 
+                  };
+                }
+                weaknessesCount[skill].count++;
+                weaknessesCount[skill].scores.push(weakness.score || 50);
               }
-              weaknessesCount[skill].count++;
-              weaknessesCount[skill].scores.push(weakness.score || 5);
-            }
-          });
-        }
-      });
+            });
+          }
+        });
 
-      // Top 3 most frequent strengths with average score
-      const strengthsFormatted = Object.values(strengthsCount)
-        .map((item: any) => ({
-          skill: item.skill,
-          count: item.count,
-          score: Math.round(item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length * 10),
-          trend: "up",
-          category: item.category
-        }))
-        .sort((a, b) => b.count - a.count) // Sort by frequency
-        .slice(0, 3);
+        // Top 5 most frequent strengths with average score
+        const strengthsFormatted = Object.values(strengthsCount)
+          .map((item: any) => ({
+            skill: item.skill,
+            count: item.count,
+            score: (item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length / 10).toFixed(1), // Convert 1-100 to /10
+            trend: "up",
+            category: item.category
+          }))
+          .sort((a, b) => b.count - a.count) // Sort by frequency
+          .slice(0, 5);
 
-      // Top 3 most frequent weaknesses with average score
-      const improvementsFormatted = Object.values(weaknessesCount)
-        .map((item: any) => ({
-          skill: item.skill,
-          count: item.count,
-          score: Math.round(item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length * 10),
-          trend: "down",
-          category: item.category
-        }))
-        .sort((a, b) => b.count - a.count) // Sort by frequency
-        .slice(0, 3);
+        // Top 5 most frequent weaknesses with average score
+        const improvementsFormatted = Object.values(weaknessesCount)
+          .map((item: any) => ({
+            skill: item.skill,
+            count: item.count,
+            score: (item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length / 10).toFixed(1), // Convert 1-100 to /10
+            trend: "down",
+            category: item.category
+          }))
+          .sort((a, b) => b.count - a.count) // Sort by frequency
+          .slice(0, 5);
 
-      setStrengths(strengthsFormatted);
-      setImprovements(improvementsFormatted);
+        setStrengths(strengthsFormatted);
+        setImprovements(improvementsFormatted);
+      }
 
-      // Recent interviews with full data for navigation (newest first)
-      const recentSessions = [...sessions].reverse().slice(0, 5);
+      // Recent interviews - only completed ones with full data for navigation (newest first)
+      const completedForRecent = sessions.filter(s => s.analysis_results !== null);
+      const recentSessions = [...completedForRecent].reverse().slice(0, 5);
       const recentFormatted = recentSessions.map(session => ({
         id: session.id,
         interviewer_name: session.interviewer_name,
@@ -394,18 +404,26 @@ const Dashboard = () => {
             ) : strengths.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-sm text-muted-foreground">
-                  Complete interviews to see your top strengths
+                  {allSessions.length < 2 
+                    ? "Complete more interviews to see patterns in your performance"
+                    : "Complete interviews to see your top strengths"
+                  }
                 </p>
               </div>
             ) : (
               strengths.map((strength) => (
                 <div key={strength.skill} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="font-medium">{strength.skill}</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="font-medium">{strength.skill}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground ml-5">
+                      Appeared in {strength.count} {strength.count === 1 ? 'interview' : 'interviews'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">{strength.score}%</span>
+                    <span className="text-sm font-semibold">Avg {strength.score}/10</span>
                     {strength.trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
                   </div>
                 </div>
@@ -433,18 +451,26 @@ const Dashboard = () => {
             ) : improvements.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-sm text-muted-foreground">
-                  Complete interviews to see your top weaknesses
+                  {allSessions.length < 2 
+                    ? "Complete more interviews to see patterns in your performance"
+                    : "Complete interviews to see areas for improvement"
+                  }
                 </p>
               </div>
             ) : (
               improvements.map((improvement) => (
                 <div key={improvement.skill} className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="font-medium">{improvement.skill}</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      <span className="font-medium">{improvement.skill}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground ml-5">
+                      Appeared in {improvement.count} {improvement.count === 1 ? 'interview' : 'interviews'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">{improvement.score}%</span>
+                    <span className="text-sm font-semibold">Avg {improvement.score}/10</span>
                     {improvement.trend === "down" && <TrendingDown className="h-4 w-4 text-red-500" />}
                     {improvement.trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
                   </div>

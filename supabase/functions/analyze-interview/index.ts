@@ -405,7 +405,7 @@ Return ONLY valid JSON in this exact format:
       });
     }
 
-    // Store results in database
+    // Store results in database - ALWAYS UPDATE, never INSERT
     if (sessionId) {
       const { error: updateError } = await supabase
         .from("interview_sessions")
@@ -423,26 +423,11 @@ Return ONLY valid JSON in this exact format:
 
       if (updateError) {
         console.error("Error updating session:", updateError);
+      } else {
+        console.log("✅ Successfully updated session:", sessionId);
       }
     } else {
-      // Create new session
-      const { error: insertError } = await supabase.from("interview_sessions").insert({
-        user_id: userId,
-        interviewer_name: interviewer || "Unknown",
-        interview_type: interviewType || "General",
-        overall_score: analysisResult.overallScore,
-        analysis_results: analysisResult,
-        strengths: analysisResult.strengths,
-        weaknesses: analysisResult.weaknesses,
-        improvements: analysisResult.improvements,
-        scores: analysisResult.detailedScores,
-        transcript: transcript,
-        job_posting: jobPosting || null,
-      });
-
-      if (insertError) {
-        console.error("Error inserting session:", insertError);
-      }
+      console.warn("⚠️ No session ID provided - analysis results not saved to database");
     }
 
     console.log("Analysis completed successfully with score:", analysisResult.overallScore);
