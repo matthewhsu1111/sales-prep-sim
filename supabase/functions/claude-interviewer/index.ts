@@ -376,21 +376,8 @@ serve(async (req) => {
       throw new Error(`Unknown interviewer: ${interviewer}`);
     }
 
-    // If this is the last answer, return the closing message immediately
-    if (isLastAnswer) {
-      console.log(`✅ Last answer detected, sending closing message from ${interviewer}`);
-      return new Response(
-        JSON.stringify({
-          response: selectedPersonality.closingMessage,
-          interviewer,
-          currentQuestionNumber,
-          isComplete: true,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
+    // Don't immediately return closing message - we'll add it to the system prompt instead
+    // so the AI can respond to the final answer naturally before closing
 
     // Get relevant questions for the interview type
     const availableQuestions = questionBanks[interviewType as keyof typeof questionBanks];
@@ -418,7 +405,7 @@ serve(async (req) => {
     // Special handling for Technical/Role-Play category
     const isRolePlayCategory = interviewType === "Technical/Role-Play";
 
-    // Simple system prompt without complex closing logic
+    // Build system prompt with special handling for last answer
     const systemPrompt = `${selectedPersonality.systemPrompt}
 
 INTERVIEW CONTEXT:
@@ -459,16 +446,24 @@ ${Object.entries(availableQuestions)
 
 CRITICAL RULES:
 1. Ask questions ONLY from the ${interviewType} category
-2. Progress systematically through question topics  
+2. Progress systematically through question topics
 3. Build naturally on responses but stay within category
 4. Integrate job-specific details into EVERY question
 5. Track which areas have been covered
 6. Provide follow-ups from same category when needed
 
 ${
-  isFirstMessage
-    ? `This is your FIRST message. Start with your greeting and first question from ${interviewType} category, fully customized with job details.`
-    : `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`
+  isLastAnswer
+    ? `🎯 CRITICAL - THIS IS THE FINAL ANSWER OF THE INTERVIEW:
+The candidate just answered the last question (${currentQuestionNumber}/${numberOfQuestions}). You MUST:
+1. First, respond naturally to their answer - give your genuine reaction and feedback (2-3 sentences)
+2. Then, acknowledge that you've covered all questions
+3. Finally, deliver your closing message: "${selectedPersonality.closingMessage}"
+
+Make this feel like a natural transition - respond to their answer, then smoothly close out the interview.`
+    : isFirstMessage
+      ? `This is your FIRST message. Start with your greeting and first question from ${interviewType} category, fully customized with job details.`
+      : `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`
 }`;
 
     const messages = [];
