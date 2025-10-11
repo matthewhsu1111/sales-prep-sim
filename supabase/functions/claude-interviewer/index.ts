@@ -3,12 +3,12 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Anthropic from "npm:@anthropic-ai/sdk@^0.60.0";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 const anthropic = new Anthropic({
-  apiKey: Deno.env.get('ANTHROPIC_API_KEY'),
+  apiKey: Deno.env.get("ANTHROPIC_API_KEY"),
 });
 
 // Comprehensive question banks for structured interview flow
@@ -24,7 +24,7 @@ const questionBanks = {
       "How would you rate your technical aptitude, and why?",
       "What CRM systems have you worked with?",
       "What's your understanding of the SDR/BDR role and its importance?",
-      "How do you stay current with trends in our industry?"
+      "How do you stay current with trends in our industry?",
     ],
     "Motivation & Culture Fit": [
       "Why are you transitioning from hospitality to tech sales?",
@@ -36,7 +36,7 @@ const questionBanks = {
       "What does work-life balance mean to you?",
       "How would your previous managers describe you?",
       "What aspect of sales brings you the most satisfaction?",
-      "What's your proudest professional achievement to date?"
+      "What's your proudest professional achievement to date?",
     ],
     "Role-Specific Questions": [
       "What's your approach to prospecting?",
@@ -48,8 +48,8 @@ const questionBanks = {
       "What do you expect your daily activities would be in this role?",
       "How do you research prospects before reaching out?",
       "What's your understanding of the sales cycle at our company?",
-      "How many calls/emails do you think are reasonable to expect per day?"
-    ]
+      "How many calls/emails do you think are reasonable to expect per day?",
+    ],
   },
   "Hiring Manager": {
     "Sales Capabilities": [
@@ -62,7 +62,7 @@ const questionBanks = {
       "Walk me through how you would structure a discovery call.",
       "How do you determine if a prospect is a good fit?",
       "Tell me about your listening skills during sales conversations.",
-      "How do you follow up with prospects who go silent?"
+      "How do you follow up with prospects who go silent?",
     ],
     "Strategic Thinking": [
       "How would you approach your first 30/60/90 days in this role?",
@@ -74,7 +74,7 @@ const questionBanks = {
       "How do you use data to inform your sales approach?",
       "What's your understanding of our competitive landscape?",
       "How would you handle a situation where you noticed a gap in our offering?",
-      "Tell me about a time you had to pivot your strategy to achieve results."
+      "Tell me about a time you had to pivot your strategy to achieve results.",
     ],
     "Behavioral and Situational": [
       "Tell me about a time you received tough feedback. How did you respond?",
@@ -86,8 +86,8 @@ const questionBanks = {
       "Tell me about a time you went above and beyond for a customer.",
       "How do you handle conflicts with coworkers?",
       "Give me an example of how you've shown resilience in a challenging situation.",
-      "Tell me about a time you identified a problem and took initiative to fix it."
-    ]
+      "Tell me about a time you identified a problem and took initiative to fix it.",
+    ],
   },
   "Technical/Role-Play": {
     "Cold Call Simulation": [
@@ -100,7 +100,7 @@ const questionBanks = {
       "What would your opening pitch sound like?",
       "How would you ask for a meeting?",
       "How would you respond if I asked for a detailed explanation of your product?",
-      "What would you do if I asked for a significant discount during the first call?"
+      "What would you do if I asked for a significant discount during the first call?",
     ],
     "Email and LinkedIn Outreach": [
       "Draft a cold email you would send to a VP of Marketing.",
@@ -112,7 +112,7 @@ const questionBanks = {
       "What information do you look for on a prospect's LinkedIn profile?",
       "How do you leverage company news in your outreach?",
       "What's your approach to multi-threading within an organization?",
-      "How many touchpoints do you typically include in an outreach sequence?"
+      "How many touchpoints do you typically include in an outreach sequence?",
     ],
     "Product Knowledge and Situational": [
       "How would you explain our product to someone with a non-technical background?",
@@ -124,8 +124,8 @@ const questionBanks = {
       "What questions would you ask to understand if our product is a good fit?",
       "How would you respond to: 'Your product is too expensive'?",
       "What do you think are the most common objections to our solution?",
-      "How would you qualify a prospect's timeline and budget?"
-    ]
+      "How would you qualify a prospect's timeline and budget?",
+    ],
   },
   "Executive Interview": {
     "Strategic Vision": [
@@ -138,7 +138,7 @@ const questionBanks = {
       "What do you think our company is doing well, and where could we improve?",
       "How would you help bridge the gap between sales and customer success?",
       "What do you think sets top-performing SDRs apart from average ones?",
-      "How do you see the SDR role evolving in the coming years?"
+      "How do you see the SDR role evolving in the coming years?",
     ],
     "Leadership and Team Dynamics": [
       "How do you prefer to be managed?",
@@ -150,7 +150,7 @@ const questionBanks = {
       "How do you receive and implement feedback?",
       "What's your approach to continuous learning and development?",
       "How do you balance individual goals with team objectives?",
-      "What would make you stay at a company long-term?"
+      "What would make you stay at a company long-term?",
     ],
     "Advanced Selling and Business Acumen": [
       "How do you connect business challenges to our solutions?",
@@ -162,9 +162,9 @@ const questionBanks = {
       "How would you adapt your approach for enterprise vs. mid-market prospects?",
       "What's your understanding of how our solution impacts a customer's business?",
       "How do you determine the economic buyer in a complex organization?",
-      "What questions would you ask to understand a prospect's decision-making process?"
-    ]
-  }
+      "What questions would you ask to understand a prospect's decision-making process?",
+    ],
+  },
 };
 
 // Enhanced interviewer personalities with strict dialogue-only formatting and job integration
@@ -224,8 +224,10 @@ FOCUS AREAS:
 - Testing resilience under aggressive questioning
 
 Remember: You're testing if they can handle real sales pressure. Push hard, interrupt weak answers, and only show approval for genuinely strong responses.`,
-    greeting: "I'm Rebecca Martinez, Senior Sales Director. I appreciate you taking the time today. Let's dive right in - I'm looking for someone who can deliver real results, not just talk about them.",
-    closingMessage: "That wraps up my questions. You've given me what I needed to assess your capabilities. You'll receive detailed feedback on your performance shortly. Thanks for your time."
+    greeting:
+      "I'm Rebecca Martinez, Senior Sales Director. I appreciate you taking the time today. Let's dive right in - I'm looking for someone who can deliver real results, not just talk about them.",
+    closingMessage:
+      "That wraps up my questions. You've given me what I needed to assess your capabilities. You'll receive detailed feedback on your performance shortly. Thanks for your time.",
   },
   "Jake Thompson": {
     systemPrompt: `CRITICAL FORMATTING RULE: Your responses must be dialogue ONLY. Never use asterisks (*), brackets [], parentheses (), or any narrative descriptions. You are speaking out loud in a real interview - provide only the exact words you would say.
@@ -278,8 +280,10 @@ FOCUS AREAS:
 - Collaborative experiences (using question bank examples)
 
 Remember: Stay warm and encouraging while methodically progressing through the required question categories. Build rapport but don't skip questions.`,
-    greeting: "Hey there! I'm Jake Thompson, really great to meet you. I hope your day's been going well so far. I'm honestly excited about our conversation today. I love getting to know the person behind the resume, you know?",
-    closingMessage: "That's awesome! Well, that covers everything I wanted to discuss today. I really enjoyed getting to know you and hearing about your experience. You should get your feedback results soon. Thanks so much for taking the time!"
+    greeting:
+      "Hey there! I'm Jake Thompson, really great to meet you. I hope your day's been going well so far. I'm honestly excited about our conversation today. I love getting to know the person behind the resume, you know?",
+    closingMessage:
+      "That's awesome! Well, that covers everything I wanted to discuss today. I really enjoyed getting to know you and hearing about your experience. You should get your feedback results soon. Thanks so much for taking the time!",
   },
   "Michael Chen": {
     systemPrompt: `CRITICAL FORMATTING RULE: Your responses must be dialogue ONLY. Never use asterisks (*), brackets [], parentheses (), or any narrative descriptions. You are speaking out loud in a real interview - provide only the exact words you would say.
@@ -333,39 +337,59 @@ FOCUS AREAS:
 - Analytical approach to challenges (using question bank examples)
 
 Remember: Stay analytically curious while methodically covering all required questions from the selected category. Appreciate detail but don't deviate from question structure.`,
-    greeting: "Hello, I'm Michael Chen, Sales Operations Manager. Thank you for your time today. I'm looking forward to understanding your approach to sales and how you think about the processes behind successful outcomes.",
-    closingMessage: "That completes our structured interview process. I appreciate the thoughtful responses you've provided throughout our conversation. You'll receive a comprehensive analysis of your performance shortly. Thank you for your time today."
-  }
+    greeting:
+      "Hello, I'm Michael Chen, Sales Operations Manager. Thank you for your time today. I'm looking forward to understanding your approach to sales and how you think about the processes behind successful outcomes.",
+    closingMessage:
+      "That completes our structured interview process. I appreciate the thoughtful responses you've provided throughout our conversation. You'll receive a comprehensive analysis of your performance shortly. Thank you for your time today.",
+  },
 };
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const { 
-      message, 
-      interviewer, 
-      jobPosting, 
-      conversationHistory = [], 
+    const {
+      message,
+      interviewer,
+      jobPosting,
+      conversationHistory = [],
       isFirstMessage = false,
       numberOfQuestions = 10,
       currentQuestionNumber = 1,
-      interviewType = "Initial Screen"
+      interviewType = "Initial Screen",
+      isLastAnswer = false,
     } = await req.json();
 
     console.log(`🤖 Claude interviewer request: {
   interviewer: "${interviewer}",
   isFirstMessage: ${isFirstMessage},
   currentQuestionNumber: ${currentQuestionNumber},
-  interviewType: "${interviewType}"
+  interviewType: "${interviewType}",
+  isLastAnswer: ${isLastAnswer}
 }
 `);
 
     const selectedPersonality = personalities[interviewer as keyof typeof personalities];
     if (!selectedPersonality) {
       throw new Error(`Unknown interviewer: ${interviewer}`);
+    }
+
+    // If this is the last answer, return the closing message immediately
+    if (isLastAnswer) {
+      console.log(`✅ Last answer detected, sending closing message from ${interviewer}`);
+      return new Response(
+        JSON.stringify({
+          response: selectedPersonality.closingMessage,
+          interviewer,
+          currentQuestionNumber,
+          isComplete: true,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Get relevant questions for the interview type
@@ -380,7 +404,7 @@ serve(async (req) => {
     const productInfo = jobPosting?.description || "";
     const requirements = jobPosting?.requirements || "";
     const fullJobContent = `${productInfo} ${requirements}`;
-    
+
     // Extract detailed job information
     const crmTools = extractCRMTools(fullJobContent);
     const industry = extractIndustry(fullJobContent);
@@ -393,9 +417,9 @@ serve(async (req) => {
 
     // Special handling for Technical/Role-Play category
     const isRolePlayCategory = interviewType === "Technical/Role-Play";
-    
+
     // Simple system prompt without complex closing logic
-const systemPrompt = `${selectedPersonality.systemPrompt}
+    const systemPrompt = `${selectedPersonality.systemPrompt}
 
 INTERVIEW CONTEXT:
 - Interview Type: ${interviewType}
@@ -418,9 +442,20 @@ CRITICAL JOB-SPECIFIC INTEGRATION:
 - Reference ${competitors} when discussing competition
 
 STRUCTURED QUESTION FLOW FOR ${interviewType}:
-${Object.entries(availableQuestions).map(([category, questions]) => 
-  `${category}:\n${questions.map((q, i) => `${i + 1}. ${q.replace(/our company/g, companyName).replace(/our products\/services/g, `${companyName}'s ${keyProducts}`).replace(/our target customer/g, targetCustomers || "our target customer")}`).join('\n')}`
-).join('\n\n')}
+${Object.entries(availableQuestions)
+  .map(
+    ([category, questions]) =>
+      `${category}:\n${questions
+        .map(
+          (q, i) =>
+            `${i + 1}. ${q
+              .replace(/our company/g, companyName)
+              .replace(/our products\/services/g, `${companyName}'s ${keyProducts}`)
+              .replace(/our target customer/g, targetCustomers || "our target customer")}`,
+        )
+        .join("\n")}`,
+  )
+  .join("\n\n")}
 
 CRITICAL RULES:
 1. Ask questions ONLY from the ${interviewType} category
@@ -430,138 +465,157 @@ CRITICAL RULES:
 5. Track which areas have been covered
 6. Provide follow-ups from same category when needed
 
-${isFirstMessage ? 
-  `This is your FIRST message. Start with your greeting and first question from ${interviewType} category, fully customized with job details.` : 
-  `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`
+${
+  isFirstMessage
+    ? `This is your FIRST message. Start with your greeting and first question from ${interviewType} category, fully customized with job details.`
+    : `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`
 }`;
 
     const messages = [];
 
-// Add conversation history
-if (conversationHistory.length > 0) {
-  conversationHistory.forEach((msg: any) => {
-    messages.push({
-      role: msg.sender === 'ai' ? 'assistant' : 'user',
-      content: msg.content
-    });
-  });
-}
+    // Add conversation history
+    if (conversationHistory.length > 0) {
+      conversationHistory.forEach((msg: any) => {
+        messages.push({
+          role: msg.sender === "ai" ? "assistant" : "user",
+          content: msg.content,
+        });
+      });
+    }
 
-// Add current message if provided
-if (message) {
-  messages.push({ role: "user", content: message });
-}
+    // Add current message if provided
+    if (message) {
+      messages.push({ role: "user", content: message });
+    }
 
-// FIX: Add default message for first interaction
-if (messages.length === 0) {
-  messages.push({ 
-    role: "user", 
-    content: "Please start the interview." 
-  });
-}
+    // FIX: Add default message for first interaction
+    if (messages.length === 0) {
+      messages.push({
+        role: "user",
+        content: "Please start the interview.",
+      });
+    }
 
     const completion = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       system: systemPrompt,
-      messages: messages.map(msg => ({
-  role: msg.role as "user" | "assistant",
-  content: msg.content
-}))
+      messages: messages.map((msg) => ({
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+      })),
     });
 
-    const response = completion.content[0].type === 'text' ? completion.content[0].text : '';
+    const response = completion.content[0].type === "text" ? completion.content[0].text : "";
 
     console.log(`✅ Claude response generated: ${response.substring(0, 100)}...
 `);
 
-  return new Response(JSON.stringify({
-    response,
-    interviewer,
-    currentQuestionNumber,
-    isComplete: currentQuestionNumber >= numberOfQuestions
-  }), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-  });
-
+    return new Response(
+      JSON.stringify({
+        response,
+        interviewer,
+        currentQuestionNumber,
+        isComplete: currentQuestionNumber >= numberOfQuestions,
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
-    console.error('❌ Claude interviewer error:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Failed to generate interview response',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    console.error("❌ Claude interviewer error:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Failed to generate interview response",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 });
 
 // Enhanced helper functions for comprehensive job parsing
 function extractCRMTools(content: string): string {
-  const crmKeywords = ['salesforce', 'hubspot', 'pipedrive', 'crm', 'outreach', 'salesloft', 'apollo', 'zoominfo', 'clearbit'];
-  const found = crmKeywords.filter(keyword => 
-    content.toLowerCase().includes(keyword)
-  );
-  return found.length > 0 ? found.join(', ') : 'standard CRM systems';
+  const crmKeywords = [
+    "salesforce",
+    "hubspot",
+    "pipedrive",
+    "crm",
+    "outreach",
+    "salesloft",
+    "apollo",
+    "zoominfo",
+    "clearbit",
+  ];
+  const found = crmKeywords.filter((keyword) => content.toLowerCase().includes(keyword));
+  return found.length > 0 ? found.join(", ") : "standard CRM systems";
 }
 
 function extractIndustry(content: string): string {
   const industryKeywords = {
-    'saas': 'SaaS/Technology',
-    'software': 'Software',
-    'technology': 'Technology',
-    'fintech': 'Financial Technology',
-    'healthcare': 'Healthcare',
-    'finance': 'Finance',
-    'retail': 'Retail',
-    'manufacturing': 'Manufacturing',
-    'real estate': 'Real Estate',
-    'ai': 'AI/Machine Learning',
-    'artificial intelligence': 'AI/Machine Learning'
+    saas: "SaaS/Technology",
+    software: "Software",
+    technology: "Technology",
+    fintech: "Financial Technology",
+    healthcare: "Healthcare",
+    finance: "Finance",
+    retail: "Retail",
+    manufacturing: "Manufacturing",
+    "real estate": "Real Estate",
+    ai: "AI/Machine Learning",
+    "artificial intelligence": "AI/Machine Learning",
   };
-  
+
   for (const [keyword, industry] of Object.entries(industryKeywords)) {
     if (content.toLowerCase().includes(keyword)) {
       return industry;
     }
   }
-  return 'Technology';
+  return "Technology";
 }
 
 function extractTargetCustomers(content: string): string {
   const customerKeywords = {
-    'enterprise': 'Enterprise customers',
-    'mid-market': 'Mid-market companies',
-    'smb': 'Small and medium businesses',
-    'startups': 'Startups',
-    'fortune 500': 'Fortune 500 companies',
-    'vp of sales': 'VPs of Sales',
-    'sales director': 'Sales Directors',
-    'sales manager': 'Sales Managers',
-    'cro': 'Chief Revenue Officers',
-    'sales leaders': 'Sales Leaders'
+    enterprise: "Enterprise customers",
+    "mid-market": "Mid-market companies",
+    smb: "Small and medium businesses",
+    startups: "Startups",
+    "fortune 500": "Fortune 500 companies",
+    "vp of sales": "VPs of Sales",
+    "sales director": "Sales Directors",
+    "sales manager": "Sales Managers",
+    cro: "Chief Revenue Officers",
+    "sales leaders": "Sales Leaders",
   };
-  
+
   for (const [keyword, customer] of Object.entries(customerKeywords)) {
     if (content.toLowerCase().includes(keyword)) {
       return customer;
     }
   }
-  return 'VP of Sales';
+  return "VP of Sales";
 }
 
 function extractCompetitors(content: string): string {
-  const competitorKeywords = ['competitor', 'competing', 'versus', 'alternative', 'salesforce', 'hubspot', 'outreach', 'salesloft'];
-  const found = competitorKeywords.filter(keyword => 
-    content.toLowerCase().includes(keyword)
-  );
-  return found.length > 0 ? 'your current solution' : 'competing solutions';
+  const competitorKeywords = [
+    "competitor",
+    "competing",
+    "versus",
+    "alternative",
+    "salesforce",
+    "hubspot",
+    "outreach",
+    "salesloft",
+  ];
+  const found = competitorKeywords.filter((keyword) => content.toLowerCase().includes(keyword));
+  return found.length > 0 ? "your current solution" : "competing solutions";
 }
 
 function extractKeyProducts(content: string): string {
-  const productKeywords = ['platform', 'software', 'solution', 'tool', 'app', 'system', 'service'];
-  const found = productKeywords.filter(keyword => 
-    content.toLowerCase().includes(keyword)
-  );
-  return found.length > 0 ? 'our platform' : 'our solution';
+  const productKeywords = ["platform", "software", "solution", "tool", "app", "system", "service"];
+  const found = productKeywords.filter((keyword) => content.toLowerCase().includes(keyword));
+  return found.length > 0 ? "our platform" : "our solution";
 }

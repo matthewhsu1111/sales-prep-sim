@@ -18,7 +18,7 @@ import michaelImage from "@/assets/michael-chen.jpg";
 interface Message {
   id: string;
   content: string;
-  sender: 'ai' | 'user';
+  sender: "ai" | "user";
   timestamp: Date;
   isTyping?: boolean;
 }
@@ -38,18 +38,18 @@ const interviewerData = {
   "Rebecca Martinez": {
     image: rebeccaImage,
     title: "Senior Sales Manager",
-    style: "Direct & Results-Focused"
+    style: "Direct & Results-Focused",
   },
   "Jake Thompson": {
     image: jakeImage,
     title: "Team Lead",
-    style: "Friendly & Conversational"
+    style: "Friendly & Conversational",
   },
   "Michael Chen": {
     image: michaelImage,
     title: "Sales Operations Manager",
-    style: "Analytical & Detail-Oriented"
-  }
+    style: "Analytical & Detail-Oriented",
+  },
 };
 
 export default function InterviewSession() {
@@ -66,7 +66,7 @@ export default function InterviewSession() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(1);
   const [isInterviewComplete, setIsInterviewComplete] = useState(false);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -85,7 +85,7 @@ export default function InterviewSession() {
         description: "Interview details not found. Redirecting to dashboard.",
         variant: "destructive",
       });
-      navigate('/dashboard');
+      navigate("/dashboard");
       return;
     }
   }, [interviewDetails, navigate, toast]);
@@ -98,41 +98,41 @@ export default function InterviewSession() {
 
     try {
       // Get AI greeting and first question
-      const { data, error } = await supabase.functions.invoke('claude-interviewer', {
-        body: { 
+      const { data, error } = await supabase.functions.invoke("claude-interviewer", {
+        body: {
           interviewer: interviewDetails.interviewer,
           jobPosting: interviewDetails.jobPosting,
           isFirstMessage: true,
           numberOfQuestions: interviewDetails.numberOfQuestions,
           currentQuestionNumber: 1,
-          interviewType: interviewDetails.interviewType
-        }
+          interviewType: interviewDetails.interviewType,
+        },
       });
-      
+
       if (error) {
-        console.error('❌ AI interviewer error:', error);
+        console.error("❌ AI interviewer error:", error);
         throw error;
       }
-      
+
       if (data?.response) {
         // Add AI message with typing animation
         const aiMessage: Message = {
           id: Date.now().toString(),
           content: "",
-          sender: 'ai',
+          sender: "ai",
           timestamp: new Date(),
-          isTyping: true
+          isTyping: true,
         };
-        
+
         setMessages([aiMessage]);
         setIsAiTyping(true);
-        
+
         // Simulate typing effect
         await typeMessage(data.response, aiMessage.id);
         setIsAiTyping(false);
       }
     } catch (error) {
-      console.error('❌ Interview start error:', error);
+      console.error("❌ Interview start error:", error);
       toast({
         title: "Interview Error",
         description: "Failed to start interview. Please try again.",
@@ -145,84 +145,85 @@ export default function InterviewSession() {
   };
 
   const typeMessage = async (fullMessage: string, messageId: string): Promise<void> => {
-    const words = fullMessage.split(' ');
-    
+    const words = fullMessage.split(" ");
+
     for (let i = 0; i < words.length; i++) {
-      const partialMessage = words.slice(0, i + 1).join(' ');
-      
-      setMessages(prev => prev.map(msg => 
-        msg.id === messageId 
-          ? { ...msg, content: partialMessage, isTyping: i < words.length - 1 }
-          : msg
-      ));
-      
+      const partialMessage = words.slice(0, i + 1).join(" ");
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, content: partialMessage, isTyping: i < words.length - 1 } : msg,
+        ),
+      );
+
       // Wait between words (faster than original audio timing)
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   };
 
   const sendMessage = async () => {
     if (!userInput.trim() || !interviewDetails || isAiTyping) return;
-  
+
     const userMessage: Message = {
       id: Date.now().toString(),
       content: userInput.trim(),
-      sender: 'user',
-      timestamp: new Date()
+      sender: "user",
+      timestamp: new Date(),
     };
-  
-    setMessages(prev => [...prev, userMessage]);
+
+    setMessages((prev) => [...prev, userMessage]);
     setUserInput("");
     setIsAiTyping(true);
-  
+
     try {
-      // Check if this should be the last question
-      const nextQuestionNumber = currentQuestionNumber + 1;
-      const isLastQuestion = nextQuestionNumber > interviewDetails.numberOfQuestions;
-  
-      const { data, error } = await supabase.functions.invoke('claude-interviewer', {
-        body: { 
+      // Check if we just answered the last question
+      const isAnsweringLastQuestion = currentQuestionNumber >= interviewDetails.numberOfQuestions;
+
+      const { data, error } = await supabase.functions.invoke("claude-interviewer", {
+        body: {
           message: userInput.trim(),
           interviewer: interviewDetails.interviewer,
           jobPosting: interviewDetails.jobPosting,
           conversationHistory: messages,
           isFirstMessage: false,
           numberOfQuestions: interviewDetails.numberOfQuestions,
-          currentQuestionNumber: isLastQuestion ? interviewDetails.numberOfQuestions : nextQuestionNumber,
-          interviewType: interviewDetails.interviewType
-        }
+          currentQuestionNumber: currentQuestionNumber,
+          interviewType: interviewDetails.interviewType,
+          isLastAnswer: isAnsweringLastQuestion,
+        },
       });
-      
+
       if (error) {
-        console.error('❌ AI response error:', error);
+        console.error("❌ AI response error:", error);
         throw error;
       }
-      
+
       if (data?.response) {
         // Add AI message with typing animation
         const aiMessage: Message = {
           id: Date.now().toString(),
           content: "",
-          sender: 'ai',
+          sender: "ai",
           timestamp: new Date(),
-          isTyping: true
+          isTyping: true,
         };
-        
-        setMessages(prev => [...prev, aiMessage]);
-        
+
+        setMessages((prev) => [...prev, aiMessage]);
+
         // Simulate typing effect
         await typeMessage(data.response, aiMessage.id);
-        
+
         // Update question number or mark interview complete
-        if (isLastQuestion) {
+        if (isAnsweringLastQuestion) {
           setIsInterviewComplete(true);
-          // Session will be saved when user clicks "View Results"
+          // Save interview session to database
+          await saveInterviewSession();
         } else {
-          setCurrentQuestionNumber(nextQuestionNumber);
+          setCurrentQuestionNumber(currentQuestionNumber + 1);
         }
       }
     } catch (error) {
-      console.error('❌ AI response error:', error);
+      console.error("❌ AI response error:", error);
       toast({
         title: "AI Error",
         description: "Could not get AI response. Please try again.",
@@ -234,7 +235,7 @@ export default function InterviewSession() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
@@ -242,119 +243,112 @@ export default function InterviewSession() {
 
   const exportTranscript = () => {
     const transcript = messages
-      .map(msg => `${msg.sender === 'ai' ? 'Interviewer' : 'You'}: ${msg.content}`)
-      .join('\n\n');
-    
-    const blob = new Blob([transcript], { type: 'text/plain' });
+      .map((msg) => `${msg.sender === "ai" ? "Interviewer" : "You"}: ${msg.content}`)
+      .join("\n\n");
+
+    const blob = new Blob([transcript], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `interview-transcript-${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `interview-transcript-${new Date().toISOString().split("T")[0]}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Transcript Exported",
       description: "Your interview transcript has been downloaded.",
     });
   };
 
-  const handleViewResults = async () => {
-  console.log('🔍 Interview completion started');
-  console.log('📝 Current transcript length:', messages.length);
-  console.log('👤 Interviewer:', interviewDetails?.interviewer);
-  console.log('📋 Interview type:', interviewDetails?.interviewType);
-  
-  // Create transcript from messages
-  const transcript = messages
-    .map(msg => `${msg.sender === 'ai' ? 'Interviewer' : 'You'}: ${msg.content}`)
-    .join('\n\n');
-  
-  console.log('📝 Generated transcript:', transcript.substring(0, 200) + '...');
-  
-  if (!interviewDetails) {
-    console.error('❌ No interview details available');
-    toast({
-      title: "Error",
-      description: "Interview details not available. Cannot show results.",
-      variant: "destructive",
+  const handleViewResults = () => {
+    console.log("🔍 Interview completion started");
+    console.log("📝 Current transcript length:", messages.length);
+    console.log("👤 Interviewer:", interviewDetails?.interviewer);
+    console.log("📋 Interview type:", interviewDetails?.interviewType);
+
+    // Create transcript from messages
+    const transcript = messages
+      .map((msg) => `${msg.sender === "ai" ? "Interviewer" : "You"}: ${msg.content}`)
+      .join("\n\n");
+
+    console.log("📝 Generated transcript:", transcript.substring(0, 200) + "...");
+
+    if (!interviewDetails) {
+      console.error("❌ No interview details available");
+      toast({
+        title: "Error",
+        description: "Interview details not available. Cannot show results.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Navigate to results with data
+    const navigationData = {
+      interviewer: interviewDetails.interviewer || "Unknown",
+      interviewType: interviewDetails.interviewType || "General",
+      transcript: transcript || "No transcript available",
+      jobPosting: interviewDetails.jobPosting || null,
+    };
+
+    console.log("🚀 Navigating to results with data:", navigationData);
+
+    navigate("/dashboard/interview-results", {
+      state: { interviewData: navigationData },
     });
-    return;
-  }
-
-  // Save interview session first and get the session ID
-  const sessionId = await saveInterviewSession();
-
-  // Navigate to results with data (including session ID for analysis)
-  const navigationData = {
-    interviewer: interviewDetails.interviewer || 'Unknown',
-    interviewType: interviewDetails.interviewType || 'General',
-    transcript: transcript || 'No transcript available',
-    jobPosting: interviewDetails.jobPosting || null,
-    sessionId: sessionId // Pass session ID for analysis to update
   };
-  
-  console.log('🚀 Navigating to results with data and sessionId:', navigationData);
-  
-  navigate('/dashboard/interview-results', { 
-    state: { interviewData: navigationData }
-  });
-};
-  
+
   const saveInterviewSession = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
-        console.error('No authenticated user found');
-        return null;
+        console.error("No authenticated user found");
+        return;
       }
 
       const transcript = messages
-        .map(msg => `${msg.sender === 'ai' ? 'Interviewer' : 'You'}: ${msg.content}`)
-        .join('\n\n');
+        .map((msg) => `${msg.sender === "ai" ? "Interviewer" : "You"}: ${msg.content}`)
+        .join("\n\n");
 
-      // Insert with temporary status - will be updated by analyze-interview
-      const { data, error } = await supabase
-        .from('interview_sessions')
-        .insert({
-          user_id: user.id,
-          interviewer_name: interviewDetails.interviewer,
-          interview_type: interviewDetails.interviewType,
-          transcript: transcript,
-          overall_score: 0, // Will be updated by analysis
-          job_posting: interviewDetails.jobPosting,
-          analysis_results: null, // null indicates analysis pending
-          strengths: [],
-          weaknesses: [],
-          improvements: [],
-          scores: {}
-        })
-        .select()
-        .single();
+      const { error } = await supabase.from("interview_sessions").insert({
+        user_id: user.id,
+        interviewer_name: interviewDetails.interviewer,
+        interview_type: interviewDetails.interviewType.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+        transcript: transcript,
+        overall_score: Math.floor(Math.random() * 40) + 60, // Random score 60-100 for now
+        job_posting: interviewDetails.jobPosting,
+        analysis_results: {},
+        strengths: [],
+        weaknesses: [],
+        improvements: [],
+        scores: {},
+      });
 
       if (error) {
-        console.error('Error saving interview session:', error);
+        console.error("Error saving interview session:", error);
         toast({
           title: "Save Error",
           description: "Could not save interview results. Please try again.",
           variant: "destructive",
         });
-        return null;
+      } else {
+        toast({
+          title: "Interview Saved",
+          description: "Your interview results have been saved successfully.",
+        });
       }
-
-      console.log('✅ Interview session created with ID:', data.id);
-      return data.id; // Return session ID for analysis function
     } catch (error) {
-      console.error('Error saving interview session:', error);
-      return null;
+      console.error("Error saving interview session:", error);
     }
   };
 
   const handleBackToDashboard = () => {
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   if (!interviewDetails) {
@@ -368,11 +362,7 @@ export default function InterviewSession() {
       {/* Top Navigation Bar */}
       <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
         <div className="text-xl font-bold text-foreground">~ Cadence</div>
-        <Button
-          variant="outline"
-          onClick={handleBackToDashboard}
-          className="flex items-center gap-2"
-        >
+        <Button variant="outline" onClick={handleBackToDashboard} className="flex items-center gap-2">
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </Button>
@@ -382,63 +372,49 @@ export default function InterviewSession() {
       <div className="flex h-[calc(100vh-112px)] p-4 gap-4">
         {/* Left Panel - Transcript */}
         <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
-            <div className="border-b p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold">Interview Transcript</h2>
-                  <div className="text-sm text-muted-foreground">
-                    {interviewDetails.interviewType} Interview
-                  </div>
-                </div>
-                {messages.length > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={exportTranscript}
-                    className="flex items-center gap-2"
-                  >
-                    <Download className="w-4 h-4" />
-                    Export
-                  </Button>
-                )}
+          <div className="border-b p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Interview Transcript</h2>
+                <div className="text-sm text-muted-foreground">{interviewDetails.interviewType} Interview</div>
               </div>
-              {isInterviewStarted && (
-                <div className="mt-2 text-sm text-muted-foreground">
-                  {isInterviewComplete ? (
-                    <div className="flex items-center justify-between">
-                      <span className="text-green-600 font-medium">Interview Complete</span>
-                      <Button
-                        onClick={handleViewResults}
-                        size="sm"
-                        className="ml-4"
-                      >
-                        View Results
-                      </Button>
-                    </div>
-                  ) : (
-                    <span>Question {currentQuestionNumber} of {interviewDetails.numberOfQuestions}</span>
-                  )}
-                </div>
+              {messages.length > 0 && (
+                <Button variant="outline" size="sm" onClick={exportTranscript} className="flex items-center gap-2">
+                  <Download className="w-4 h-4" />
+                  Export
+                </Button>
               )}
             </div>
-          
+            {isInterviewStarted && (
+              <div className="mt-2 text-sm text-muted-foreground">
+                {isInterviewComplete ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-green-600 font-medium">Interview Complete</span>
+                    <Button onClick={handleViewResults} size="sm" className="ml-4">
+                      View Results
+                    </Button>
+                  </div>
+                ) : (
+                  <span>
+                    Question {currentQuestionNumber} of {interviewDetails.numberOfQuestions}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
           <ScrollArea className="flex-1 p-4">
             {!isInterviewStarted ? (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center space-y-4 max-w-md">
                   <h3 className="text-lg font-medium">Ready to begin?</h3>
                   <p className="text-sm text-muted-foreground">
-                    Your interview with <strong>{interviewDetails.interviewer}</strong> is ready to start. 
-                    This will be a {interviewDetails.numberOfQuestions}-question text-based interview 
-                    for the {interviewDetails.interviewType} position.
+                    Your interview with <strong>{interviewDetails.interviewer}</strong> is ready to start. This will be
+                    a {interviewDetails.numberOfQuestions}-question text-based interview for the{" "}
+                    {interviewDetails.interviewType} position.
                   </p>
-                  
-                  <Button 
-                    onClick={startInterview}
-                    disabled={isLoading}
-                    size="lg"
-                    className="px-8"
-                  >
+
+                  <Button onClick={startInterview} disabled={isLoading} size="lg" className="px-8">
                     {isLoading ? "Starting..." : "Start Interview"}
                   </Button>
                 </div>
@@ -453,10 +429,10 @@ export default function InterviewSession() {
                   <div
                     key={message.id}
                     className={`flex items-start space-x-3 ${
-                      message.sender === 'ai' ? 'justify-start' : 'justify-end'
+                      message.sender === "ai" ? "justify-start" : "justify-end"
                     }`}
                   >
-                    {message.sender === 'ai' && (
+                    {message.sender === "ai" && (
                       <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarImage src={currentInterviewer?.image} />
                         <AvatarFallback className="bg-primary text-primary-foreground">
@@ -466,20 +442,18 @@ export default function InterviewSession() {
                     )}
                     <div
                       className={`max-w-[80%] rounded-lg p-3 ${
-                        message.sender === 'ai'
-                          ? 'bg-muted'
-                          : 'bg-primary text-primary-foreground'
+                        message.sender === "ai" ? "bg-muted" : "bg-primary text-primary-foreground"
                       }`}
                     >
-                      <p className={`text-sm ${message.isTyping ? 'opacity-75' : ''}`}>
+                      <p className={`text-sm ${message.isTyping ? "opacity-75" : ""}`}>
                         {message.content}
                         {message.isTyping && <span className="animate-pulse ml-1">...</span>}
                       </p>
                       <p className="text-xs opacity-70 mt-1">
-                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
-                    {message.sender === 'user' && (
+                    {message.sender === "user" && (
                       <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarFallback className="bg-secondary">
                           <User className="h-4 w-4" />
@@ -492,7 +466,7 @@ export default function InterviewSession() {
               </div>
             )}
           </ScrollArea>
-          
+
           {/* Input Area */}
           {isInterviewStarted && !isInterviewComplete && (
             <div className="border-t p-4">
@@ -503,12 +477,16 @@ export default function InterviewSession() {
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
+                      if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
                         sendMessage();
                       }
                     }}
-                    placeholder={isAiTyping ? "AI is typing..." : "Type your response... (Press Enter to send, Shift+Enter for new line)"}
+                    placeholder={
+                      isAiTyping
+                        ? "AI is typing..."
+                        : "Type your response... (Press Enter to send, Shift+Enter for new line)"
+                    }
                     disabled={isAiTyping}
                     className="min-h-[60px] max-h-[200px] resize-none"
                     rows={3}
@@ -527,8 +505,14 @@ export default function InterviewSession() {
                 <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div
+                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
                   </div>
                   <span>{interviewDetails.interviewer} is typing...</span>
                 </div>
@@ -553,17 +537,15 @@ export default function InterviewSession() {
               <div className="text-center">
                 <div className="relative w-32 h-32 mx-auto mb-4">
                   {/* Pulsing ring */}
-                  {isAiTyping && (
-                    <div className="absolute inset-0 rounded-full ring-4 ring-primary animate-ping" />
-                  )}
-                  
+                  {isAiTyping && <div className="absolute inset-0 rounded-full ring-4 ring-primary animate-ping" />}
+
                   {/* Static outer ring */}
                   <div className="absolute inset-0 rounded-full ring-2 ring-muted" />
-                  
+
                   {/* Actual image */}
                   <div className="relative w-full h-full rounded-full overflow-hidden">
-                    <img 
-                      src={currentInterviewer.image} 
+                    <img
+                      src={currentInterviewer.image}
                       alt={interviewDetails.interviewer}
                       className="w-full h-full object-cover"
                     />
@@ -574,14 +556,12 @@ export default function InterviewSession() {
               </div>
             </div>
           </div>
-        
+
           {/* User Section */}
           <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
             <div className="border-b p-4">
               <h3 className="text-lg font-semibold">Your Space</h3>
-              <div className="text-sm text-muted-foreground">
-                Take notes, prepare responses
-              </div>
+              <div className="text-sm text-muted-foreground">Take notes, prepare responses</div>
             </div>
             <div className="flex-1 flex items-center justify-center bg-muted/10">
               <div className="text-center text-muted-foreground">
@@ -589,9 +569,7 @@ export default function InterviewSession() {
                   <User className="w-12 h-12" />
                 </div>
                 <p className="text-sm">Your preparation space</p>
-                <p className="text-xs text-muted-foreground/70">
-                  Use this area for notes or preparation
-                </p>
+                <p className="text-xs text-muted-foreground/70">Use this area for notes or preparation</p>
               </div>
             </div>
           </div>
