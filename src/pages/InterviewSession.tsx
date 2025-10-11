@@ -318,7 +318,7 @@ export default function InterviewSession() {
       const { error } = await supabase.from("interview_sessions").insert({
         user_id: user.id,
         interviewer_name: interviewDetails.interviewer,
-        interview_type: interviewDetails.interviewType.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+        interview_type: interviewDetails.interviewType,
         transcript: transcript,
         overall_score: Math.floor(Math.random() * 40) + 60, // Random score 60-100 for now
         job_posting: interviewDetails.jobPosting,
