@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -27,8 +26,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -36,15 +33,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Handle redirects after OAuth login
-        if (event === 'SIGNED_IN' && session?.user) {
-          // Use setTimeout to defer the async operation
-          setTimeout(() => {
-            checkProfileAndRedirect(session.user);
-          }, 0);
-        }
-        
         setLoading(false);
       }
     );
@@ -57,30 +45,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
     return () => subscription.unsubscribe();
   }, []);
-
-  const checkProfileAndRedirect = async (user: User) => {
-    try {
-      // Don't redirect if we're already on the right page
-      if (location.pathname === '/dashboard' || location.pathname === '/profile-setup') {
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (profile) {
-        navigate('/dashboard');
-      } else {
-        navigate('/profile-setup');
-      }
-    } catch (error) {
-      console.error('Error checking profile:', error);
-      navigate('/profile-setup');
-    }
-  };
 
   return (
     <AuthContext.Provider value={{ user, session, loading }}>
