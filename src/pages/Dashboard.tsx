@@ -67,77 +67,106 @@ const Dashboard = () => {
       // Filter only completed sessions (with analysis_results)
       const completedSessions = sessions.filter(s => s.analysis_results !== null && s.analysis_results !== undefined);
 
-      // If fewer than 2 completed interviews, show placeholders
-      if (completedSessions.length < 2) {
+      // Show strengths/weaknesses after just 1 completed interview
+      if (completedSessions.length < 1) {
         setStrengths([]);
         setImprovements([]);
       } else {
         // Aggregate strengths and weaknesses across ALL completed interviews
-        const fallbackValues = ['Interview Participation', 'Overall Performance', 'General Performance', 'Basic Participation', 'Technical Issues'];
         const strengthsCount: any = {};
         const weaknessesCount: any = {};
 
         completedSessions.forEach(session => {
-          if (session.strengths && Array.isArray(session.strengths)) {
-            session.strengths.forEach((strength: any) => {
-              const skill = strength.skill || strength;
-              // Skip fallback values
-              if (typeof skill === 'string' && !fallbackValues.includes(skill)) {
-                if (!strengthsCount[skill]) {
-                  strengthsCount[skill] = { 
-                    skill, 
-                    count: 0, 
-                    scores: [], 
-                    category: strength.category || 'General' 
-                  };
-                }
-                strengthsCount[skill].count++;
-                strengthsCount[skill].scores.push(strength.score || 80);
+          // Handle strengths - support multiple data formats
+          let strengthsArray: any[] = [];
+          if (session.strengths) {
+            if (Array.isArray(session.strengths)) {
+              strengthsArray = session.strengths;
+            } else if (typeof session.strengths === 'string') {
+              try {
+                strengthsArray = JSON.parse(session.strengths);
+              } catch (e) {
+                console.error('Error parsing strengths:', e);
               }
-            });
+            }
           }
 
-          if (session.weaknesses && Array.isArray(session.weaknesses)) {
-            session.weaknesses.forEach((weakness: any) => {
-              const skill = weakness.skill || weakness;
-              // Skip fallback values
-              if (typeof skill === 'string' && !fallbackValues.includes(skill)) {
-                if (!weaknessesCount[skill]) {
-                  weaknessesCount[skill] = { 
-                    skill, 
-                    count: 0, 
-                    scores: [], 
-                    category: weakness.category || 'General' 
-                  };
-                }
-                weaknessesCount[skill].count++;
-                weaknessesCount[skill].scores.push(weakness.score || 50);
+          strengthsArray.forEach((strength: any) => {
+            // Handle both string format and object format {skill: "...", score: ...}
+            const skillName = typeof strength === 'string' ? strength : (strength.skill || strength.name || 'Unknown');
+            const skillScore = typeof strength === 'object' ? (strength.score || 75) : 75;
+            
+            if (!strengthsCount[skillName]) {
+              strengthsCount[skillName] = { 
+                skill: skillName, 
+                count: 0, 
+                scores: [],
+                category: typeof strength === 'object' ? (strength.category || 'General') : 'General'
+              };
+            }
+            strengthsCount[skillName].count++;
+            strengthsCount[skillName].scores.push(skillScore);
+          });
+
+          // Handle weaknesses - support multiple data formats
+          let weaknessesArray: any[] = [];
+          if (session.weaknesses) {
+            if (Array.isArray(session.weaknesses)) {
+              weaknessesArray = session.weaknesses;
+            } else if (typeof session.weaknesses === 'string') {
+              try {
+                weaknessesArray = JSON.parse(session.weaknesses);
+              } catch (e) {
+                console.error('Error parsing weaknesses:', e);
               }
-            });
+            }
           }
+
+          weaknessesArray.forEach((weakness: any) => {
+            // Handle both string format and object format
+            const skillName = typeof weakness === 'string' ? weakness : (weakness.skill || weakness.name || 'Unknown');
+            const skillScore = typeof weakness === 'object' ? (weakness.score || 50) : 50;
+            
+            if (!weaknessesCount[skillName]) {
+              weaknessesCount[skillName] = { 
+                skill: skillName, 
+                count: 0, 
+                scores: [],
+                category: typeof weakness === 'object' ? (weakness.category || 'General') : 'General'
+              };
+            }
+            weaknessesCount[skillName].count++;
+            weaknessesCount[skillName].scores.push(skillScore);
+          });
         });
 
         // Top 5 most frequent strengths with average score
         const strengthsFormatted = Object.values(strengthsCount)
-          .map((item: any) => ({
-            skill: item.skill,
-            count: item.count,
-            score: (item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length / 10).toFixed(1), // Convert 1-100 to /10
-            trend: "up",
-            category: item.category
-          }))
+          .map((item: any) => {
+            const avgScore = item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length;
+            return {
+              skill: item.skill,
+              count: item.count,
+              score: avgScore.toFixed(0), // Keep as 0-100 scale
+              trend: "up",
+              category: item.category
+            };
+          })
           .sort((a, b) => b.count - a.count) // Sort by frequency
           .slice(0, 5);
 
         // Top 5 most frequent weaknesses with average score
         const improvementsFormatted = Object.values(weaknessesCount)
-          .map((item: any) => ({
-            skill: item.skill,
-            count: item.count,
-            score: (item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length / 10).toFixed(1), // Convert 1-100 to /10
-            trend: "down",
-            category: item.category
-          }))
+          .map((item: any) => {
+            const avgScore = item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length;
+            return {
+              skill: item.skill,
+              count: item.count,
+              score: avgScore.toFixed(0), // Keep as 0-100 scale
+              trend: "down",
+              category: item.category
+            };
+          })
           .sort((a, b) => b.count - a.count) // Sort by frequency
           .slice(0, 5);
 
@@ -264,6 +293,7 @@ const Dashboard = () => {
   };
 
   const handleInterviewClick = (interview: any) => {
+    console.log('📊 Navigating to interview results:', interview);
     navigate('/dashboard/interview-results', {
       state: {
         interviewData: {
@@ -351,7 +381,7 @@ const Dashboard = () => {
                   {timeRange === 'today' && 'No interviews completed today'}
                   {timeRange === 'week' && 'No interviews completed this week'}
                   {timeRange === 'month' && 'No interviews completed this month'}
-                  {timeRange === 'all' && 'Complete more interviews to track progress'}
+                  {timeRange === 'all' && 'Complete your first interview to track progress'}
                 </p>
               </div>
             </div>
@@ -406,10 +436,7 @@ const Dashboard = () => {
             ) : strengths.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-sm text-muted-foreground">
-                  {allSessions.length < 2 
-                    ? "Complete more interviews to see patterns in your performance"
-                    : "Complete interviews to see your top strengths"
-                  }
+                  Complete an interview to see your top strengths
                 </p>
               </div>
             ) : (
@@ -425,7 +452,7 @@ const Dashboard = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">Avg {strength.score}/10</span>
+                    <span className="text-sm font-semibold">{strength.score}/100</span>
                     {strength.trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
                   </div>
                 </div>
@@ -453,109 +480,9 @@ const Dashboard = () => {
             ) : improvements.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-sm text-muted-foreground">
-                  {allSessions.length < 2 
-                    ? "Complete more interviews to see patterns in your performance"
-                    : "Complete interviews to see areas for improvement"
-                  }
+                  Complete an interview to see areas for improvement
                 </p>
               </div>
             ) : (
               improvements.map((improvement) => (
-                <div key={improvement.skill} className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <span className="font-medium">{improvement.skill}</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground ml-5">
-                      Appeared in {improvement.count} {improvement.count === 1 ? 'interview' : 'interviews'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">Avg {improvement.score}/10</span>
-                    {improvement.trend === "down" && <TrendingDown className="h-4 w-4 text-red-500" />}
-                    {improvement.trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Interviews */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Recent Interviews</CardTitle>
-          {recentInterviews.length > 0 && (
-            <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/interview-history')}>
-              View All
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center justify-between p-4 border rounded-lg animate-pulse">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-muted rounded-lg"></div>
-                    <div className="space-y-2">
-                      <div className="w-32 h-4 bg-muted rounded"></div>
-                      <div className="w-20 h-3 bg-muted rounded"></div>
-                    </div>
-                  </div>
-                  <div className="w-12 h-6 bg-muted rounded"></div>
-                </div>
-              ))}
-            </div>
-          ) : recentInterviews.length === 0 ? (
-            <div className="text-center py-8 space-y-4">
-              <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto">
-                <BarChart3 className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-medium text-foreground mb-2">No interviews yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Start practicing with our AI interviewer to see your progress here.
-                </p>
-                <Button onClick={() => navigate('/dashboard/interview-roleplay')} className="gap-2">
-                  <Play className="h-4 w-4" />
-                  Start Interview Practice
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {recentInterviews.map((interview) => (
-                <div 
-                  key={interview.id} 
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                  onClick={() => handleInterviewClick(interview)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <div className="w-4 h-4 bg-primary rounded"></div>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{interview.title}</h4>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{interview.time}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <Badge variant={interview.score >= 80 ? "default" : "secondary"}>
-                    {interview.score}%
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-export default Dashboard;
+                <div key={improvement.skill} className="flex
