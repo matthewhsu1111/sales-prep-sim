@@ -40,6 +40,11 @@ export default function ProfileSetup() {
       setName(data.name || "");
       setTargetRole(data.target_role || "");
       setBackground(data.background || "");
+      
+      // If profile exists and all required fields are filled, redirect to dashboard
+      if (data.name && data.target_role) {
+        navigate('/dashboard');
+      }
     }
   };
 
