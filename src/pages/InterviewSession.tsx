@@ -1,420 +1,577 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import {
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Award,
-  Target,
-  BarChart3,
-  Plus,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, Bot, User, Send, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // Import interviewer images
 import rebeccaImage from "@/assets/rebecca-martinez.jpg";
 import jakeImage from "@/assets/jake-thompson.jpg";
 import michaelImage from "@/assets/michael-chen.jpg";
 
-interface InterviewSession {
+interface Message {
   id: string;
-  created_at: string;
-  interviewer_name: string;
-  interview_type: string;
-  overall_score: number;
-  strengths: string[];
-  weaknesses: string[];
+  content: string;
+  sender: "ai" | "user";
+  timestamp: Date;
+  isTyping?: boolean;
 }
 
-interface SkillFrequency {
-  skill: string;
-  count: number;
-  averageScore: number;
+interface InterviewDetails {
+  jobPosting: any;
+  interviewType: string;
+  numberOfQuestions: number;
+  interviewer: string;
 }
 
-const interviewerImages = {
-  "Rebecca Martinez": rebeccaImage,
-  "Jake Thompson": jakeImage,
-  "Michael Chen": michaelImage,
+interface LocationState {
+  interviewDetails?: InterviewDetails;
+}
+
+const interviewerData = {
+  "Rebecca Martinez": {
+    image: rebeccaImage,
+    title: "Senior Sales Manager",
+    style: "Direct & Results-Focused",
+  },
+  "Jake Thompson": {
+    image: jakeImage,
+    title: "Team Lead",
+    style: "Friendly & Conversational",
+  },
+  "Michael Chen": {
+    image: michaelImage,
+    title: "Sales Operations Manager",
+    style: "Analytical & Detail-Oriented",
+  },
 };
 
-export default function Dashboard() {
+export default function InterviewSession() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
-  const [userName, setUserName] = useState("");
-  const [recentInterviews, setRecentInterviews] = useState<InterviewSession[]>([]);
-  const [progressData, setProgressData] = useState<any[]>([]);
-  const [topStrengths, setTopStrengths] = useState<SkillFrequency[]>([]);
-  const [topWeaknesses, setTopWeaknesses] = useState<SkillFrequency[]>([]);
-  const [averageScore, setAverageScore] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const state = location.state as LocationState;
+  const interviewDetails = state?.interviewDetails;
+
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isAiTyping, setIsAiTyping] = useState(false);
+  const [userInput, setUserInput] = useState("");
+  const [isInterviewStarted, setIsInterviewStarted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentQuestionNumber, setCurrentQuestionNumber] = useState(1);
+  const [isInterviewComplete, setIsInterviewComplete] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    scrollToBottom();
+  }, [messages]);
 
-  const loadDashboardData = async () => {
+  useEffect(() => {
+    if (!interviewDetails) {
+      toast({
+        title: "Setup Error",
+        description: "Interview details not found. Redirecting to dashboard.",
+        variant: "destructive",
+      });
+      navigate("/dashboard");
+      return;
+    }
+  }, [interviewDetails, navigate, toast]);
+
+  const startInterview = async () => {
+    if (!interviewDetails) return;
+
+    setIsLoading(true);
+    setIsInterviewStarted(true);
+
     try {
-      setIsLoading(true);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        navigate("/signin");
-        return;
-      }
-
-      // Get user profile
-      const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
-
-      if (profile) {
-        setUserName(profile.full_name || "User");
-      }
-
-      // Get all interview sessions ordered by date (chronological for chart)
-      const { data: sessions, error } = await supabase
-        .from("interview_sessions")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: true });
+      // Get AI greeting and first question
+      const { data, error } = await supabase.functions.invoke("claude-interviewer", {
+        body: {
+          interviewer: interviewDetails.interviewer,
+          jobPosting: interviewDetails.jobPosting,
+          isFirstMessage: true,
+          numberOfQuestions: interviewDetails.numberOfQuestions,
+          currentQuestionNumber: 1,
+          interviewType: interviewDetails.interviewType,
+        },
+      });
 
       if (error) {
-        console.error("Error fetching sessions:", error);
+        console.error("❌ AI interviewer error:", error);
         throw error;
       }
 
-      if (sessions && sessions.length > 0) {
-        // Set recent interviews (last 5, most recent first)
-        setRecentInterviews(sessions.slice(-5).reverse());
+      if (data?.response) {
+        // Add AI message with typing animation
+        const aiMessage: Message = {
+          id: Date.now().toString(),
+          content: "",
+          sender: "ai",
+          timestamp: new Date(),
+          isTyping: true,
+        };
 
-        // Calculate average score
-        const avg = sessions.reduce((sum, session) => sum + (session.overall_score || 0), 0) / sessions.length;
-        setAverageScore(Math.round(avg));
+        setMessages([aiMessage]);
+        setIsAiTyping(true);
 
-        // Prepare progress chart data (chronological order)
-        const chartData = sessions.map((session) => ({
-          date: new Date(session.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-          score: session.overall_score || 0,
-        }));
-        setProgressData(chartData);
-
-        // Aggregate strengths across ALL interviews
-        const strengthsMap = new Map<string, { count: number; totalScore: number }>();
-        const weaknessesMap = new Map<string, { count: number; totalScore: number }>();
-
-        sessions.forEach((session) => {
-          // Process strengths
-          if (session.strengths && Array.isArray(session.strengths)) {
-            session.strengths.forEach((strength: string) => {
-              const existing = strengthsMap.get(strength) || { count: 0, totalScore: 0 };
-              strengthsMap.set(strength, {
-                count: existing.count + 1,
-                totalScore: existing.totalScore + (session.overall_score || 0),
-              });
-            });
-          }
-
-          // Process weaknesses
-          if (session.weaknesses && Array.isArray(session.weaknesses)) {
-            session.weaknesses.forEach((weakness: string) => {
-              const existing = weaknessesMap.get(weakness) || { count: 0, totalScore: 0 };
-              weaknessesMap.set(weakness, {
-                count: existing.count + 1,
-                totalScore: existing.totalScore + (session.overall_score || 0),
-              });
-            });
-          }
-        });
-
-        // Convert to arrays and calculate averages
-        const strengthsArray: SkillFrequency[] = Array.from(strengthsMap.entries())
-          .map(([skill, data]) => ({
-            skill,
-            count: data.count,
-            averageScore: Math.round(data.totalScore / data.count),
-          }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 5);
-
-        const weaknessesArray: SkillFrequency[] = Array.from(weaknessesMap.entries())
-          .map(([skill, data]) => ({
-            skill,
-            count: data.count,
-            averageScore: Math.round(data.totalScore / data.count),
-          }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 5);
-
-        setTopStrengths(strengthsArray);
-        setTopWeaknesses(weaknessesArray);
+        // Simulate typing effect
+        await typeMessage(data.response, aiMessage.id);
+        setIsAiTyping(false);
       }
     } catch (error) {
-      console.error("Error loading dashboard:", error);
+      console.error("❌ Interview start error:", error);
       toast({
-        title: "Error",
-        description: "Failed to load dashboard data.",
+        title: "Interview Error",
+        description: "Failed to start interview. Please try again.",
         variant: "destructive",
       });
+      setIsInterviewStarted(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleStartInterview = () => {
-    navigate("/dashboard/interview-setup");
+  const typeMessage = async (fullMessage: string, messageId: string): Promise<void> => {
+    const words = fullMessage.split(" ");
+
+    for (let i = 0; i < words.length; i++) {
+      const partialMessage = words.slice(0, i + 1).join(" ");
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, content: partialMessage, isTyping: i < words.length - 1 } : msg,
+        ),
+      );
+
+      // Wait between words (faster than original audio timing)
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
   };
 
-  const handleViewHistory = () => {
-    navigate("/dashboard/interview-history");
+  const sendMessage = async () => {
+    if (!userInput.trim() || !interviewDetails || isAiTyping) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: userInput.trim(),
+      sender: "user",
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setUserInput("");
+    setIsAiTyping(true);
+
+    try {
+      // Check if we just answered the last question
+      const isAnsweringLastQuestion = currentQuestionNumber >= interviewDetails.numberOfQuestions;
+
+      const { data, error } = await supabase.functions.invoke("claude-interviewer", {
+        body: {
+          message: userInput.trim(),
+          interviewer: interviewDetails.interviewer,
+          jobPosting: interviewDetails.jobPosting,
+          conversationHistory: messages,
+          isFirstMessage: false,
+          numberOfQuestions: interviewDetails.numberOfQuestions,
+          currentQuestionNumber: currentQuestionNumber,
+          interviewType: interviewDetails.interviewType,
+          isLastAnswer: isAnsweringLastQuestion,
+        },
+      });
+
+      if (error) {
+        console.error("❌ AI response error:", error);
+        throw error;
+      }
+
+      if (data?.response) {
+        // Add AI message with typing animation
+        const aiMessage: Message = {
+          id: Date.now().toString(),
+          content: "",
+          sender: "ai",
+          timestamp: new Date(),
+          isTyping: true,
+        };
+
+        setMessages((prev) => [...prev, aiMessage]);
+
+        // Simulate typing effect
+        await typeMessage(data.response, aiMessage.id);
+
+        // Update question number or mark interview complete
+        if (isAnsweringLastQuestion) {
+          setIsInterviewComplete(true);
+          // Save interview session to database
+          await saveInterviewSession();
+        } else {
+          setCurrentQuestionNumber(currentQuestionNumber + 1);
+        }
+      }
+    } catch (error) {
+      console.error("❌ AI response error:", error);
+      toast({
+        title: "AI Error",
+        description: "Could not get AI response. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAiTyping(false);
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const exportTranscript = () => {
+    const transcript = messages
+      .map((msg) => `${msg.sender === "ai" ? "Interviewer" : "You"}: ${msg.content}`)
+      .join("\n\n");
+
+    const blob = new Blob([transcript], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `interview-transcript-${new Date().toISOString().split("T")[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Transcript Exported",
+      description: "Your interview transcript has been downloaded.",
+    });
+  };
+
+  const handleViewResults = () => {
+    console.log("🔍 Interview completion started");
+    console.log("📝 Current transcript length:", messages.length);
+    console.log("👤 Interviewer:", interviewDetails?.interviewer);
+    console.log("📋 Interview type:", interviewDetails?.interviewType);
+
+    // Create transcript from messages
+    const transcript = messages
+      .map((msg) => `${msg.sender === "ai" ? "Interviewer" : "You"}: ${msg.content}`)
+      .join("\n\n");
+
+    console.log("📝 Generated transcript:", transcript.substring(0, 200) + "...");
+
+    if (!interviewDetails) {
+      console.error("❌ No interview details available");
+      toast({
+        title: "Error",
+        description: "Interview details not available. Cannot show results.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Navigate to results with data
+    const navigationData = {
+      interviewer: interviewDetails.interviewer || "Unknown",
+      interviewType: interviewDetails.interviewType || "General",
+      transcript: transcript || "No transcript available",
+      jobPosting: interviewDetails.jobPosting || null,
+    };
+
+    console.log("🚀 Navigating to results with data:", navigationData);
+
+    navigate("/dashboard/interview-results", {
+      state: { interviewData: navigationData },
+    });
+  };
+
+  const saveInterviewSession = async () => {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        console.error("No authenticated user found");
+        return;
+      }
+
+      const transcript = messages
+        .map((msg) => `${msg.sender === "ai" ? "Interviewer" : "You"}: ${msg.content}`)
+        .join("\n\n");
+
+      const { error } = await supabase.from("interview_sessions").insert({
+        user_id: user.id,
+        interviewer_name: interviewDetails.interviewer,
+        interview_type: interviewDetails.interviewType,
+        transcript: transcript,
+        overall_score: Math.floor(Math.random() * 40) + 60, // Random score 60-100 for now
+        job_posting: interviewDetails.jobPosting,
+        analysis_results: {},
+        strengths: [],
+        weaknesses: [],
+        improvements: [],
+        scores: {},
+      });
+
+      if (error) {
+        console.error("Error saving interview session:", error);
+        toast({
+          title: "Save Error",
+          description: "Could not save interview results. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Interview Saved",
+          description: "Your interview results have been saved successfully.",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving interview session:", error);
+    }
+  };
+
+  const handleBackToDashboard = () => {
+    navigate("/dashboard");
+  };
+
+  if (!interviewDetails) {
+    return null;
   }
 
+  const currentInterviewer = interviewerData[interviewDetails.interviewer as keyof typeof interviewerData];
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="text-2xl font-bold">~ Cadence</div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">Welcome back, {userName}</span>
-              <Avatar>
-                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-              </Avatar>
-            </div>
-          </div>
-        </div>
+    <div className="h-screen overflow-hidden bg-background">
+      {/* Top Navigation Bar */}
+      <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
+        <div className="text-xl font-bold text-foreground">~ Cadence</div>
+        <Button variant="outline" onClick={handleBackToDashboard} className="flex items-center gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </Button>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        {/* Top Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Interviews</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{recentInterviews.length}</div>
-              <p className="text-xs text-muted-foreground">Across all types</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Score</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{averageScore}/100</div>
-              <Progress value={averageScore} className="mt-2" />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">This Week</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {
-                  recentInterviews.filter((i) => {
-                    const weekAgo = new Date();
-                    weekAgo.setDate(weekAgo.getDate() - 7);
-                    return new Date(i.created_at) > weekAgo;
-                  }).length
-                }
+      <div className="flex h-[calc(100vh-112px)] p-4 gap-4">
+        {/* Left Panel - Transcript */}
+        <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
+          <div className="border-b p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Interview Transcript</h2>
+                <div className="text-sm text-muted-foreground">{interviewDetails.interviewType} Interview</div>
               </div>
-              <p className="text-xs text-muted-foreground">Interviews completed</p>
-            </CardContent>
-          </Card>
+              {messages.length > 0 && (
+                <Button variant="outline" size="sm" onClick={exportTranscript} className="flex items-center gap-2">
+                  <Download className="w-4 h-4" />
+                  Export
+                </Button>
+              )}
+            </div>
+            {isInterviewStarted && (
+              <div className="mt-2 text-sm text-muted-foreground">
+                {isInterviewComplete ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-green-600 font-medium">Interview Complete</span>
+                    <Button onClick={handleViewResults} size="sm" className="ml-4">
+                      View Results
+                    </Button>
+                  </div>
+                ) : (
+                  <span>
+                    Question {currentQuestionNumber} of {interviewDetails.numberOfQuestions}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          <ScrollArea className="flex-1 p-4">
+            {!isInterviewStarted ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center space-y-4 max-w-md">
+                  <h3 className="text-lg font-medium">Ready to begin?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Your interview with <strong>{interviewDetails.interviewer}</strong> is ready to start. This will be
+                    a {interviewDetails.numberOfQuestions}-question text-based interview for the{" "}
+                    {interviewDetails.interviewType} position.
+                  </p>
+
+                  <Button onClick={startInterview} disabled={isLoading} size="lg" className="px-8">
+                    {isLoading ? "Starting..." : "Start Interview"}
+                  </Button>
+                </div>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-sm text-muted-foreground">Starting conversation...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex items-start space-x-3 ${
+                      message.sender === "ai" ? "justify-start" : "justify-end"
+                    }`}
+                  >
+                    {message.sender === "ai" && (
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage src={currentInterviewer?.image} />
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          <Bot className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        message.sender === "ai" ? "bg-muted" : "bg-primary text-primary-foreground"
+                      }`}
+                    >
+                      <p className={`text-sm ${message.isTyping ? "opacity-75" : ""}`}>
+                        {message.content}
+                        {message.isTyping && <span className="animate-pulse ml-1">...</span>}
+                      </p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                    {message.sender === "user" && (
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarFallback className="bg-secondary">
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </ScrollArea>
+
+          {/* Input Area */}
+          {isInterviewStarted && !isInterviewComplete && (
+            <div className="border-t p-4">
+              <div className="flex space-x-2 items-end">
+                <div className="flex-1">
+                  <Textarea
+                    ref={inputRef}
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
+                    placeholder={
+                      isAiTyping
+                        ? "AI is typing..."
+                        : "Type your response... (Press Enter to send, Shift+Enter for new line)"
+                    }
+                    disabled={isAiTyping}
+                    className="min-h-[60px] max-h-[200px] resize-none"
+                    rows={3}
+                  />
+                </div>
+                <Button
+                  onClick={sendMessage}
+                  disabled={!userInput.trim() || isAiTyping}
+                  size="icon"
+                  className="flex-shrink-0"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+              {isAiTyping && (
+                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                  </div>
+                  <span>{interviewDetails.interviewer} is typing...</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Progress Chart & Strengths/Weaknesses */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Progress Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Performance Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {progressData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={progressData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[0, 100]} />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="score" stroke="#8884d8" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                    <div className="text-center">
-                      <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                      <p>Complete your first interview to see progress</p>
-                    </div>
+        {/* Right Panel - Split Sections */}
+        <div className="flex-1 flex flex-col gap-4">
+          {/* AI Interviewer Section */}
+          <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
+            <div className="border-b p-4">
+              <h3 className="text-lg font-semibold mb-2">AI Interviewer</h3>
+              <div className="text-sm text-muted-foreground">
+                <div className="font-medium">{interviewDetails.interviewer}</div>
+                <div>{currentInterviewer.title}</div>
+                <div className="text-xs">{currentInterviewer.style}</div>
+              </div>
+            </div>
+            <div className="flex-1 flex items-center justify-center bg-muted/20">
+              <div className="text-center">
+                <div className="relative w-32 h-32 mx-auto mb-4">
+                  {/* Pulsing ring */}
+                  {isAiTyping && <div className="absolute inset-0 rounded-full ring-4 ring-primary animate-ping" />}
+
+                  {/* Static outer ring */}
+                  <div className="absolute inset-0 rounded-full ring-2 ring-muted" />
+
+                  {/* Actual image */}
+                  <div className="relative w-full h-full rounded-full overflow-hidden">
+                    <img
+                      src={currentInterviewer.image}
+                      alt={interviewDetails.interviewer}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Strengths and Weaknesses */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Top Strengths */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-green-600">
-                    <TrendingUp className="h-5 w-5" />
-                    Top Strengths
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {topStrengths.length > 0 ? (
-                    <div className="space-y-3">
-                      {topStrengths.map((strength, index) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-green-600" />
-                            <span className="text-sm font-medium">{strength.skill}</span>
-                          </div>
-                          <Badge variant="secondary" className="text-xs">
-                            {strength.count}x
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <CheckCircle2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Complete an interview to see your strengths</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Areas to Improve */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-orange-600">
-                    <TrendingDown className="h-5 w-5" />
-                    Areas to Improve
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {topWeaknesses.length > 0 ? (
-                    <div className="space-y-3">
-                      {topWeaknesses.map((weakness, index) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <XCircle className="h-4 w-4 text-orange-600" />
-                            <span className="text-sm font-medium">{weakness.skill}</span>
-                          </div>
-                          <Badge variant="secondary" className="text-xs">
-                            {weakness.count}x
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <XCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Complete an interview to see improvement areas</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                </div>
+                <div className="text-lg font-medium">{interviewDetails.interviewer}</div>
+                <div className="text-sm text-muted-foreground">{currentInterviewer.title}</div>
+              </div>
             </div>
           </div>
 
-          {/* Right Column - Recent Interviews & CTA */}
-          <div className="space-y-6">
-            {/* Start New Interview */}
-            <Card className="bg-primary text-primary-foreground">
-              <CardHeader>
-                <CardTitle>Ready to Practice?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm mb-4 opacity-90">
-                  Start a new interview session and improve your skills with AI-powered feedback.
-                </p>
-                <Button onClick={handleStartInterview} variant="secondary" className="w-full" size="lg">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Start New Interview
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Recent Interviews */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Recent Interviews</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={handleViewHistory}>
-                    View All
-                  </Button>
+          {/* User Section */}
+          <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
+            <div className="border-b p-4">
+              <h3 className="text-lg font-semibold">Your Space</h3>
+              <div className="text-sm text-muted-foreground">Take notes, prepare responses</div>
+            </div>
+            <div className="flex-1 flex items-center justify-center bg-muted/10">
+              <div className="text-center text-muted-foreground">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
+                  <User className="w-12 h-12" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                {recentInterviews.length > 0 ? (
-                  <div className="space-y-4">
-                    {recentInterviews.map((interview) => (
-                      <div key={interview.id} className="flex items-center gap-3 p-3 rounded-lg border">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={interviewerImages[interview.interviewer_name as keyof typeof interviewerImages]}
-                          />
-                          <AvatarFallback>{interview.interviewer_name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{interview.interviewer_name}</p>
-                          <p className="text-xs text-muted-foreground">{interview.interview_type}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold">{interview.overall_score}/100</div>
-                          <div className="text-xs text-muted-foreground">
-                            {new Date(interview.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No interviews yet</p>
-                    <p className="text-xs">Start your first interview to see it here</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                <p className="text-sm">Your preparation space</p>
+                <p className="text-xs text-muted-foreground/70">Use this area for notes or preparation</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
