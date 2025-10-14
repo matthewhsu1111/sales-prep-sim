@@ -12,6 +12,7 @@ interface InterviewResultsData {
   interviewType: string;
   transcript: string;
   jobPosting?: any;
+  duration?: number;
 }
 
 interface StrengthItem {
@@ -239,6 +240,7 @@ INTERVIEW RESULTS REPORT
 
 Interview Type: ${interviewData.interviewType}
 Interviewer: ${interviewData.interviewer}
+${interviewData.duration !== undefined ? `Duration: ${Math.floor(interviewData.duration / 60)}m ${interviewData.duration % 60}s` : ''}
 Overall Score: ${feedback.overallScore}/100
 
 STRENGTHS:
@@ -328,6 +330,11 @@ ${interviewData.transcript}
                 <p className="text-muted-foreground mt-1">
                   {interviewData.interviewType} • Interviewed by {interviewData.interviewer}
                 </p>
+                {interviewData.duration !== undefined && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Duration: {Math.floor(interviewData.duration / 60)}m {interviewData.duration % 60}s
+                  </p>
+                )}
               </div>
               {feedback && (
                 <div className="text-center">

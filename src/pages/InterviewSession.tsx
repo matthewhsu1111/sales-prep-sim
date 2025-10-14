@@ -313,6 +313,7 @@ export default function InterviewSession() {
       interviewType: interviewDetails.interviewType || "General",
       transcript: transcript || "No transcript available",
       jobPosting: interviewDetails.jobPosting || null,
+      duration: elapsedTime,
     };
 
     console.log("🚀 Navigating to results with data:", navigationData);
