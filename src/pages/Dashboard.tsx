@@ -155,12 +155,10 @@ const Dashboard = () => {
         overall_score: session.overall_score,
         created_at: session.created_at,
         transcript: session.transcript,
-        job_posting: session.job_posting,
         strengths: session.strengths,
         weaknesses: session.weaknesses,
         improvements: session.improvements,
         scores: session.scores,
-        analysis_results: session.analysis_results,
         title: `${session.interview_type} - ${session.interviewer_name}`,
         time: getTimeAgo(session.created_at),
         score: session.overall_score
