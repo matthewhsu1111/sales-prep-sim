@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Bot, User, Send, Download } from "lucide-react";
+import { ArrowLeft, Bot, User, Send, Download, Mic } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -390,7 +390,12 @@ export default function InterviewSession() {
     <div className="h-screen overflow-hidden bg-background">
       {/* Top Navigation Bar */}
       <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
-        <div className="text-xl font-bold text-foreground">~ Cadence</div>
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
+            <Mic className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <span className="font-bold text-xl">Cadence</span>
+        </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
             <svg
