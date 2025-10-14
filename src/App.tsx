@@ -55,6 +55,8 @@ const App = () => (
             } />
             <Route path="/dashboard/interview-session" element={<InterviewSession />} />
             <Route path="/dashboard/interview-results" element={<InterviewResults />} />
+            <Route path="/interview-session/:jobId" element={<InterviewSession />} />
+            <Route path="/interview-results" element={<InterviewResults />} />
             <Route path="/dashboard/interview-history" element={
               <DashboardLayout>
                 <InterviewHistory />
