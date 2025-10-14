@@ -1,435 +1,488 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Award,
-  Target,
-  BarChart3,
-  Plus,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { TrendingUp, TrendingDown, Clock, Play, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-// Import interviewer images
-import rebeccaImage from "@/assets/rebecca-martinez.jpg";
-import jakeImage from "@/assets/jake-thompson.jpg";
-import michaelImage from "@/assets/michael-chen.jpg";
-
-interface InterviewSession {
-  id: string;
-  created_at: string;
-  interviewer_name: string;
-  interview_type: string;
-  overall_score: number;
-  strengths: any; // Json type from Supabase
-  weaknesses: any; // Json type from Supabase
-}
-
-interface SkillFrequency {
-  skill: string;
-  count: number;
-  averageScore: number;
-}
-
-const interviewerImages = {
-  "Rebecca Martinez": rebeccaImage,
-  "Jake Thompson": jakeImage,
-  "Michael Chen": michaelImage,
-};
-
-export default function Dashboard() {
+const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [userName, setUserName] = useState("");
-  const [recentInterviews, setRecentInterviews] = useState<InterviewSession[]>([]);
-  const [progressData, setProgressData] = useState<any[]>([]);
-  const [topStrengths, setTopStrengths] = useState<SkillFrequency[]>([]);
-  const [topWeaknesses, setTopWeaknesses] = useState<SkillFrequency[]>([]);
-  const [averageScore, setAverageScore] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [allSessions, setAllSessions] = useState<any[]>([]);
+  const [progressData, setProgressData] = useState<any[]>([]);
+  const [strengths, setStrengths] = useState<any[]>([]);
+  const [improvements, setImprovements] = useState<any[]>([]);
+  const [recentInterviews, setRecentInterviews] = useState<any[]>([]);
+  const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'all'>('all');
 
   useEffect(() => {
-    loadDashboardData();
+    fetchDashboardData();
   }, []);
 
-  const loadDashboardData = async () => {
+  const fetchDashboardData = async () => {
     try {
-      setIsLoading(true);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
+      const { data: { user } } = await supabase.auth.getUser();
+      
       if (!user) {
-        navigate("/signin");
+        setIsLoading(false);
         return;
       }
 
-      // Get user profile
-      const { data: profile } = await supabase.from("profiles").select("name").eq("id", user.id).single();
-
-      if (profile) {
-        setUserName(profile.name || "User");
-      }
-
-      // Get all interview sessions ordered by date (chronological for chart)
+      // Fetch all sessions for aggregation
       const { data: sessions, error } = await supabase
-        .from("interview_sessions")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: true });
+        .from('interview_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true }); // Oldest first for chronological chart
 
       if (error) {
-        console.error("Error fetching sessions:", error);
-        throw error;
+        console.error('Error fetching sessions:', error);
+        setIsLoading(false);
+        return;
       }
 
-      if (sessions && sessions.length > 0) {
-        // Set recent interviews (last 5, most recent first)
-        setRecentInterviews(sessions.slice(-5).reverse());
+      if (!sessions || sessions.length === 0) {
+        // No interviews yet - set empty state
+        setAllSessions([]);
+        setProgressData([]);
+        setStrengths([]);
+        setImprovements([]);
+        setRecentInterviews([]);
+        setIsLoading(false);
+        return;
+      }
 
-        // Calculate average score
-        const avg = sessions.reduce((sum, session) => sum + (session.overall_score || 0), 0) / sessions.length;
-        setAverageScore(Math.round(avg));
+      // Store all sessions for filtering
+      setAllSessions(sessions);
+      
+      // Build initial progress data (all time)
+      const progressDataFormatted = buildProgressData(sessions, 'all');
+      setProgressData(progressDataFormatted);
 
-        // Prepare progress chart data (chronological order)
-        const chartData = sessions.map((session) => ({
-          date: new Date(session.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-          score: session.overall_score || 0,
-        }));
-        setProgressData(chartData);
+      // Filter only completed sessions (with analysis_results)
+      const completedSessions = sessions.filter(s => s.analysis_results !== null && s.analysis_results !== undefined);
 
-        // Aggregate strengths across ALL interviews
-        const strengthsMap = new Map<string, { count: number; totalScore: number }>();
-        const weaknessesMap = new Map<string, { count: number; totalScore: number }>();
+      // Show strengths/weaknesses after just 1 completed interview
+      if (completedSessions.length < 1) {
+        setStrengths([]);
+        setImprovements([]);
+      } else {
+        // Aggregate strengths and weaknesses across ALL completed interviews
+        const strengthsCount: any = {};
+        const weaknessesCount: any = {};
 
-        sessions.forEach((session) => {
-          // Process strengths
+        completedSessions.forEach(session => {
+          // Handle strengths - support multiple data formats
+          let strengthsArray: any[] = [];
           if (session.strengths) {
-            const strengthsArray = Array.isArray(session.strengths)
-              ? session.strengths
-              : typeof session.strengths === "string"
-                ? JSON.parse(session.strengths)
-                : [];
-
-            strengthsArray.forEach((strength: string) => {
-              const existing = strengthsMap.get(strength) || { count: 0, totalScore: 0 };
-              strengthsMap.set(strength, {
-                count: existing.count + 1,
-                totalScore: existing.totalScore + (session.overall_score || 0),
-              });
-            });
+            if (Array.isArray(session.strengths)) {
+              strengthsArray = session.strengths;
+            } else if (typeof session.strengths === 'string') {
+              try {
+                strengthsArray = JSON.parse(session.strengths);
+              } catch (e) {
+                console.error('Error parsing strengths:', e);
+              }
+            }
           }
 
-          // Process weaknesses
+          strengthsArray.forEach((strength: any) => {
+            // Handle both string format and object format {skill: "...", score: ...}
+            const skillName = typeof strength === 'string' ? strength : (strength.skill || strength.name || 'Unknown');
+            const skillScore = typeof strength === 'object' ? (strength.score || 75) : 75;
+            
+            if (!strengthsCount[skillName]) {
+              strengthsCount[skillName] = { 
+                skill: skillName, 
+                count: 0, 
+                scores: [],
+                category: typeof strength === 'object' ? (strength.category || 'General') : 'General'
+              };
+            }
+            strengthsCount[skillName].count++;
+            strengthsCount[skillName].scores.push(skillScore);
+          });
+
+          // Handle weaknesses - support multiple data formats
+          let weaknessesArray: any[] = [];
           if (session.weaknesses) {
-            const weaknessesArray = Array.isArray(session.weaknesses)
-              ? session.weaknesses
-              : typeof session.weaknesses === "string"
-                ? JSON.parse(session.weaknesses)
-                : [];
-
-            weaknessesArray.forEach((weakness: string) => {
-              const existing = weaknessesMap.get(weakness) || { count: 0, totalScore: 0 };
-              weaknessesMap.set(weakness, {
-                count: existing.count + 1,
-                totalScore: existing.totalScore + (session.overall_score || 0),
-              });
-            });
+            if (Array.isArray(session.weaknesses)) {
+              weaknessesArray = session.weaknesses;
+            } else if (typeof session.weaknesses === 'string') {
+              try {
+                weaknessesArray = JSON.parse(session.weaknesses);
+              } catch (e) {
+                console.error('Error parsing weaknesses:', e);
+              }
+            }
           }
+
+          weaknessesArray.forEach((weakness: any) => {
+            // Handle both string format and object format
+            const skillName = typeof weakness === 'string' ? weakness : (weakness.skill || weakness.name || 'Unknown');
+            const skillScore = typeof weakness === 'object' ? (weakness.score || 50) : 50;
+            
+            if (!weaknessesCount[skillName]) {
+              weaknessesCount[skillName] = { 
+                skill: skillName, 
+                count: 0, 
+                scores: [],
+                category: typeof weakness === 'object' ? (weakness.category || 'General') : 'General'
+              };
+            }
+            weaknessesCount[skillName].count++;
+            weaknessesCount[skillName].scores.push(skillScore);
+          });
         });
 
-        // Convert to arrays and calculate averages
-        const strengthsArray: SkillFrequency[] = Array.from(strengthsMap.entries())
-          .map(([skill, data]) => ({
-            skill,
-            count: data.count,
-            averageScore: Math.round(data.totalScore / data.count),
-          }))
-          .sort((a, b) => b.count - a.count)
+        // Top 5 most frequent strengths with average score
+        const strengthsFormatted = Object.values(strengthsCount)
+          .map((item: any) => {
+            const avgScore = item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length;
+            return {
+              skill: item.skill,
+              count: item.count,
+              score: avgScore.toFixed(0), // Keep as 0-100 scale
+              trend: "up",
+              category: item.category
+            };
+          })
+          .sort((a, b) => b.count - a.count) // Sort by frequency
           .slice(0, 5);
 
-        const weaknessesArray: SkillFrequency[] = Array.from(weaknessesMap.entries())
-          .map(([skill, data]) => ({
-            skill,
-            count: data.count,
-            averageScore: Math.round(data.totalScore / data.count),
-          }))
-          .sort((a, b) => b.count - a.count)
+        // Top 5 most frequent weaknesses with average score
+        const improvementsFormatted = Object.values(weaknessesCount)
+          .map((item: any) => {
+            const avgScore = item.scores.reduce((sum: number, score: number) => sum + score, 0) / item.scores.length;
+            return {
+              skill: item.skill,
+              count: item.count,
+              score: avgScore.toFixed(0), // Keep as 0-100 scale
+              trend: "down",
+              category: item.category
+            };
+          })
+          .sort((a, b) => b.count - a.count) // Sort by frequency
           .slice(0, 5);
 
-        setTopStrengths(strengthsArray);
-        setTopWeaknesses(weaknessesArray);
+        setStrengths(strengthsFormatted);
+        setImprovements(improvementsFormatted);
       }
+
+      // Recent interviews - only completed ones with full data for navigation (newest first)
+      const completedForRecent = sessions.filter(s => s.analysis_results !== null);
+      const recentSessions = [...completedForRecent].reverse().slice(0, 5);
+      const recentFormatted = recentSessions.map(session => ({
+        id: session.id,
+        interviewer_name: session.interviewer_name,
+        interview_type: session.interview_type,
+        overall_score: session.overall_score,
+        created_at: session.created_at,
+        transcript: session.transcript,
+        job_posting: session.job_posting,
+        strengths: session.strengths,
+        weaknesses: session.weaknesses,
+        improvements: session.improvements,
+        scores: session.scores,
+        analysis_results: session.analysis_results,
+        title: `${session.interview_type} - ${session.interviewer_name}`,
+        time: getTimeAgo(session.created_at),
+        score: session.overall_score
+      }));
+
+      setRecentInterviews(recentFormatted);
+      setIsLoading(false);
+
     } catch (error) {
-      console.error("Error loading dashboard:", error);
+      console.error('Error loading dashboard:', error);
       toast({
         title: "Error",
-        description: "Failed to load dashboard data.",
-        variant: "destructive",
+        description: "Failed to load dashboard data",
+        variant: "destructive"
       });
-    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleStartInterview = () => {
-    navigate("/dashboard/interview-setup");
+  const buildProgressData = (sessions: any[], range: 'today' | 'week' | 'month' | 'all') => {
+    if (sessions.length === 0) return [];
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    // Filter sessions based on time range
+    let filteredSessions = sessions;
+    
+    if (range === 'today') {
+      filteredSessions = sessions.filter(s => {
+        const sessionDate = new Date(s.created_at);
+        return sessionDate >= today;
+      });
+    } else if (range === 'week') {
+      const weekAgo = new Date(today);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      filteredSessions = sessions.filter(s => new Date(s.created_at) >= weekAgo);
+    } else if (range === 'month') {
+      const monthAgo = new Date(today);
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+      filteredSessions = sessions.filter(s => new Date(s.created_at) >= monthAgo);
+    }
+
+    if (filteredSessions.length === 0) return [];
+
+    // For today view, show individual interviews
+    if (range === 'today') {
+      return filteredSessions.map((session) => {
+        const date = new Date(session.created_at);
+        const timeLabel = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        return {
+          date: timeLabel,
+          score: session.overall_score,
+          fullDate: session.created_at
+        };
+      });
+    }
+
+    // For other views, group by date and average scores
+    const groupedByDate: { [key: string]: { scores: number[], date: Date } } = {};
+    
+    filteredSessions.forEach(session => {
+      const sessionDate = new Date(session.created_at);
+      const dateKey = sessionDate.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      
+      if (!groupedByDate[dateKey]) {
+        groupedByDate[dateKey] = { scores: [], date: sessionDate };
+      }
+      groupedByDate[dateKey].scores.push(session.overall_score);
+    });
+
+    // Convert to array and calculate averages
+    return Object.entries(groupedByDate)
+      .map(([dateKey, data]) => {
+        const avgScore = Math.round(data.scores.reduce((sum, score) => sum + score, 0) / data.scores.length);
+        const dateLabel = data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return {
+          date: dateLabel,
+          score: avgScore,
+          fullDate: data.date.toISOString()
+        };
+      })
+      .sort((a, b) => new Date(a.fullDate).getTime() - new Date(b.fullDate).getTime());
   };
 
-  const handleViewHistory = () => {
-    navigate("/dashboard/interview-history");
+  const handleTimeRangeChange = (range: 'today' | 'week' | 'month' | 'all') => {
+    setTimeRange(range);
+    const newData = buildProgressData(allSessions, range);
+    setProgressData(newData);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  const getTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diffInMinutes = Math.floor((now.getTime() - past.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
+    return `${Math.floor(diffInMinutes / 1440)} days ago`;
+  };
+
+  const handleInterviewClick = (interview: any) => {
+    console.log('📊 Navigating to interview results:', interview);
+    navigate('/dashboard/interview-results', {
+      state: {
+        interviewData: {
+          interviewer: interview.interviewer_name,
+          interviewType: interview.interview_type,
+          transcript: interview.transcript,
+          jobPosting: interview.job_posting
+        },
+        savedFeedback: {
+          overallScore: interview.overall_score,
+          strengths: interview.strengths,
+          weaknesses: interview.weaknesses,
+          improvements: interview.improvements,
+          detailedScores: interview.scores,
+          overallFeedback: `Interview completed with a score of ${interview.overall_score}/100`
+        }
+      }
+    });
+  };
+
+  const chartConfig = {
+    score: {
+      label: "Interview Score",
+      color: "hsl(var(--primary))",
+    },
+  };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="border-b">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="text-2xl font-bold">~ Cadence</div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">Welcome back, {userName}</span>
-              <Avatar>
-                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-              </Avatar>
-            </div>
-          </div>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground mt-2">
+          Track your interview progress and identify areas for improvement
+        </p>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        {/* Top Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Interviews</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{recentInterviews.length}</div>
-              <p className="text-xs text-muted-foreground">Across all types</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Score</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{averageScore}/100</div>
-              <Progress value={averageScore} className="mt-2" />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">This Week</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {
-                  recentInterviews.filter((i) => {
-                    const weekAgo = new Date();
-                    weekAgo.setDate(weekAgo.getDate() - 7);
-                    return new Date(i.created_at) > weekAgo;
-                  }).length
-                }
-              </div>
-              <p className="text-xs text-muted-foreground">Interviews completed</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Progress Chart & Strengths/Weaknesses */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Progress Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Performance Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {progressData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={progressData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[0, 100]} />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="score" stroke="#8884d8" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                    <div className="text-center">
-                      <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                      <p>Complete your first interview to see progress</p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Strengths and Weaknesses */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Top Strengths */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-green-600">
-                    <TrendingUp className="h-5 w-5" />
-                    Top Strengths
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {topStrengths.length > 0 ? (
-                    <div className="space-y-3">
-                      {topStrengths.map((strength, index) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-green-600" />
-                            <span className="text-sm font-medium">{strength.skill}</span>
-                          </div>
-                          <Badge variant="secondary" className="text-xs">
-                            {strength.count}x
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <CheckCircle2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Complete an interview to see your strengths</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Areas to Improve */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-orange-600">
-                    <TrendingDown className="h-5 w-5" />
-                    Areas to Improve
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {topWeaknesses.length > 0 ? (
-                    <div className="space-y-3">
-                      {topWeaknesses.map((weakness, index) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <XCircle className="h-4 w-4 text-orange-600" />
-                            <span className="text-sm font-medium">{weakness.skill}</span>
-                          </div>
-                          <Badge variant="secondary" className="text-xs">
-                            {weakness.count}x
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <XCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Complete an interview to see improvement areas</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+      {/* Progress Over Time Chart */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Progress Over Time</CardTitle>
+            <div className="flex gap-2">
+              <Button
+                variant={timeRange === 'today' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTimeRangeChange('today')}
+              >
+                Today
+              </Button>
+              <Button
+                variant={timeRange === 'week' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTimeRangeChange('week')}
+              >
+                This Week
+              </Button>
+              <Button
+                variant={timeRange === 'month' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTimeRangeChange('month')}
+              >
+                This Month
+              </Button>
+              <Button
+                variant={timeRange === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTimeRangeChange('all')}
+              >
+                All Time
+              </Button>
             </div>
           </div>
-
-          {/* Right Column - Recent Interviews & CTA */}
-          <div className="space-y-6">
-            {/* Start New Interview */}
-            <Card className="bg-primary text-primary-foreground">
-              <CardHeader>
-                <CardTitle>Ready to Practice?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm mb-4 opacity-90">
-                  Start a new interview session and improve your skills with AI-powered feedback.
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="h-[400px] flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : progressData.length === 0 ? (
+            <div className="h-[400px] flex items-center justify-center text-center">
+              <div>
+                <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  {timeRange === 'today' && 'No interviews completed today'}
+                  {timeRange === 'week' && 'No interviews completed this week'}
+                  {timeRange === 'month' && 'No interviews completed this month'}
+                  {timeRange === 'all' && 'Complete your first interview to track progress'}
                 </p>
-                <Button onClick={handleStartInterview} variant="secondary" className="w-full" size="lg">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Start New Interview
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          ) : (
+            <ChartContainer config={chartConfig} className="h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={progressData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12 }}
+                    angle={progressData.length > 10 ? -45 : 0}
+                    textAnchor={progressData.length > 10 ? "end" : "middle"}
+                    height={progressData.length > 10 ? 60 : 30}
+                  />
+                  <YAxis 
+                    domain={[0, 100]}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="score" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={3}
+                    dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
 
-            {/* Recent Interviews */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Recent Interviews</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={handleViewHistory}>
-                    View All
-                  </Button>
+      {/* Strengths and Improvements */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Top Strengths */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-green-600">Top Strengths</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-green-50 rounded-lg animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-300 rounded-full"></div>
+                    <div className="w-24 h-4 bg-green-300 rounded"></div>
+                  </div>
+                  <div className="w-12 h-4 bg-green-300 rounded"></div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {recentInterviews.length > 0 ? (
-                  <div className="space-y-4">
-                    {recentInterviews.map((interview) => (
-                      <div key={interview.id} className="flex items-center gap-3 p-3 rounded-lg border">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={interviewerImages[interview.interviewer_name as keyof typeof interviewerImages]}
-                          />
-                          <AvatarFallback>{interview.interviewer_name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{interview.interviewer_name}</p>
-                          <p className="text-xs text-muted-foreground">{interview.interview_type}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold">{interview.overall_score}/100</div>
-                          <div className="text-xs text-muted-foreground">
-                            {new Date(interview.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+              ))
+            ) : strengths.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-sm text-muted-foreground">
+                  Complete an interview to see your top strengths
+                </p>
+              </div>
+            ) : (
+              strengths.map((strength) => (
+                <div key={strength.skill} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="font-medium">{strength.skill}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground ml-5">
+                      Appeared in {strength.count} {strength.count === 1 ? 'interview' : 'interviews'}
+                    </span>
                   </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No interviews yet</p>
-                    <p className="text-xs">Start your first interview to see it here</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold">{strength.score}/100</span>
+                    {strength.trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Areas for Improvement */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-red-600">Areas for Improvement</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-red-50 rounded-lg animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-red-300 rounded-full"></div>
+                    <div className="w-32 h-4 bg-red-300 rounded"></div>
+                  </div>
+                  <div className="w-12 h-4 bg-red-300 rounded"></div>
+                </div>
+              ))
+            ) : improvements.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-sm text-muted-foreground">
+                  Complete an interview to see areas for improvement
+                </p>
+              </div>
+            ) : (
+              improvements.map((improvement) => (
+                <div key={improvement.skill} className="flex
