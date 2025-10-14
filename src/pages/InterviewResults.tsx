@@ -52,6 +52,8 @@ export default function InterviewResults() {
 
   const interviewData = location.state?.interviewData as InterviewResultsData;
   const savedFeedback = location.state?.savedFeedback as FeedbackData | undefined;
+  const sessionId = location.state?.sessionId;
+  const duration = location.state?.duration || 0;
 
   console.log("InterviewResults mounted, location.state:", location.state);
 
@@ -100,6 +102,7 @@ export default function InterviewResults() {
           interviewType: interviewData.interviewType,
           jobPosting: interviewData.jobPosting,
           interviewer: interviewData.interviewer,
+          sessionId: sessionId,
         },
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -327,6 +330,9 @@ ${interviewData.transcript}
                 <CardTitle className="text-2xl">Interview Results</CardTitle>
                 <p className="text-muted-foreground mt-1">
                   {interviewData.interviewType} • Interviewed by {interviewData.interviewer}
+                  {duration > 0 && (
+                    <span className="ml-2">• Duration: {Math.floor(duration / 60)}m {duration % 60}s</span>
+                  )}
                 </p>
               </div>
               {feedback && (
