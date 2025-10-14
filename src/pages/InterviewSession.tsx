@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Clock, Briefcase, FileText, User } from "lucide-react";
+import { ArrowLeft, Clock, Briefcase, FileText, User, Mic } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { InterviewRecorder } from "@/components/InterviewRecorder";
 import { interviewQuestions } from "@/data/interviewQuestions";
+import cadenceLogo from "@/assets/cadence-logo.png";
 
 export default function InterviewSession() {
   const navigate = useNavigate();
@@ -171,7 +172,10 @@ export default function InterviewSession() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="text-xl font-bold">~ Cadence</div>
+          <div className="flex items-center gap-2">
+            <img src={cadenceLogo} alt="Cadence" className="h-8 w-8" />
+            <span className="text-xl font-bold">Cadence</span>
+          </div>
         </div>
         
         {/* Timer */}
