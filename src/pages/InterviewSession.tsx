@@ -31,8 +31,8 @@ interface InterviewSession {
   interviewer_name: string;
   interview_type: string;
   overall_score: number;
-  strengths: string[];
-  weaknesses: string[];
+  strengths: any; // Json type from Supabase
+  weaknesses: any; // Json type from Supabase
 }
 
 interface SkillFrequency {
@@ -75,10 +75,10 @@ export default function Dashboard() {
       }
 
       // Get user profile
-      const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
+      const { data: profile } = await supabase.from("profiles").select("name").eq("id", user.id).single();
 
       if (profile) {
-        setUserName(profile.full_name || "User");
+        setUserName(profile.name || "User");
       }
 
       // Get all interview sessions ordered by date (chronological for chart)
@@ -114,8 +114,14 @@ export default function Dashboard() {
 
         sessions.forEach((session) => {
           // Process strengths
-          if (session.strengths && Array.isArray(session.strengths)) {
-            session.strengths.forEach((strength: string) => {
+          if (session.strengths) {
+            const strengthsArray = Array.isArray(session.strengths)
+              ? session.strengths
+              : typeof session.strengths === "string"
+                ? JSON.parse(session.strengths)
+                : [];
+
+            strengthsArray.forEach((strength: string) => {
               const existing = strengthsMap.get(strength) || { count: 0, totalScore: 0 };
               strengthsMap.set(strength, {
                 count: existing.count + 1,
@@ -125,8 +131,14 @@ export default function Dashboard() {
           }
 
           // Process weaknesses
-          if (session.weaknesses && Array.isArray(session.weaknesses)) {
-            session.weaknesses.forEach((weakness: string) => {
+          if (session.weaknesses) {
+            const weaknessesArray = Array.isArray(session.weaknesses)
+              ? session.weaknesses
+              : typeof session.weaknesses === "string"
+                ? JSON.parse(session.weaknesses)
+                : [];
+
+            weaknessesArray.forEach((weakness: string) => {
               const existing = weaknessesMap.get(weakness) || { count: 0, totalScore: 0 };
               weaknessesMap.set(weakness, {
                 count: existing.count + 1,
