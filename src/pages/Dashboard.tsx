@@ -145,8 +145,13 @@ const Dashboard = () => {
         setImprovements(improvementsFormatted);
       }
 
-      // Recent interviews - only completed ones with full data for navigation (newest first)
-      const completedForRecent = sessions.filter(s => s.analysis_results !== null);
+      // Recent interviews - only completed ones with strengths/weaknesses populated (newest first)
+      const completedForRecent = sessions.filter(s => 
+        s.analysis_results !== null && 
+        s.strengths && 
+        Array.isArray(s.strengths) && 
+        s.strengths.length > 0
+      );
       const recentSessions = [...completedForRecent].reverse().slice(0, 5);
       const recentFormatted = recentSessions.map(session => ({
         id: session.id,
@@ -262,7 +267,7 @@ const Dashboard = () => {
   };
 
   const handleInterviewClick = (interview: any) => {
-    navigate('/dashboard/interview-results', {
+    navigate('/interview-results', {
       state: {
         interviewData: {
           interviewer: interview.interviewer_name,
@@ -276,7 +281,7 @@ const Dashboard = () => {
           weaknesses: interview.weaknesses,
           improvements: interview.improvements,
           detailedScores: interview.scores,
-          overallFeedback: `Interview completed with a score of ${interview.overall_score}/100`
+          overallFeedback: interview.analysis_results?.overallFeedback || `Interview completed with a score of ${interview.overall_score}/100`
         }
       }
     });

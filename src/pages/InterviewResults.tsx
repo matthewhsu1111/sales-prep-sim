@@ -85,6 +85,7 @@ export default function InterviewResults() {
         interviewType: interviewData.interviewType,
         interviewer: interviewData.interviewer,
         transcriptLength: interviewData.transcript?.length,
+        sessionId: (interviewData as any).sessionId,
       });
 
       const {
@@ -101,6 +102,7 @@ export default function InterviewResults() {
           interviewType: interviewData.interviewType,
           jobPosting: interviewData.jobPosting,
           interviewer: interviewData.interviewer,
+          sessionId: (interviewData as any).sessionId, // Pass session ID to analysis
         },
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -455,7 +457,7 @@ ${interviewData.transcript}
         )}
 
         <div className="flex gap-4 justify-center">
-          <Button onClick={() => navigate("/dashboard/interview-roleplay")} size="lg">
+          <Button onClick={() => navigate("/interview-preparation")} size="lg">
             Practice Another Interview
           </Button>
           <Button variant="outline" onClick={() => navigate("/dashboard")} size="lg">

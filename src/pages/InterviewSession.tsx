@@ -238,8 +238,7 @@ export default function InterviewSession() {
             clearInterval(timerRef.current);
             timerRef.current = null;
           }
-          // Save interview session to database
-          await saveInterviewSession();
+          // Note: Session will be saved when user clicks "View Results"
         } else {
           setCurrentQuestionNumber(currentQuestionNumber + 1);
         }
@@ -284,7 +283,7 @@ export default function InterviewSession() {
     });
   };
 
-  const handleViewResults = () => {
+  const handleViewResults = async () => {
     console.log("🔍 Interview completion started");
     console.log("📝 Current transcript length:", messages.length);
     console.log("👤 Interviewer:", interviewDetails?.interviewer);
@@ -307,23 +306,36 @@ export default function InterviewSession() {
       return;
     }
 
-    // Navigate to results with data
+    // Get the session ID from the saved session
+    const sessionId = await saveInterviewSession();
+    
+    if (!sessionId) {
+      toast({
+        title: "Error",
+        description: "Failed to save interview session. Cannot show results.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Navigate to results with data including session ID
     const navigationData = {
       interviewer: interviewDetails.interviewer || "Unknown",
       interviewType: interviewDetails.interviewType || "General",
       transcript: transcript || "No transcript available",
       jobPosting: interviewDetails.jobPosting || null,
       duration: elapsedTime,
+      sessionId: sessionId, // Pass session ID for analysis to update
     };
 
     console.log("🚀 Navigating to results with data:", navigationData);
 
-    navigate("/dashboard/interview-results", {
+    navigate("/interview-results", {
       state: { interviewData: navigationData },
     });
   };
 
-  const saveInterviewSession = async () => {
+  const saveInterviewSession = async (): Promise<string | null> => {
     try {
       const {
         data: { user },
@@ -331,26 +343,26 @@ export default function InterviewSession() {
 
       if (!user) {
         console.error("No authenticated user found");
-        return;
+        return null;
       }
 
       const transcript = messages
         .map((msg) => `${msg.sender === "ai" ? "Interviewer" : "You"}: ${msg.content}`)
         .join("\n\n");
 
-      const { error } = await supabase.from("interview_sessions").insert({
+      const { data, error } = await supabase.from("interview_sessions").insert({
         user_id: user.id,
         interviewer_name: interviewDetails.interviewer,
         interview_type: interviewDetails.interviewType,
         transcript: transcript,
-        overall_score: Math.floor(Math.random() * 40) + 60, // Random score 60-100 for now
+        overall_score: 0, // Will be updated by analysis
         job_posting: interviewDetails.jobPosting,
         analysis_results: {},
         strengths: [],
         weaknesses: [],
         improvements: [],
         scores: {},
-      });
+      }).select('id').single();
 
       if (error) {
         console.error("Error saving interview session:", error);
@@ -359,14 +371,14 @@ export default function InterviewSession() {
           description: "Could not save interview results. Please try again.",
           variant: "destructive",
         });
-      } else {
-        toast({
-          title: "Interview Saved",
-          description: "Your interview results have been saved successfully.",
-        });
+        return null;
       }
+
+      console.log("✅ Interview session saved with ID:", data.id);
+      return data.id;
     } catch (error) {
       console.error("Error saving interview session:", error);
+      return null;
     }
   };
 
