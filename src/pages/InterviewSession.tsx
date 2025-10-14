@@ -66,9 +66,11 @@ export default function InterviewSession() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(1);
   const [isInterviewComplete, setIsInterviewComplete] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -90,11 +92,26 @@ export default function InterviewSession() {
     }
   }, [interviewDetails, navigate, toast]);
 
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
   const startInterview = async () => {
     if (!interviewDetails) return;
 
     setIsLoading(true);
     setIsInterviewStarted(true);
+    setElapsedTime(0);
+
+    // Start the timer
+    timerRef.current = setInterval(() => {
+      setElapsedTime((prev) => prev + 1);
+    }, 1000);
 
     try {
       // Get AI greeting and first question
@@ -216,6 +233,11 @@ export default function InterviewSession() {
         // Update question number or mark interview complete
         if (isAnsweringLastQuestion) {
           setIsInterviewComplete(true);
+          // Stop the timer
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
           // Save interview session to database
           await saveInterviewSession();
         } else {
@@ -357,15 +379,43 @@ export default function InterviewSession() {
 
   const currentInterviewer = interviewerData[interviewDetails.interviewer as keyof typeof interviewerData];
 
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="h-screen overflow-hidden bg-background">
       {/* Top Navigation Bar */}
       <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
         <div className="text-xl font-bold text-foreground">~ Cadence</div>
-        <Button variant="outline" onClick={handleBackToDashboard} className="flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
-        </Button>
+        <div className="flex items-center gap-4">
+          {isInterviewStarted && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-primary"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span className="font-mono text-sm font-medium">{formatTime(elapsedTime)}</span>
+            </div>
+          )}
+          <Button variant="outline" onClick={handleBackToDashboard} className="flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </Button>
+        </div>
       </div>
 
       {/* Main Content */}
