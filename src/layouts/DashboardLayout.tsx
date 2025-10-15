@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Mic, HelpCircle, LogOut, Settings, User } from "lucide-react";
+import { Mic, HelpCircle, LogOut, Settings, User, Flame } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -19,12 +19,34 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [currentStreak, setCurrentStreak] = useState<number>(0);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate("/signin");
     }
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchStreak();
+    }
+  }, [user]);
+
+  const fetchStreak = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('user_progress')
+      .select('current_streak')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (data) {
+      setCurrentStreak(data.current_streak || 0);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -73,6 +95,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
           
           <div className="flex items-center gap-3">
+            {/* Streak Counter */}
+            <div className="flex items-center gap-1.5">
+              <Flame className={`h-5 w-5 ${currentStreak === 0 ? 'text-muted-foreground' : 'text-orange-500'}`} />
+              <span className={`text-sm font-semibold ${currentStreak === 0 ? 'text-muted-foreground' : 'text-foreground'}`}>
+                {currentStreak}
+              </span>
+            </div>
+            
             <Button variant="ghost" size="sm">
               <HelpCircle className="h-4 w-4" />
             </Button>
