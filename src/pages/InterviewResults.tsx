@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, TrendingUp, AlertTriangle, Target, Download, Mic } from "lucide-react";
+import { ArrowLeft, TrendingUp, AlertTriangle, Target, Download, Mic, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -50,6 +50,8 @@ export default function InterviewResults() {
   const { toast } = useToast();
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [streakSaved, setStreakSaved] = useState(false);
+  const [currentStreak, setCurrentStreak] = useState(0);
 
   const interviewData = location.state?.interviewData as InterviewResultsData;
   const savedFeedback = location.state?.savedFeedback as FeedbackData | undefined;
@@ -127,6 +129,9 @@ export default function InterviewResults() {
       });
 
       setFeedback(data);
+
+      // Update streak after successful analysis
+      await updateStreak();
     } catch (error) {
       console.error("💥 Error generating feedback:", error);
       toast({
@@ -148,6 +153,50 @@ export default function InterviewResults() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const updateStreak = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: progressData } = await supabase
+        .from('user_progress')
+        .select('current_streak, last_completion_date, longest_streak')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      const today = new Date().toISOString().split('T')[0];
+      const lastDate = progressData?.last_completion_date;
+
+      // Only increment if not completed today
+      if (lastDate !== today) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        let newStreak = 1;
+        if (lastDate === yesterdayStr) {
+          newStreak = (progressData?.current_streak || 0) + 1;
+        }
+
+        await supabase
+          .from('user_progress')
+          .upsert({
+            user_id: user.id,
+            current_streak: newStreak,
+            longest_streak: Math.max(newStreak, progressData?.longest_streak || 0),
+            last_completion_date: today,
+          }, { onConflict: 'user_id' });
+
+        setCurrentStreak(newStreak);
+        setStreakSaved(true);
+      } else {
+        setCurrentStreak(progressData?.current_streak || 0);
+      }
+    } catch (error) {
+      console.error('Error updating streak:', error);
     }
   };
 
@@ -354,6 +403,24 @@ ${interviewData.transcript}
             </div>
           </CardHeader>
         </Card>
+
+        {streakSaved && currentStreak > 0 && (
+          <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex items-center justify-center gap-3">
+                <Flame className="w-8 h-8 text-orange-500" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600">
+                    Streak saved! Don't break it tomorrow.
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    You're on a {currentStreak} day streak 🔥
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {feedback && (
           <>

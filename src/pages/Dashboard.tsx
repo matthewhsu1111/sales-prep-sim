@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, Clock, Play, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, Clock, Play, BarChart3, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -19,6 +19,8 @@ const Dashboard = () => {
   const [improvements, setImprovements] = useState<any[]>([]);
   const [recentInterviews, setRecentInterviews] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'all'>('all');
+  const [currentStreak, setCurrentStreak] = useState<number>(0);
+  const [longestStreak, setLongestStreak] = useState<number>(0);
 
   useEffect(() => {
     fetchDashboardData();
@@ -170,6 +172,19 @@ const Dashboard = () => {
       }));
 
       setRecentInterviews(recentFormatted);
+
+      // Fetch user progress for streak
+      const { data: progressData, error: progressError } = await supabase
+        .from('user_progress')
+        .select('current_streak, longest_streak')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!progressError && progressData) {
+        setCurrentStreak(progressData.current_streak || 0);
+        setLongestStreak(progressData.longest_streak || 0);
+      }
+
       setIsLoading(false);
 
     } catch (error) {
@@ -296,12 +311,27 @@ const Dashboard = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Track your interview progress and identify areas for improvement
-        </p>
+      {/* Header with Streak */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground mt-2">
+            Track your interview progress and identify areas for improvement
+          </p>
+        </div>
+        {!isLoading && currentStreak > 0 && (
+          <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
+            <CardContent className="pt-6 pb-6 px-8">
+              <div className="flex items-center gap-3">
+                <Flame className="w-12 h-12 text-orange-500" />
+                <div>
+                  <div className="text-4xl font-bold text-orange-600">{currentStreak}</div>
+                  <div className="text-sm text-muted-foreground">Day Streak</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Progress Over Time Chart */}

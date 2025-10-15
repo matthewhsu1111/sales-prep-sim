@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   BarChart3,
@@ -9,7 +9,8 @@ import {
   HelpCircle,
   LayoutDashboard,
   Mic,
-  Clock
+  Clock,
+  Flame
 } from "lucide-react";
 
 import {
@@ -26,6 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
 
 const dashboardItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -37,6 +39,26 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const [currentStreak, setCurrentStreak] = useState<number>(0);
+
+  useEffect(() => {
+    fetchStreak();
+  }, []);
+
+  const fetchStreak = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('user_progress')
+      .select('current_streak')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (data) {
+      setCurrentStreak(data.current_streak || 0);
+    }
+  };
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
@@ -55,6 +77,19 @@ export function AppSidebar() {
   return (
     <Sidebar className="w-64" collapsible="icon">
       <SidebarContent className="flex flex-col h-full p-3 pt-20">
+        {/* Streak Counter */}
+        {currentStreak > 0 && (
+          <div className="mb-4 p-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+            <div className="flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange-500" />
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-orange-600">{currentStreak}</span>
+                <span className="text-xs text-muted-foreground">Day Streak</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Navigation */}
         <SidebarGroup className="flex-1">
           <SidebarGroupContent>
