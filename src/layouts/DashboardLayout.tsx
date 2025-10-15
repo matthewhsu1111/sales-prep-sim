@@ -96,7 +96,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           
           <div className="flex items-center gap-3">
             {/* Streak Counter */}
-            <div className="flex items-center gap-1.5">
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border ${currentStreak === 0 ? 'border-muted bg-muted/20' : 'border-orange-200 bg-orange-50'}`}>
               <Flame className={`h-5 w-5 ${currentStreak === 0 ? 'text-muted-foreground' : 'text-orange-500'}`} />
               <span className={`text-sm font-semibold ${currentStreak === 0 ? 'text-muted-foreground' : 'text-foreground'}`}>
                 {currentStreak}
