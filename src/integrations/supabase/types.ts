@@ -150,7 +150,9 @@ export type Database = {
         Row: {
           background: string | null
           created_at: string
+          has_completed_setup: boolean | null
           id: string
+          interview_preferences: Json | null
           name: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -164,7 +166,9 @@ export type Database = {
         Insert: {
           background?: string | null
           created_at?: string
+          has_completed_setup?: boolean | null
           id?: string
+          interview_preferences?: Json | null
           name?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -178,7 +182,9 @@ export type Database = {
         Update: {
           background?: string | null
           created_at?: string
+          has_completed_setup?: boolean | null
           id?: string
+          interview_preferences?: Json | null
           name?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null

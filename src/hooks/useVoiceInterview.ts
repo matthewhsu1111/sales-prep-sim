@@ -23,20 +23,39 @@ interface SpeechMetrics {
 interface UseVoiceInterviewProps {
   interviewer: string;
   interviewType: string;
+  autoStart?: boolean;
+  defaultMuted?: boolean;
 }
 
-export const useVoiceInterview = ({ interviewer, interviewType }: UseVoiceInterviewProps) => {
+export const useVoiceInterview = ({ interviewer, interviewType, autoStart = false, defaultMuted = false }: UseVoiceInterviewProps) => {
   const { toast } = useToast();
   const [isRecording, setIsRecording] = useState(false);
   const [isAISpeaking, setIsAISpeaking] = useState(false);
   const [currentSpeechMetrics, setCurrentSpeechMetrics] = useState<SpeechMetrics | null>(null);
   const [candidateTranscript, setCandidateTranscript] = useState('');
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+  const [isMuted, setIsMuted] = useState(defaultMuted);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recognitionRef = useRef<any>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const vadIntervalRef = useRef<number | null>(null);
+
+  // Voice Activity Detection
+  const detectVoiceActivity = useCallback(() => {
+    if (!analyserRef.current) return false;
+    
+    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+    analyserRef.current.getByteFrequencyData(dataArray);
+    
+    const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+    const threshold = 30;
+    
+    return average > threshold;
+  }, []);
 
   // Speech-to-text for candidate
   const startRecording = useCallback(async () => {
@@ -66,6 +85,18 @@ export const useVoiceInterview = ({ interviewer, interviewType }: UseVoiceInterv
           audioChunksRef.current.push(event.data);
         }
       };
+
+      // Setup Voice Activity Detection
+      audioContextRef.current = new AudioContext();
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      source.connect(analyserRef.current);
+
+      // Start VAD monitoring
+      vadIntervalRef.current = window.setInterval(() => {
+        setIsUserSpeaking(detectVoiceActivity());
+      }, 100);
 
       // Set up Web Speech API for real-time transcription
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
@@ -111,9 +142,23 @@ export const useVoiceInterview = ({ interviewer, interviewType }: UseVoiceInterv
         variant: 'destructive'
       });
     }
-  }, [toast]);
+  }, [toast, detectVoiceActivity]);
 
   const stopRecording = useCallback(async (): Promise<{ transcript: string; audioBlob: Blob }> => {
+    // Stop VAD monitoring
+    if (vadIntervalRef.current) {
+      clearInterval(vadIntervalRef.current);
+      vadIntervalRef.current = null;
+    }
+    setIsUserSpeaking(false);
+
+    // Cleanup audio context
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    analyserRef.current = null;
+
     return new Promise((resolve) => {
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.onstop = async () => {
@@ -275,15 +320,23 @@ export const useVoiceInterview = ({ interviewer, interviewType }: UseVoiceInterv
     setCandidateTranscript('');
   }, []);
 
+  // Mute control
+  const setMuted = useCallback((muted: boolean) => {
+    setIsMuted(muted);
+  }, []);
+
   return {
     isRecording,
     isAISpeaking,
     currentSpeechMetrics,
     candidateTranscript,
+    isUserSpeaking,
+    isMuted,
     startRecording,
     stopRecording,
     speakAIResponse,
     analyzeSpeech,
     resetTranscript,
+    setMuted,
   };
 };
