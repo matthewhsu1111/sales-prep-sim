@@ -164,6 +164,7 @@ const Dashboard = () => {
         weaknesses: session.weaknesses,
         improvements: session.improvements,
         scores: session.scores,
+        analysis_results: session.analysis_results,
         title: `${session.interview_type} - ${session.interviewer_name}`,
         time: getTimeAgo(session.created_at),
         score: session.overall_score
