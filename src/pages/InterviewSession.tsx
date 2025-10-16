@@ -6,9 +6,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Bot, User, Send, Download, Mic } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { ArrowLeft, Bot, User, Send, Download, Mic, Video, VideoOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useVoiceInterview } from "@/hooks/useVoiceInterview";
+import SpeechMetricsDisplay from "@/components/SpeechMetricsDisplay";
 
 // Import interviewer images
 import rebeccaImage from "@/assets/rebecca-martinez.jpg";
@@ -67,10 +70,29 @@ export default function InterviewSession() {
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(1);
   const [isInterviewComplete, setIsInterviewComplete] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [isCameraEnabled, setIsCameraEnabled] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Voice interview hook
+  const {
+    isRecording,
+    isAISpeaking,
+    currentSpeechMetrics,
+    candidateTranscript,
+    startRecording,
+    stopRecording,
+    speakAIResponse,
+    analyzeSpeech,
+    resetTranscript,
+  } = useVoiceInterview({
+    interviewer: interviewDetails?.interviewer || '',
+    interviewType: interviewDetails?.interviewType || '',
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -92,14 +114,24 @@ export default function InterviewSession() {
     }
   }, [interviewDetails, navigate, toast]);
 
-  // Cleanup timer on unmount
+  // Cleanup timer and camera on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
     };
-  }, []);
+  }, [cameraStream]);
+
+  // Set up camera preview
+  useEffect(() => {
+    if (isCameraEnabled && cameraStream && videoRef.current) {
+      videoRef.current.srcObject = cameraStream;
+    }
+  }, [isCameraEnabled, cameraStream]);
 
   const startInterview = async () => {
     if (!interviewDetails) return;
@@ -143,6 +175,9 @@ export default function InterviewSession() {
 
         setMessages([aiMessage]);
         setIsAiTyping(true);
+
+        // Speak the AI response with TTS
+        await speakAIResponse(data.response, interviewDetails.interviewer);
 
         // Simulate typing effect
         await typeMessage(data.response, aiMessage.id);
@@ -226,6 +261,9 @@ export default function InterviewSession() {
         };
 
         setMessages((prev) => [...prev, aiMessage]);
+
+        // Speak the AI response with TTS
+        await speakAIResponse(data.response, interviewDetails.interviewer);
 
         // Simulate typing effect
         await typeMessage(data.response, aiMessage.id);
@@ -384,6 +422,39 @@ export default function InterviewSession() {
 
   const handleBackToDashboard = () => {
     navigate("/dashboard");
+  };
+
+  const toggleCamera = async () => {
+    if (isCameraEnabled) {
+      // Turn off camera
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        setCameraStream(null);
+      }
+      setIsCameraEnabled(false);
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    } else {
+      // Turn on camera
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 640, height: 360, facingMode: 'user' }
+        });
+        setCameraStream(stream);
+        setIsCameraEnabled(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Camera error:', error);
+        toast({
+          title: 'Camera Error',
+          description: 'Failed to access camera. Please check permissions.',
+          variant: 'destructive'
+        });
+      }
+    }
   };
 
   if (!interviewDetails) {
@@ -587,8 +658,8 @@ export default function InterviewSession() {
           )}
         </div>
 
-        {/* Right Panel - Split Sections */}
-        <div className="flex-1 flex flex-col gap-4">
+        {/* Right Panel - AI Interviewer & Webcam */}
+        <div className="w-[400px] flex flex-col gap-4">
           {/* AI Interviewer Section */}
           <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
             <div className="border-b p-4">
@@ -602,8 +673,8 @@ export default function InterviewSession() {
             <div className="flex-1 flex items-center justify-center bg-muted/20">
               <div className="text-center">
                 <div className="relative w-32 h-32 mx-auto mb-4">
-                  {/* Pulsing ring */}
-                  {isAiTyping && <div className="absolute inset-0 rounded-full ring-4 ring-primary animate-ping" />}
+                  {/* Pulsing ring when AI is speaking */}
+                  {isAISpeaking && <div className="absolute inset-0 rounded-full ring-4 ring-primary animate-ping" />}
 
                   {/* Static outer ring */}
                   <div className="absolute inset-0 rounded-full ring-2 ring-muted" />
@@ -619,25 +690,62 @@ export default function InterviewSession() {
                 </div>
                 <div className="text-lg font-medium">{interviewDetails.interviewer}</div>
                 <div className="text-sm text-muted-foreground">{currentInterviewer.title}</div>
+                {isAISpeaking && (
+                  <div className="mt-2 text-xs text-primary font-medium animate-pulse">
+                    Speaking...
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* User Section */}
-          <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
-            <div className="border-b p-4">
-              <h3 className="text-lg font-semibold">Your Space</h3>
-              <div className="text-sm text-muted-foreground">Take notes, prepare responses</div>
+          {/* Speech Metrics Display */}
+          {isInterviewStarted && currentSpeechMetrics && (
+            <SpeechMetricsDisplay metrics={currentSpeechMetrics} isCompact={true} />
+          )}
+
+          {/* Webcam Section - 16:9 Aspect Ratio */}
+          <div className="bg-background border rounded-lg shadow-sm overflow-hidden">
+            <div className="border-b p-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Your Camera</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleCamera}
+                className="h-8"
+              >
+                {isCameraEnabled ? (
+                  <>
+                    <VideoOff className="h-3 w-3 mr-1" />
+                    Turn Off
+                  </>
+                ) : (
+                  <>
+                    <Video className="h-3 w-3 mr-1" />
+                    Turn On
+                  </>
+                )}
+              </Button>
             </div>
-            <div className="flex-1 flex items-center justify-center bg-muted/10">
-              <div className="text-center text-muted-foreground">
-                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
-                  <User className="w-12 h-12" />
+            <AspectRatio ratio={16 / 9}>
+              {isCameraEnabled ? (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover bg-black"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted/20 flex items-center justify-center">
+                  <div className="text-center text-muted-foreground">
+                    <VideoOff className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Camera Off</p>
+                    <p className="text-xs mt-1">Click "Turn On" to enable</p>
+                  </div>
                 </div>
-                <p className="text-sm">Your preparation space</p>
-                <p className="text-xs text-muted-foreground/70">Use this area for notes or preparation</p>
-              </div>
-            </div>
+              )}
+            </AspectRatio>
           </div>
         </div>
       </div>

@@ -189,11 +189,11 @@ export default function InterviewRoleplay() {
 
     toast({
       title: "Starting Interview",
-      description: "Interview training session is beginning...",
+      description: "Setting up your equipment...",
     });
     setIsInterviewDetailsModalOpen(false);
-    // Navigate directly to interview session (skip preparation page)
-    navigate('/dashboard/interview-session', { 
+    // Navigate to preparation page first
+    navigate('/dashboard/interview-preparation', { 
       state: { 
         interviewDetails: {
           jobPosting: details.jobPosting, // Pass full job posting object
