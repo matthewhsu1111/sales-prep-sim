@@ -61,6 +61,7 @@ export type Database = {
           job_posting: Json | null
           overall_score: number
           scores: Json
+          speech_metrics: Json | null
           strengths: Json
           transcript: string | null
           updated_at: string
@@ -77,6 +78,7 @@ export type Database = {
           job_posting?: Json | null
           overall_score?: number
           scores?: Json
+          speech_metrics?: Json | null
           strengths?: Json
           transcript?: string | null
           updated_at?: string
@@ -93,6 +95,7 @@ export type Database = {
           job_posting?: Json | null
           overall_score?: number
           scores?: Json
+          speech_metrics?: Json | null
           strengths?: Json
           transcript?: string | null
           updated_at?: string
