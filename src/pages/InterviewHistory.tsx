@@ -120,7 +120,7 @@ const InterviewHistory = () => {
           weaknesses: interview.weaknesses,
           improvements: interview.improvements,
           detailedScores: interview.scores,
-          overallFeedback: `Interview completed with a score of ${interview.overall_score}/100`
+          overallFeedback: interview.analysis_results?.overallFeedback || `Interview completed with a score of ${interview.overall_score}/100`
         }
       }
     });
