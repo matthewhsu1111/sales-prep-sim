@@ -163,8 +163,8 @@ export const useVoiceInterview = ({ interviewer, interviewType }: UseVoiceInterv
     });
   }, [candidateTranscript]);
 
-  // Text-to-speech for AI interviewer
-  const speakAIResponse = useCallback(async (text: string, voiceName: string) => {
+  // Text-to-speech for AI interviewer with word-by-word timing
+  const speakAIResponse = useCallback(async (text: string, voiceName: string, onWordUpdate?: (word: string, isComplete: boolean) => void) => {
     setIsAISpeaking(true);
 
     try {
@@ -183,7 +183,7 @@ export const useVoiceInterview = ({ interviewer, interviewType }: UseVoiceInterv
 
       if (error) throw error;
 
-      // Play audio
+      // Play audio and sync text display
       if (data?.audioContent) {
         const audioContext = new AudioContext();
         const binaryString = atob(data.audioContent);
@@ -198,9 +198,34 @@ export const useVoiceInterview = ({ interviewer, interviewType }: UseVoiceInterv
         source.buffer = audioBuffer;
         source.connect(audioContext.destination);
         
-        source.onended = () => {
-          setIsAISpeaking(false);
-        };
+        // Calculate approximate timing for word-by-word display
+        const words = text.split(' ');
+        const audioDuration = audioBuffer.duration;
+        const timePerWord = audioDuration / words.length;
+        
+        // Display words progressively
+        if (onWordUpdate) {
+          let wordIndex = 0;
+          const wordInterval = setInterval(() => {
+            if (wordIndex < words.length) {
+              onWordUpdate(words.slice(0, wordIndex + 1).join(' '), false);
+              wordIndex++;
+            } else {
+              clearInterval(wordInterval);
+              onWordUpdate(text, true);
+            }
+          }, timePerWord * 1000);
+          
+          source.onended = () => {
+            clearInterval(wordInterval);
+            onWordUpdate(text, true);
+            setIsAISpeaking(false);
+          };
+        } else {
+          source.onended = () => {
+            setIsAISpeaking(false);
+          };
+        }
 
         source.start(0);
       } else {

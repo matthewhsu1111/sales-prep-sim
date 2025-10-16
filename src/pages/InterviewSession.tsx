@@ -251,9 +251,10 @@ export default function InterviewSession() {
       }
 
       if (data?.response) {
-        // Add AI message with typing animation
+        // Add AI message with empty content initially
+        const aiMessageId = Date.now().toString();
         const aiMessage: Message = {
-          id: Date.now().toString(),
+          id: aiMessageId,
           content: "",
           sender: "ai",
           timestamp: new Date(),
@@ -262,11 +263,16 @@ export default function InterviewSession() {
 
         setMessages((prev) => [...prev, aiMessage]);
 
-        // Speak the AI response with TTS
-        await speakAIResponse(data.response, interviewDetails.interviewer);
-
-        // Simulate typing effect
-        await typeMessage(data.response, aiMessage.id);
+        // Speak the AI response with TTS and sync text display
+        speakAIResponse(data.response, interviewDetails.interviewer, (partialText: string, isComplete: boolean) => {
+          setMessages((prev) => 
+            prev.map((msg) => 
+              msg.id === aiMessageId 
+                ? { ...msg, content: partialText, isTyping: !isComplete } 
+                : msg
+            )
+          );
+        });
 
         // Update question number or mark interview complete
         if (isAnsweringLastQuestion) {
@@ -508,7 +514,7 @@ export default function InterviewSession() {
       {/* Main Content */}
       <div className="flex h-[calc(100vh-112px)] p-4 gap-4">
         {/* Left Panel - Transcript */}
-        <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
+        <div className="flex-[2] bg-background border rounded-lg shadow-sm flex flex-col">
           <div className="border-b p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -611,7 +617,7 @@ export default function InterviewSession() {
                 <div className="flex-1">
                   <Textarea
                     ref={inputRef}
-                    value={userInput}
+                    value={userInput || candidateTranscript}
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
@@ -622,7 +628,9 @@ export default function InterviewSession() {
                     placeholder={
                       isAiTyping
                         ? "AI is typing..."
-                        : "Type your response... (Press Enter to send, Shift+Enter for new line)"
+                        : isRecording
+                        ? "Listening... (speak your answer)"
+                        : "Type your response or click the mic to speak... (Press Enter to send, Shift+Enter for new line)"
                     }
                     disabled={isAiTyping}
                     className="min-h-[60px] max-h-[200px] resize-none"
@@ -630,8 +638,25 @@ export default function InterviewSession() {
                   />
                 </div>
                 <Button
+                  onClick={async () => {
+                    if (isRecording) {
+                      const { transcript } = await stopRecording();
+                      setUserInput(transcript);
+                    } else {
+                      resetTranscript();
+                      await startRecording();
+                    }
+                  }}
+                  disabled={isAiTyping}
+                  size="icon"
+                  variant={isRecording ? "destructive" : "outline"}
+                  className="flex-shrink-0"
+                >
+                  <Mic className={`h-4 w-4 ${isRecording ? 'animate-pulse' : ''}`} />
+                </Button>
+                <Button
                   onClick={sendMessage}
-                  disabled={!userInput.trim() || isAiTyping}
+                  disabled={(!userInput.trim() && !candidateTranscript.trim()) || isAiTyping}
                   size="icon"
                   className="flex-shrink-0"
                 >
@@ -659,7 +684,7 @@ export default function InterviewSession() {
         </div>
 
         {/* Right Panel - AI Interviewer & Webcam */}
-        <div className="w-[400px] flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-4">
           {/* AI Interviewer Section */}
           <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
             <div className="border-b p-4">
@@ -734,7 +759,7 @@ export default function InterviewSession() {
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-full object-cover bg-black"
+                  className="w-full h-full object-cover bg-black scale-x-[-1]"
                 />
               ) : (
                 <div className="w-full h-full bg-muted/20 flex items-center justify-center">
