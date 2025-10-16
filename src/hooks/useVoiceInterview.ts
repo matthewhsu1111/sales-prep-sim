@@ -163,7 +163,7 @@ export const useVoiceInterview = ({ interviewer, interviewType }: UseVoiceInterv
     });
   }, [candidateTranscript]);
 
-  // Text-to-speech for AI interviewer with word-by-word timing
+  // Text-to-speech for AI interviewer with synchronized text display
   const speakAIResponse = useCallback(async (text: string, voiceName: string, onWordUpdate?: (word: string, isComplete: boolean) => void) => {
     setIsAISpeaking(true);
 
@@ -198,36 +198,47 @@ export const useVoiceInterview = ({ interviewer, interviewType }: UseVoiceInterv
         source.buffer = audioBuffer;
         source.connect(audioContext.destination);
         
-        // Calculate approximate timing for word-by-word display
-        const words = text.split(' ');
-        const audioDuration = audioBuffer.duration;
-        const timePerWord = audioDuration / words.length;
-        
-        // Display words progressively
+        // Sync text with audio playback using actual audio time
         if (onWordUpdate) {
-          let wordIndex = 0;
-          const wordInterval = setInterval(() => {
-            if (wordIndex < words.length) {
-              onWordUpdate(words.slice(0, wordIndex + 1).join(' '), false);
-              wordIndex++;
-            } else {
-              clearInterval(wordInterval);
-              onWordUpdate(text, true);
+          const words = text.split(' ');
+          const audioDuration = audioBuffer.duration;
+          const startTime = audioContext.currentTime;
+          let wordIntervalId: number | null = null;
+          
+          // Update text in sync with audio time
+          const updateText = () => {
+            const currentTime = audioContext.currentTime - startTime;
+            const progress = currentTime / audioDuration;
+            const wordsToShow = Math.min(Math.ceil(progress * words.length), words.length);
+            
+            if (wordsToShow > 0 && wordsToShow <= words.length) {
+              onWordUpdate(words.slice(0, wordsToShow).join(' '), false);
             }
-          }, timePerWord * 1000);
+            
+            if (currentTime < audioDuration) {
+              wordIntervalId = requestAnimationFrame(updateText);
+            } else {
+              onWordUpdate(text, true);
+              setIsAISpeaking(false);
+            }
+          };
           
           source.onended = () => {
-            clearInterval(wordInterval);
+            if (wordIntervalId) {
+              cancelAnimationFrame(wordIntervalId);
+            }
             onWordUpdate(text, true);
             setIsAISpeaking(false);
           };
+          
+          source.start(0);
+          updateText();
         } else {
           source.onended = () => {
             setIsAISpeaking(false);
           };
+          source.start(0);
         }
-
-        source.start(0);
       } else {
         setIsAISpeaking(false);
       }

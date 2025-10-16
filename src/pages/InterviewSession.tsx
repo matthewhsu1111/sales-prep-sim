@@ -122,9 +122,11 @@ export default function InterviewSession() {
       }
       if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
+        setCameraStream(null);
+        setIsCameraEnabled(false);
       }
     };
-  }, [cameraStream]);
+  }, []);
 
   // Set up camera preview
   useEffect(() => {
@@ -514,7 +516,7 @@ export default function InterviewSession() {
       {/* Main Content */}
       <div className="flex h-[calc(100vh-112px)] p-4 gap-4">
         {/* Left Panel - Transcript */}
-        <div className="flex-[2] bg-background border rounded-lg shadow-sm flex flex-col">
+        <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
           <div className="border-b p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -710,6 +712,7 @@ export default function InterviewSession() {
                       src={currentInterviewer.image}
                       alt={interviewDetails.interviewer}
                       className="w-full h-full object-cover"
+                      style={{ transform: 'scaleX(-1)' }}
                     />
                   </div>
                 </div>
