@@ -166,6 +166,13 @@ export default function InterviewRoleplay() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Check if user has completed setup
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('has_completed_setup')
+          .eq('user_id', user.id)
+          .single();
+
         const { data: existing } = await supabase
           .from('user_interview_counts')
           .select('total_interviews')
@@ -182,27 +189,36 @@ export default function InterviewRoleplay() {
             .from('user_interview_counts')
             .insert({ user_id: user.id, total_interviews: 1 });
         }
+
+        setIsInterviewDetailsModalOpen(false);
+
+        const interviewDetails = {
+          jobPosting: details.jobPosting,
+          interviewType: details.interviewType,
+          numberOfQuestions: details.numberOfQuestions,
+          interviewer: selectedInterviewer
+        };
+
+        // Smart navigation based on setup status
+        if (profile?.has_completed_setup) {
+          // Returning user - go directly to interview session
+          navigate('/dashboard/interview-session', { 
+            state: { interviewDetails } 
+          });
+        } else {
+          // First-time user - show setup wizard
+          toast({
+            title: "One-Time Setup",
+            description: "Let's configure your devices for the best interview experience",
+          });
+          navigate('/dashboard/interview-preparation', { 
+            state: { interviewDetails } 
+          });
+        }
       }
     } catch (error) {
       console.error('Error updating interview count:', error);
     }
-
-    toast({
-      title: "Starting Interview",
-      description: "Setting up your equipment...",
-    });
-    setIsInterviewDetailsModalOpen(false);
-    // Navigate to preparation page first
-    navigate('/dashboard/interview-preparation', { 
-      state: { 
-        interviewDetails: {
-          jobPosting: details.jobPosting, // Pass full job posting object
-          interviewType: details.interviewType,
-          numberOfQuestions: details.numberOfQuestions,
-          interviewer: selectedInterviewer // Add the interviewer name
-        }
-      } 
-    });
   };
   return (
     <div className="p-6 space-y-6">
