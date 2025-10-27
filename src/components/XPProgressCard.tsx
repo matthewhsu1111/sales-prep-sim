@@ -27,12 +27,9 @@ export function XPProgressCard() {
       <CardContent className="p-4 space-y-4">
         {/* Level Badge */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-3xl">{levelInfo.emoji}</span>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Level {levelInfo.level}</p>
-              <p className="font-bold text-lg">{levelInfo.name}</p>
-            </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-muted-foreground">Level {levelInfo.level}</p>
+            <p className="font-bold text-lg">{levelInfo.name}</p>
           </div>
           <Badge variant="secondary" className="text-xs">
             #{progress.leaderboardRank || '—'}
@@ -60,12 +57,10 @@ export function XPProgressCard() {
           <div className="flex items-center gap-1 text-sm">
             <Flame className="w-4 h-4 text-orange-500" />
             <span className="font-semibold">{progress.currentStreak}</span>
-            <span className="text-muted-foreground">day streak</span>
           </div>
           <div className="flex items-center gap-1 text-sm">
             <Trophy className="w-4 h-4 text-blue-500" />
             <span className="font-semibold">{progress.weeklyXP}</span>
-            <span className="text-muted-foreground">this week</span>
           </div>
         </div>
       </CardContent>

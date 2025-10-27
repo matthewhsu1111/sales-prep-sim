@@ -321,7 +321,7 @@ const Dashboard = () => {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Welcome back{firstName ? `, ${firstName}` : ''}! 👋
+          Welcome back{firstName ? `, ${firstName}` : ''}!
         </h1>
         <p className="text-muted-foreground mt-2">
           Track your interview progress and level up your skills
@@ -330,7 +330,7 @@ const Dashboard = () => {
 
       {/* Daily Goal Progress */}
       {progress && (
-        <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+        <Card className="bg-card border-border">
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">

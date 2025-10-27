@@ -59,11 +59,6 @@ export function AppSidebar() {
   return (
     <Sidebar className="w-64" collapsible="icon">
       <SidebarContent className="flex flex-col h-full p-3 pt-20 gap-4">
-        {/* XP Progress Card */}
-        <div className="px-2">
-          <XPProgressCard />
-        </div>
-
         {/* Main Navigation */}
         <SidebarGroup className="flex-1">
           <SidebarGroupContent>
@@ -88,6 +83,11 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* XP Progress Card - Bottom */}
+        <div className="px-2 pb-2">
+          <XPProgressCard />
+        </div>
       </SidebarContent>
     </Sidebar>
   );
