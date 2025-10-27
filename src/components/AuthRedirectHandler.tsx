@@ -24,7 +24,7 @@ export function AuthRedirectHandler() {
       try {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('name, target_role, has_completed_setup')
+          .select('name, target_role')
           .eq('user_id', user.id)
           .maybeSingle();
         

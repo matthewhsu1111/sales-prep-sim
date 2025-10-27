@@ -61,7 +61,6 @@ export type Database = {
           job_posting: Json | null
           overall_score: number
           scores: Json
-          speech_metrics: Json | null
           strengths: Json
           transcript: string | null
           updated_at: string
@@ -78,7 +77,6 @@ export type Database = {
           job_posting?: Json | null
           overall_score?: number
           scores?: Json
-          speech_metrics?: Json | null
           strengths?: Json
           transcript?: string | null
           updated_at?: string
@@ -95,7 +93,6 @@ export type Database = {
           job_posting?: Json | null
           overall_score?: number
           scores?: Json
-          speech_metrics?: Json | null
           strengths?: Json
           transcript?: string | null
           updated_at?: string
@@ -150,9 +147,7 @@ export type Database = {
         Row: {
           background: string | null
           created_at: string
-          has_completed_setup: boolean | null
           id: string
-          interview_preferences: Json | null
           name: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -166,9 +161,7 @@ export type Database = {
         Insert: {
           background?: string | null
           created_at?: string
-          has_completed_setup?: boolean | null
           id?: string
-          interview_preferences?: Json | null
           name?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -182,9 +175,7 @@ export type Database = {
         Update: {
           background?: string | null
           created_at?: string
-          has_completed_setup?: boolean | null
           id?: string
-          interview_preferences?: Json | null
           name?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
