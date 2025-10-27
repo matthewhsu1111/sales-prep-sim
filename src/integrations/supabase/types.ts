@@ -61,6 +61,7 @@ export type Database = {
           job_posting: Json | null
           overall_score: number
           scores: Json
+          speech_metrics: Json | null
           strengths: Json
           transcript: string | null
           updated_at: string
@@ -77,6 +78,7 @@ export type Database = {
           job_posting?: Json | null
           overall_score?: number
           scores?: Json
+          speech_metrics?: Json | null
           strengths?: Json
           transcript?: string | null
           updated_at?: string
@@ -93,6 +95,7 @@ export type Database = {
           job_posting?: Json | null
           overall_score?: number
           scores?: Json
+          speech_metrics?: Json | null
           strengths?: Json
           transcript?: string | null
           updated_at?: string
@@ -147,7 +150,10 @@ export type Database = {
         Row: {
           background: string | null
           created_at: string
+          first_name: string | null
+          has_completed_setup: boolean | null
           id: string
+          interview_preferences: Json | null
           name: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -161,7 +167,10 @@ export type Database = {
         Insert: {
           background?: string | null
           created_at?: string
+          first_name?: string | null
+          has_completed_setup?: boolean | null
           id?: string
+          interview_preferences?: Json | null
           name?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -175,7 +184,10 @@ export type Database = {
         Update: {
           background?: string | null
           created_at?: string
+          first_name?: string | null
+          has_completed_setup?: boolean | null
           id?: string
+          interview_preferences?: Json | null
           name?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -216,50 +228,91 @@ export type Database = {
         Row: {
           created_at: string
           current_day: number
+          current_level: number | null
           current_streak: number
           current_week: number
+          daily_xp: number | null
           id: string
           last_completion_date: string | null
+          last_daily_reset: string | null
+          last_practice_date: string | null
+          last_weekly_reset: string | null
+          leaderboard_visible: boolean | null
           longest_streak: number
+          practices_this_week: number | null
           total_days_completed: number
+          total_xp: number | null
           updated_at: string
           user_id: string
+          weekly_xp: number | null
         }
         Insert: {
           created_at?: string
           current_day?: number
+          current_level?: number | null
           current_streak?: number
           current_week?: number
+          daily_xp?: number | null
           id?: string
           last_completion_date?: string | null
+          last_daily_reset?: string | null
+          last_practice_date?: string | null
+          last_weekly_reset?: string | null
+          leaderboard_visible?: boolean | null
           longest_streak?: number
+          practices_this_week?: number | null
           total_days_completed?: number
+          total_xp?: number | null
           updated_at?: string
           user_id: string
+          weekly_xp?: number | null
         }
         Update: {
           created_at?: string
           current_day?: number
+          current_level?: number | null
           current_streak?: number
           current_week?: number
+          daily_xp?: number | null
           id?: string
           last_completion_date?: string | null
+          last_daily_reset?: string | null
+          last_practice_date?: string | null
+          last_weekly_reset?: string | null
+          leaderboard_visible?: boolean | null
           longest_streak?: number
+          practices_this_week?: number | null
           total_days_completed?: number
+          total_xp?: number | null
           updated_at?: string
           user_id?: string
+          weekly_xp?: number | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      weekly_leaderboard: {
+        Row: {
+          current_level: number | null
+          current_streak: number | null
+          first_name: string | null
+          name: string | null
+          rank: number | null
+          user_id: string | null
+          weekly_xp: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      initialize_user_progress: {
+      check_and_reset_streak: {
         Args: { user_uuid: string }
-        Returns: string
+        Returns: undefined
       }
+      initialize_user_progress: { Args: { user_uuid: string }; Returns: string }
+      reset_daily_xp: { Args: never; Returns: undefined }
+      reset_weekly_xp: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
