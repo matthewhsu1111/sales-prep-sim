@@ -20,6 +20,7 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Careers from "./pages/Careers";
+import Leaderboards from "./pages/Leaderboards";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,11 @@ const App = () => (
             <Route path="/dashboard/careers" element={
               <DashboardLayout>
                 <Careers />
+              </DashboardLayout>
+            } />
+            <Route path="/dashboard/leaderboards" element={
+              <DashboardLayout>
+                <Leaderboards />
               </DashboardLayout>
             } />
             <Route path="/dashboard/profile" element={

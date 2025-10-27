@@ -5,20 +5,27 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, Clock, Play, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, Clock, Play, BarChart3, Star, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/components/AuthProvider";
+import { useGamification } from "@/hooks/useGamification";
+import { Progress } from "@/components/ui/progress";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { progress, levelInfo, formatXP } = useGamification();
   const [isLoading, setIsLoading] = useState(true);
+  const [firstName, setFirstName] = useState<string | null>(null);
   const [allSessions, setAllSessions] = useState<any[]>([]);
   const [progressData, setProgressData] = useState<any[]>([]);
   const [strengths, setStrengths] = useState<any[]>([]);
   const [improvements, setImprovements] = useState<any[]>([]);
   const [recentInterviews, setRecentInterviews] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'all'>('all');
+  const [dailyGoal] = useState(50); // Daily XP goal
 
   useEffect(() => {
     fetchDashboardData();
@@ -31,6 +38,17 @@ const Dashboard = () => {
       if (!user) {
         setIsLoading(false);
         return;
+      }
+
+      // Fetch profile for first name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, name')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile) {
+        setFirstName(profile.first_name || profile.name?.split(' ')[0] || null);
       }
 
       // Fetch all sessions for aggregation
@@ -296,15 +314,50 @@ const Dashboard = () => {
     },
   };
 
+  const dailyProgress = progress ? (progress.dailyXP / dailyGoal) * 100 : 0;
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+        <h1 className="text-3xl font-bold text-foreground">
+          Welcome back{firstName ? `, ${firstName}` : ''}! 👋
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Track your interview progress and identify areas for improvement
+          Track your interview progress and level up your skills
         </p>
       </div>
+
+      {/* Daily Goal Progress */}
+      {progress && (
+        <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">Daily Goal</h3>
+                </div>
+                <Badge variant={dailyProgress >= 100 ? "default" : "secondary"}>
+                  {progress.dailyXP}/{dailyGoal} XP
+                </Badge>
+              </div>
+              <Progress value={Math.min(dailyProgress, 100)} className="h-3" />
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>
+                  {dailyProgress >= 100 
+                    ? "🎉 Goal achieved! Amazing work!" 
+                    : `${dailyGoal - progress.dailyXP} XP to go`}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Star className="w-4 h-4 text-yellow-500" />
+                  {progress.currentStreak} day streak
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Progress Over Time Chart */}
       <Card>

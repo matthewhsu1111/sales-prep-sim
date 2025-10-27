@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, TrendingUp, AlertTriangle, Target, Download, Mic, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useGamification } from "@/hooks/useGamification";
+import { XPRewardPopup } from "@/components/XPRewardPopup";
+import { getInterviewTypeXP, XP_REWARDS } from "@/utils/gamification";
 
 interface InterviewResultsData {
   interviewer: string;
@@ -48,10 +51,12 @@ export default function InterviewResults() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { awardXP, progress } = useGamification();
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [streakSaved, setStreakSaved] = useState(false);
   const [currentStreak, setCurrentStreak] = useState(0);
+  const [xpReward, setXpReward] = useState<any>(null);
 
   const interviewData = location.state?.interviewData as InterviewResultsData;
   const savedFeedback = location.state?.savedFeedback as FeedbackData | undefined;
@@ -161,42 +166,35 @@ export default function InterviewResults() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: progressData } = await supabase
-        .from('user_progress')
-        .select('current_streak, last_completion_date, longest_streak')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
+      // Award XP for completing the interview
+      const interviewXP = getInterviewTypeXP(interviewData.interviewType);
       const today = new Date().toISOString().split('T')[0];
-      const lastDate = progressData?.last_completion_date;
+      const lastPracticeDate = progress?.lastPracticeDate 
+        ? new Date(progress.lastPracticeDate).toISOString().split('T')[0] 
+        : null;
+      
+      // Add first practice bonus if this is the first practice today
+      let totalXP = interviewXP;
+      const isFirstToday = lastPracticeDate !== today;
+      if (isFirstToday) {
+        totalXP += XP_REWARDS.FIRST_PRACTICE_TODAY;
+      }
 
-      // Only increment if not completed today
-      if (lastDate !== today) {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-        let newStreak = 1;
-        if (lastDate === yesterdayStr) {
-          newStreak = (progressData?.current_streak || 0) + 1;
-        }
-
-        await supabase
-          .from('user_progress')
-          .upsert({
-            user_id: user.id,
-            current_streak: newStreak,
-            longest_streak: Math.max(newStreak, progressData?.longest_streak || 0),
-            last_completion_date: today,
-          }, { onConflict: 'user_id' });
-
-        setCurrentStreak(newStreak);
+      // Award the XP
+      const xpResult = await awardXP(totalXP, `Completed ${interviewData.interviewType} interview`);
+      
+      if (xpResult) {
+        setXpReward(xpResult);
         setStreakSaved(true);
-      } else {
-        setCurrentStreak(progressData?.current_streak || 0);
+        setCurrentStreak(progress?.currentStreak || 0);
+      }
+
+      // Check for perfect week bonus (7 days in a row)
+      if (progress && progress.practicesThisWeek === 7) {
+        await awardXP(XP_REWARDS.PERFECT_WEEK, 'Perfect week bonus!');
       }
     } catch (error) {
-      console.error('Error updating streak:', error);
+      console.error('Error updating streak and XP:', error);
     }
   };
 
@@ -532,6 +530,20 @@ ${interviewData.transcript}
           </Button>
         </div>
       </div>
+
+      {/* XP Reward Popup */}
+      {xpReward && (
+        <XPRewardPopup
+          xpAwarded={xpReward.xpAwarded}
+          oldTotalXP={xpReward.oldTotalXP}
+          newTotalXP={xpReward.newTotalXP}
+          leveledUp={xpReward.leveledUp}
+          newLevel={xpReward.newLevel}
+          oldLevel={xpReward.oldLevel}
+          streakSaved={streakSaved}
+          onClose={() => setXpReward(null)}
+        />
+      )}
     </div>
   );
 }

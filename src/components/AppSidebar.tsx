@@ -9,7 +9,8 @@ import {
   HelpCircle,
   LayoutDashboard,
   Mic,
-  Clock
+  Clock,
+  Trophy
 } from "lucide-react";
 
 import {
@@ -27,10 +28,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { XPProgressCard } from "@/components/XPProgressCard";
 
 const dashboardItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Interview Roleplay", url: "/dashboard/interview-roleplay", icon: Mic },
+  { title: "Leaderboards", url: "/dashboard/leaderboards", icon: Trophy },
   { title: "Careers", url: "/dashboard/careers", icon: Target },
 ];
 
@@ -55,7 +58,12 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="w-64" collapsible="icon">
-      <SidebarContent className="flex flex-col h-full p-3 pt-20">
+      <SidebarContent className="flex flex-col h-full p-3 pt-20 gap-4">
+        {/* XP Progress Card */}
+        <div className="px-2">
+          <XPProgressCard />
+        </div>
+
         {/* Main Navigation */}
         <SidebarGroup className="flex-1">
           <SidebarGroupContent>
