@@ -129,7 +129,7 @@ const Index = () => {
       description: "Stay motivated with gamified progress and daily streaks",
       details: [
         "Build daily practice streaks to form winning habits",
-        "Level up from Nervous Newbie to Hired Legend with XP rewards"
+        "Level up with XP rewards"
       ],
       icon: <Flame className="h-6 w-6" />,
       position: "left"
