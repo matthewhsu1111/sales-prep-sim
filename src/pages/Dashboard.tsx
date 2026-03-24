@@ -163,12 +163,10 @@ const Dashboard = () => {
         setImprovements(improvementsFormatted);
       }
 
-      // Recent interviews - only completed ones with strengths/weaknesses populated (newest first)
+      // Recent interviews - show all sessions (newest first)
       const completedForRecent = sessions.filter(s => 
         s.analysis_results !== null && 
-        s.strengths && 
-        Array.isArray(s.strengths) && 
-        s.strengths.length > 0
+        s.analysis_results !== undefined
       );
       const recentSessions = [...completedForRecent].reverse().slice(0, 5);
       const recentFormatted = recentSessions.map(session => ({

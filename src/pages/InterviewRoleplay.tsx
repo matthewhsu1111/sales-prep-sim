@@ -236,8 +236,14 @@ export default function InterviewRoleplay() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {interviewerTemplates.map((template) => {
           return (
-            <Card key={template.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+            <Card key={template.id} className="relative overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader className="pb-2">
+                <div className="flex items-center justify-between mb-1">
+                  <Badge className={template.difficultyColor}>{template.difficulty}</Badge>
+                  {template.recommendedLabel && (
+                    <span className="text-xs text-green-600 font-medium">{template.recommendedLabel}</span>
+                  )}
+                </div>
                 <div className="flex items-center space-x-3">
                   <div className="flex-shrink-0">
                     <img 
@@ -253,10 +259,10 @@ export default function InterviewRoleplay() {
                 </div>
               </CardHeader>
               
-              <CardContent className="pt-0">
-                <p className="text-sm text-muted-foreground mb-4">{template.description}</p>
+              <CardContent className="pt-0 flex flex-col flex-1">
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{template.description}</p>
                 
-                <div className="space-y-2">
+                <div className="space-y-2 flex-1">
                   <h4 className="text-sm font-medium">What they'll test:</h4>
                   <p className="text-xs text-muted-foreground">{template.testingFocus}</p>
                 </div>
