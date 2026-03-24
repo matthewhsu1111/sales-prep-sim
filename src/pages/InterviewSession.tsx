@@ -602,11 +602,28 @@ export default function InterviewSession() {
             <div className="flex-1 flex items-center justify-center bg-muted/20">
               <div className="text-center">
                 <div className="relative w-32 h-32 mx-auto mb-4">
-                  {/* Pulsing ring */}
-                  {isAiTyping && <div className="absolute inset-0 rounded-full ring-4 ring-primary animate-ping" />}
+                  {/* Organic blob speaking animation */}
+                  {isAiTyping && (
+                    <>
+                      <div
+                        className="absolute -inset-3 bg-primary/20"
+                        style={{
+                          borderRadius: '42% 58% 70% 30% / 45% 45% 55% 55%',
+                          animation: 'blob1 3s ease-in-out infinite',
+                        }}
+                      />
+                      <div
+                        className="absolute -inset-4 bg-primary/10"
+                        style={{
+                          borderRadius: '55% 45% 35% 65% / 58% 40% 60% 42%',
+                          animation: 'blob2 4s ease-in-out infinite',
+                        }}
+                      />
+                    </>
+                  )}
 
                   {/* Static outer ring */}
-                  <div className="absolute inset-0 rounded-full ring-2 ring-muted" />
+                  {!isAiTyping && <div className="absolute inset-0 rounded-full ring-2 ring-muted" />}
 
                   {/* Actual image */}
                   <div className="relative w-full h-full rounded-full overflow-hidden">
