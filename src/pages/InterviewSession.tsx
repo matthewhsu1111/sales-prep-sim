@@ -606,14 +606,14 @@ export default function InterviewSession() {
                   {isAiTyping && (
                     <>
                       <div
-                        className="absolute -inset-3 bg-primary/20"
+                        className="absolute -inset-3 bg-foreground/20"
                         style={{
                           borderRadius: '42% 58% 70% 30% / 45% 45% 55% 55%',
                           animation: 'blob1 3s ease-in-out infinite',
                         }}
                       />
                       <div
-                        className="absolute -inset-4 bg-primary/10"
+                        className="absolute -inset-4 bg-foreground/10"
                         style={{
                           borderRadius: '55% 45% 35% 65% / 58% 40% 60% 42%',
                           animation: 'blob2 4s ease-in-out infinite',
