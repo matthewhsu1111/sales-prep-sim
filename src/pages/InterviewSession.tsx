@@ -623,20 +623,22 @@ export default function InterviewSession() {
             </div>
           </div>
 
-          {/* User Section */}
+          {/* User Section - Notes Editor */}
           <div className="flex-1 bg-background border rounded-lg shadow-sm flex flex-col">
             <div className="border-b p-4">
               <h3 className="text-lg font-semibold">Your Space</h3>
               <div className="text-sm text-muted-foreground">Take notes, prepare responses</div>
             </div>
-            <div className="flex-1 flex items-center justify-center bg-muted/10">
-              <div className="text-center text-muted-foreground">
-                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
-                  <User className="w-12 h-12" />
-                </div>
-                <p className="text-sm">Your preparation space</p>
-                <p className="text-xs text-muted-foreground/70">Use this area for notes or preparation</p>
-              </div>
+            <div className="flex-1 p-4">
+              <Textarea
+                placeholder="Start typing your notes here...
+
+• Key points to mention
+• Questions to ask
+• Important details to remember"
+                className="w-full h-full min-h-0 resize-none border-none shadow-none focus-visible:ring-0 text-sm leading-relaxed bg-transparent"
+                style={{ height: '100%' }}
+              />
             </div>
           </div>
         </div>

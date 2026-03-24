@@ -18,6 +18,8 @@ const interviewerTemplates = [
     id: "strict_no_bs",
     name: "Rebecca Martinez",
     title: "Senior Sales Director",
+    difficulty: "Hard",
+    difficultyColor: "bg-red-500 text-white",
     description: "Direct and results-focused interviewer who values efficiency above all else",
     testingFocus: "Tests resilience, confidence, and results-focus under pressure",
     personality: "15+ years in sales leadership, no-nonsense approach, tough but fair",
@@ -35,6 +37,9 @@ const interviewerTemplates = [
     id: "casual_conversational", 
     name: "Jake Thompson",
     title: "Sales Team Lead",
+    difficulty: "Easy",
+    difficultyColor: "bg-green-500 text-white",
+    recommendedLabel: "Recommended for beginners",
     description: "Friendly team leader who values culture fit and relationship-building",
     testingFocus: "Tests interpersonal skills, teamwork, and cultural alignment",
     personality: "Believes great salespeople are naturally social and relationship-builders",
@@ -52,7 +57,9 @@ const interviewerTemplates = [
     id: "analytical_detail_oriented",
     name: "Michael Chen",
     title: "Sales Operations Manager", 
-    description: "Process-driven analyst who believes success comes from systematic approaches",
+    difficulty: "Intermediate",
+    difficultyColor: "bg-yellow-500 text-white",
+    description: "Process-driven analyst who values systematic, data-driven approaches",
     testingFocus: "Tests analytical thinking, process knowledge, and data-driven decision making",
     personality: "Finance/analytics background, methodical questioning, precise communication",
     traits: [
@@ -229,8 +236,14 @@ export default function InterviewRoleplay() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {interviewerTemplates.map((template) => {
           return (
-            <Card key={template.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+            <Card key={template.id} className="relative overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader className="pb-2">
+                <div className="flex items-center justify-between mb-1">
+                  <Badge className={template.difficultyColor}>{template.difficulty}</Badge>
+                  {template.recommendedLabel && (
+                    <span className="text-xs text-green-600 font-medium">{template.recommendedLabel}</span>
+                  )}
+                </div>
                 <div className="flex items-center space-x-3">
                   <div className="flex-shrink-0">
                     <img 
@@ -246,10 +259,10 @@ export default function InterviewRoleplay() {
                 </div>
               </CardHeader>
               
-              <CardContent className="pt-0">
-                <p className="text-sm text-muted-foreground mb-4">{template.description}</p>
+              <CardContent className="pt-0 flex flex-col flex-1">
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{template.description}</p>
                 
-                <div className="space-y-2">
+                <div className="space-y-2 flex-1">
                   <h4 className="text-sm font-medium">What they'll test:</h4>
                   <p className="text-xs text-muted-foreground">{template.testingFocus}</p>
                 </div>
