@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { 
   Mic, 
   BarChart3, 
@@ -26,19 +28,40 @@ import {
   Calculator,
   DollarSign,
   Timer,
-  FileText
+  FileText,
+  Flame
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import rebeccaImage from '@/assets/rebecca-martinez.jpg';
 import jakeImage from '@/assets/jake-thompson.jpg';
 import michaelImage from '@/assets/michael-chen.jpg';
 import heroImage from '@/assets/hero-interview.jpg';
+import founderImage from '@/assets/founder.png';
 
 const Index = () => {
   const navigate = useNavigate();
   const [isTriMonthly, setIsTriMonthly] = useState(true);
   const [selectedInterviewer, setSelectedInterviewer] = useState<string | null>(null);
   const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(null);
+  
+  // ROI Calculator state
+  const [currentSalary, setCurrentSalary] = useState<string>('40000');
+  const [targetRole, setTargetRole] = useState<string>('sdr');
+
+  const roleSalaries: Record<string, { base: number; ote: number; label: string }> = {
+    sdr: { base: 50000, ote: 75000, label: 'SDR' },
+    bdr: { base: 52000, ote: 78000, label: 'BDR' },
+    ae_smb: { base: 60000, ote: 100000, label: 'AE (SMB)' },
+    ae_mid: { base: 75000, ote: 140000, label: 'AE (Mid-Market)' },
+    ae_enterprise: { base: 95000, ote: 200000, label: 'AE (Enterprise)' },
+  };
+
+  const currentSalaryNum = parseInt(currentSalary) || 0;
+  const targetInfo = roleSalaries[targetRole];
+  const baseDiff = targetInfo.base - currentSalaryNum;
+  const oteDiff = targetInfo.ote - currentSalaryNum;
+  const cadenceCost = isTriMonthly ? 40 * 3 : 50 * 3;
+  const roiMultiple = oteDiff > 0 ? Math.round(oteDiff / cadenceCost) : 0;
 
   const interviewers = [
     {
@@ -76,30 +99,20 @@ const Index = () => {
       description: "Master the #1 reason candidates get rejected",
       details: [
         "Practice objection handling under pressure",
-        "Unlimited practice sessions to build confidence"
+        "Unlimited text-based practice sessions to build confidence"
       ],
       icon: <Users className="h-6 w-6" />,
       position: "right"
     },
     {
       title: "Real-Time Confidence Coaching", 
-      description: "AI detects anxiety and guides you to stronger delivery",
+      description: "AI detects weak answers and guides you to stronger delivery",
       details: [
-        "Voice analysis detects nervousness and hesitation",
+        "Response analysis detects hesitation and vague answers",
         "Live coaching prompts during practice sessions"
       ],
       icon: <Brain className="h-6 w-6" />,
       position: "left"
-    },
-    {
-      title: "Industry-Specific Scenarios",
-      description: "Practice for your exact industry and role", 
-      details: [
-        "SDR cold calling and lead qualification scenarios",
-        "AE deal closing and stakeholder management"
-      ],
-      icon: <Target className="h-6 w-6" />,
-      position: "right"
     },
     {
       title: "Instant Feedback & Improvement",
@@ -109,6 +122,16 @@ const Index = () => {
         "Full interview transcript"
       ],
       icon: <BarChart3 className="h-6 w-6" />,
+      position: "right"
+    },
+    {
+      title: "Streaks & Progress Tracking",
+      description: "Stay motivated with gamified progress and daily streaks",
+      details: [
+        "Build daily practice streaks to form winning habits",
+        "Level up from Nervous Newbie to Hired Legend with XP rewards"
+      ],
+      icon: <Flame className="h-6 w-6" />,
       position: "left"
     }
   ];
@@ -116,7 +139,7 @@ const Index = () => {
   const faqItems = [
     {
       question: "What is Cadence?",
-      answer: "Cadence is an AI-powered simulator to help aspiring SDRs/AEs practice realistic sales interview scenarios with real-time coaching and build confidence before real interviews."
+      answer: "Cadence is an AI-powered text-based simulator to help aspiring SDRs/AEs practice realistic sales interview scenarios with real-time coaching and build confidence before real interviews."
     },
     {
       question: "Why tri-monthly billing instead of monthly?",
@@ -128,7 +151,7 @@ const Index = () => {
     },
     {
       question: "How realistic are the AI interviewers?",
-      answer: "Our AI interviewers go beyond basic Q&A. They have distinct personalities, interrupt poor answers, ask follow-up questions based on what you say, and even show skepticism when appropriate."
+      answer: "Our AI interviewers go beyond basic Q&A. They have distinct personalities, challenge poor answers, ask follow-up questions based on what you say, and even show skepticism when appropriate."
     },
     {
       question: "What if I'm changing careers into sales?",
@@ -183,7 +206,7 @@ const Index = () => {
             {/* New Release Bar */}
             <div className="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-medium mb-8">
               <Star className="h-4 w-4 mr-2" />
-              NEW! Cadence v0.1 released
+              NEW! Cadence v1 released
             </div>
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight max-w-5xl mx-auto">
@@ -252,8 +275,12 @@ const Index = () => {
                 "You can crush quotas, close deals, and be the best salesman in the world, but if you can't sell yourself in the interview, you'll never get the chance. 73% of sales candidates fail at the interview stage - not because they can't sell, but because they can't interview."
               </blockquote>
               <div className="flex items-center justify-center gap-4">
-                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                  <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                <div className="w-16 h-16 rounded-full overflow-hidden">
+                  <img 
+                    src={founderImage} 
+                    alt="Founder of Cadence"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div>
                   <p className="font-semibold text-foreground">Founder of Cadence</p>
@@ -443,27 +470,82 @@ const Index = () => {
           </div>
 
           <Card className="bg-white border border-gray-200 shadow-sm">
-            <CardContent className="pt-8 space-y-6">
-              <div className="text-center">
-                <Calculator className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Interactive ROI Calculator</h3>
-                <p className="mb-6" style={{color: 'rgb(75 85 99)'}}>Coming Soon - Calculate your potential income increase</p>
-                <div className="space-y-4 text-left max-w-md mx-auto">
-                  <div className="flex justify-between py-2 border-b border-gray-200">
-                    <span style={{color: 'rgb(75 85 99)'}}>Current role/salary input</span>
-                    <span>→</span>
+            <CardContent className="pt-8 space-y-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Inputs */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="currentSalary" className="text-sm font-medium">Current Annual Salary ($)</Label>
+                    <Input
+                      id="currentSalary"
+                      type="number"
+                      value={currentSalary}
+                      onChange={(e) => setCurrentSalary(e.target.value)}
+                      placeholder="e.g. 40000"
+                    />
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-200">
-                    <span style={{color: 'rgb(75 85 99)'}}>Target sales role selector</span>
-                    <span>→</span>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Target Sales Role</Label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {Object.entries(roleSalaries).map(([key, val]) => (
+                        <button
+                          key={key}
+                          onClick={() => setTargetRole(key)}
+                          className={`text-left px-4 py-3 rounded-lg border transition-colors text-sm ${
+                            targetRole === key 
+                              ? 'border-primary bg-primary/5 text-foreground font-medium' 
+                              : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                          }`}
+                        >
+                          <span>{val.label}</span>
+                          <span className="float-right text-xs text-muted-foreground">
+                            ${val.base.toLocaleString()} – ${val.ote.toLocaleString()} OTE
+                          </span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-200">
-                    <span style={{color: 'rgb(75 85 99)'}}>Location selector</span>
-                    <span>→</span>
+                </div>
+
+                {/* Results */}
+                <div className="flex flex-col justify-center space-y-6">
+                  <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+                    <h4 className="font-semibold text-foreground text-lg">Your Potential Increase</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm" style={{color: 'rgb(75 85 99)'}}>Base salary increase</span>
+                        <span className={`font-bold text-lg ${baseDiff > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          {baseDiff > 0 ? '+' : ''}${baseDiff.toLocaleString()}/yr
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm" style={{color: 'rgb(75 85 99)'}}>With OTE (on-target earnings)</span>
+                        <span className={`font-bold text-lg ${oteDiff > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          {oteDiff > 0 ? '+' : ''}${oteDiff.toLocaleString()}/yr
+                        </span>
+                      </div>
+                      <div className="border-t border-gray-200 pt-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm" style={{color: 'rgb(75 85 99)'}}>Cadence investment (3 months)</span>
+                          <span className="font-medium text-foreground">${cadenceCost}</span>
+                        </div>
+                      </div>
+                      {roiMultiple > 0 && (
+                        <div className="bg-primary/10 rounded-lg p-4 text-center">
+                          <p className="text-sm text-primary font-medium">Potential ROI</p>
+                          <p className="text-3xl font-bold text-primary">{roiMultiple}x</p>
+                          <p className="text-xs text-muted-foreground mt-1">return on your Cadence investment</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="pt-4 text-center">
-                    <p className="font-medium text-primary">Output: Potential income increase & ROI</p>
-                  </div>
+                  <Button 
+                    onClick={() => navigate('/signup')}
+                    className="w-full"
+                  >
+                    Start Practicing Now
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
                 </div>
               </div>
             </CardContent>
