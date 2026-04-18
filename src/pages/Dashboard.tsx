@@ -316,7 +316,31 @@ const Dashboard = () => {
     });
   };
 
-  const chartConfig = {
+  const handleDeleteInterview = async (interviewId: string) => {
+    try {
+      const { error } = await supabase
+        .from('interview_sessions')
+        .delete()
+        .eq('id', interviewId);
+
+      if (error) throw error;
+
+      setRecentInterviews((prev) => prev.filter((i) => i.id !== interviewId));
+      setAllSessions((prev) => prev.filter((s) => s.id !== interviewId));
+
+      toast({
+        title: "Interview deleted",
+        description: "The interview has been removed from your history.",
+      });
+    } catch (error) {
+      console.error('Error deleting interview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete interview",
+        variant: "destructive",
+      });
+    }
+  };
     score: {
       label: "Interview Score",
       color: "hsl(var(--primary))",
