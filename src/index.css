@@ -6,69 +6,72 @@
 
 @layer base {
   :root {
-    /* Core Brand Colors - Clean & Minimalistic */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
+    /* Core Brand Colors - Cadence Brand Palette */
+    /* Off-white canvas #F5F4F0 */
+    --background: 44 17% 95%;
+    /* Navy midnight #1A1F3C */
+    --foreground: 230 40% 17%;
     
     /* Custom gray for subheadlines and descriptions */
-    --text-gray: 220 15% 35%;
+    --text-gray: 230 20% 35%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 230 40% 17%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    --popover-foreground: 230 40% 17%;
 
-    /* Primary - Single Blue Color */
-    --primary: 217 89% 61%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 89% 61%;
+    /* Primary - Navy Midnight #1A1F3C */
+    --primary: 230 40% 17%;
+    --primary-foreground: 44 17% 95%;
+    --primary-glow: 230 40% 25%;
 
-    /* Secondary - Calming Light Blue */
-    --secondary: 217 25% 95%;
-    --secondary-foreground: 0 0% 0%;
+    /* Secondary - Soft Navy tint */
+    --secondary: 230 25% 92%;
+    --secondary-foreground: 230 40% 17%;
 
-    /* Success - Achievement Green */
-    --success: 142 76% 36%;
+    /* Success - Signal Green #00C98D */
+    --success: 159 100% 39%;
     --success-foreground: 0 0% 100%;
-    --success-light: 142 76% 94%;
+    --success-light: 159 70% 92%;
 
-    /* Warning - Same as Primary */
-    --warning: 217 89% 61%;
+    /* Warning - Pitch Fire #FF6B35 */
+    --warning: 16 100% 60%;
     --warning-foreground: 0 0% 100%;
-    --warning-light: 217 89% 95%;
+    --warning-light: 16 100% 94%;
 
     /* Muted - Neutral Grays */
-    --muted: 220 13% 95%;
-    --muted-foreground: 220 15% 35%;
+    --muted: 44 12% 90%;
+    --muted-foreground: 230 20% 35%;
 
-    --accent: 217 25% 93%;
-    --accent-foreground: 0 0% 0%;
+    /* Accent - Pitch Fire #FF6B35 */
+    --accent: 16 100% 60%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 96%;
-    --ring: 217 91% 60%;
+    --border: 230 15% 88%;
+    --input: 44 12% 92%;
+    --ring: 230 40% 17%;
 
     --radius: 0.75rem;
 
     /* Interview-Specific Colors */
-    --tech-accent: 258 90% 66%;
-    --startup-accent: 142 76% 36%;
-    --enterprise-accent: 217 91% 60%;
+    --tech-accent: 230 40% 17%;
+    --startup-accent: 159 100% 39%;
+    --enterprise-accent: 16 100% 60%;
 
-    /* Gradients - Removed, using solid colors */
-    --gradient-hero: hsl(217 89% 61%);
-    --gradient-card: linear-gradient(145deg, hsl(220 15% 98%), hsl(220 13% 95%));
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 46%));
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(230 40% 17%), hsl(230 40% 25%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(44 17% 96%));
+    --gradient-success: linear-gradient(135deg, hsl(159 100% 39%), hsl(159 100% 45%));
 
     /* Shadows */
-    --shadow-soft: 0 4px 6px -1px hsl(220 25% 15% / 0.1), 0 2px 4px -1px hsl(220 25% 15% / 0.06);
-    --shadow-medium: 0 10px 15px -3px hsl(220 25% 15% / 0.1), 0 4px 6px -2px hsl(220 25% 15% / 0.05);
-    --shadow-large: 0 25px 50px -12px hsl(220 25% 15% / 0.25);
-    --shadow-glow: 0 0 30px hsl(217 91% 60% / 0.3);
+    --shadow-soft: 0 4px 6px -1px hsl(230 40% 17% / 0.08), 0 2px 4px -1px hsl(230 40% 17% / 0.05);
+    --shadow-medium: 0 10px 15px -3px hsl(230 40% 17% / 0.1), 0 4px 6px -2px hsl(230 40% 17% / 0.05);
+    --shadow-large: 0 25px 50px -12px hsl(230 40% 17% / 0.25);
+    --shadow-glow: 0 0 30px hsl(159 100% 39% / 0.3);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
