@@ -393,6 +393,19 @@ export default function Settings() {
               }
             />
           </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Show me on the leaderboard</p>
+              <p className="text-sm text-muted-foreground">
+                When off, you'll appear as "Anonymous" on the weekly leaderboard.
+              </p>
+            </div>
+            <Switch
+              checked={leaderboardVisible}
+              disabled={isSavingLeaderboard}
+              onCheckedChange={handleLeaderboardToggle}
+            />
+          </div>
         </CardContent>
       </Card>
 
