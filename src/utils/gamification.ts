@@ -13,16 +13,16 @@ export const XP_REWARDS = {
 
 // Level definitions with XP thresholds
 export const LEVELS = [
-  { level: 1, name: "Nervous Newbie", minXP: 0, maxXP: 100, emoji: "😰" },
-  { level: 2, name: "Eager Learner", minXP: 100, maxXP: 250, emoji: "📚" },
-  { level: 3, name: "Practicing Pro", minXP: 250, maxXP: 500, emoji: "💪" },
-  { level: 4, name: "Confident Caller", minXP: 500, maxXP: 1000, emoji: "😎" },
-  { level: 5, name: "Objection Handler", minXP: 1000, maxXP: 2000, emoji: "🛡️" },
-  { level: 6, name: "Discovery Master", minXP: 2000, maxXP: 3500, emoji: "🔍" },
-  { level: 7, name: "Interview Ready", minXP: 3500, maxXP: 5000, emoji: "🎯" },
-  { level: 8, name: "Sales Savage", minXP: 5000, maxXP: 7500, emoji: "🔥" },
-  { level: 9, name: "Closer", minXP: 7500, maxXP: 10000, emoji: "💼" },
-  { level: 10, name: "Hired Legend", minXP: 10000, maxXP: Infinity, emoji: "👑" },
+  { level: 1, minXP: 0, maxXP: 100 },
+  { level: 2, minXP: 100, maxXP: 250 },
+  { level: 3, minXP: 250, maxXP: 500 },
+  { level: 4, minXP: 500, maxXP: 1000 },
+  { level: 5, minXP: 1000, maxXP: 2000 },
+  { level: 6, minXP: 2000, maxXP: 3500 },
+  { level: 7, minXP: 3500, maxXP: 5000 },
+  { level: 8, minXP: 5000, maxXP: 7500 },
+  { level: 9, minXP: 7500, maxXP: 10000 },
+  { level: 10, minXP: 10000, maxXP: Infinity },
 ] as const;
 
 export function getLevelInfo(totalXP: number) {

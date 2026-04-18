@@ -28,8 +28,8 @@ export function XPProgressCard() {
         {/* Level Badge */}
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground">Level {levelInfo.level}</p>
-            <p className="font-bold text-lg">{levelInfo.name}</p>
+            <p className="text-sm font-medium text-muted-foreground">Level</p>
+            <p className="font-bold text-lg">Level {levelInfo.level}</p>
           </div>
           <Badge variant="secondary" className="text-xs">
             #{progress.leaderboardRank || '—'}
