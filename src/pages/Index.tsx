@@ -98,7 +98,7 @@ const Index = () => {
       title: "Realistic Role-Play Practice",
       description: "Master the #1 reason candidates get rejected",
       details: [
-        "Practice objection handling under pressure",
+        "Practice interviewing under pressure",
         "Unlimited text-based practice sessions to build confidence"
       ],
       icon: <Users className="h-6 w-6" />,
