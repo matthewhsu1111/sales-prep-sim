@@ -20,9 +20,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, Filter, Calendar } from "lucide-react";
+import { Eye, Filter, Calendar, Trash2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const InterviewHistory = () => {
   const navigate = useNavigate();
@@ -134,6 +145,30 @@ const InterviewHistory = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleDeleteInterview = async (interviewId: string) => {
+    try {
+      const { error } = await supabase
+        .from('interview_sessions')
+        .delete()
+        .eq('id', interviewId);
+
+      if (error) throw error;
+
+      setInterviews((prev) => prev.filter((i) => i.id !== interviewId));
+      toast({
+        title: "Interview deleted",
+        description: "The interview has been removed from your history.",
+      });
+    } catch (error) {
+      console.error('Error deleting interview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete interview",
+        variant: "destructive",
+      });
+    }
   };
 
   const getScoreBadgeVariant = (score: number) => {
@@ -258,17 +293,48 @@ const InterviewHistory = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewDetails(interview);
-                          }}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </Button>
+                        <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewDetails(interview);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                aria-label="Delete interview"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete this interview?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will permanently remove this interview and its results. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteInterview(interview.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
