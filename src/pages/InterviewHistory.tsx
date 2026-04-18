@@ -170,6 +170,8 @@ const InterviewHistory = () => {
       });
     }
   };
+
+  const getScoreBadgeVariant = (score: number) => {
     if (score >= 80) return "default";
     if (score >= 60) return "secondary";
     return "destructive";
