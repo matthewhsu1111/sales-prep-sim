@@ -29,6 +29,8 @@ export default function Settings() {
     profileVisibility: false,
     dataSharing: false
   });
+  const [leaderboardVisible, setLeaderboardVisible] = useState(true);
+  const [isSavingLeaderboard, setIsSavingLeaderboard] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [subscriptionTier, setSubscriptionTier] = useState<string>('free');
   const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
@@ -64,9 +66,48 @@ export default function Settings() {
       setInterviewCount(count || 0);
     };
     
+    const fetchLeaderboardPref = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('user_progress')
+        .select('leaderboard_visible')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (data && typeof data.leaderboard_visible === 'boolean') {
+        setLeaderboardVisible(data.leaderboard_visible);
+      }
+    };
+
     fetchProfile();
     fetchInterviewCount();
+    fetchLeaderboardPref();
   }, [user]);
+
+  const handleLeaderboardToggle = async (checked: boolean) => {
+    if (!user) return;
+    setLeaderboardVisible(checked);
+    setIsSavingLeaderboard(true);
+    const { error } = await supabase
+      .from('user_progress')
+      .update({ leaderboard_visible: checked })
+      .eq('user_id', user.id);
+    setIsSavingLeaderboard(false);
+    if (error) {
+      setLeaderboardVisible(!checked);
+      toast({
+        title: 'Error',
+        description: 'Failed to update leaderboard visibility',
+        variant: 'destructive',
+      });
+      return;
+    }
+    toast({
+      title: checked ? 'Visible on leaderboard' : 'Hidden as Anonymous',
+      description: checked
+        ? 'Your first name will appear on the weekly leaderboard.'
+        : 'You will appear as "Anonymous" on the leaderboard.',
+    });
+  };
 
   const handlePasswordChange = async () => {
     if (newPassword !== confirmPassword) {
