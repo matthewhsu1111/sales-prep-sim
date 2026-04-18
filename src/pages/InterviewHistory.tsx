@@ -147,7 +147,29 @@ const InterviewHistory = () => {
     });
   };
 
-  const getScoreBadgeVariant = (score: number) => {
+  const handleDeleteInterview = async (interviewId: string) => {
+    try {
+      const { error } = await supabase
+        .from('interview_sessions')
+        .delete()
+        .eq('id', interviewId);
+
+      if (error) throw error;
+
+      setInterviews((prev) => prev.filter((i) => i.id !== interviewId));
+      toast({
+        title: "Interview deleted",
+        description: "The interview has been removed from your history.",
+      });
+    } catch (error) {
+      console.error('Error deleting interview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete interview",
+        variant: "destructive",
+      });
+    }
+  };
     if (score >= 80) return "default";
     if (score >= 60) return "secondary";
     return "destructive";
