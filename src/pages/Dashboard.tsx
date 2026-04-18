@@ -5,7 +5,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, Clock, Play, BarChart3, Star, Target } from "lucide-react";
+import { TrendingUp, TrendingDown, Clock, Play, BarChart3, Star, Target, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/components/AuthProvider";
@@ -305,6 +316,32 @@ const Dashboard = () => {
     });
   };
 
+  const handleDeleteInterview = async (interviewId: string) => {
+    try {
+      const { error } = await supabase
+        .from('interview_sessions')
+        .delete()
+        .eq('id', interviewId);
+
+      if (error) throw error;
+
+      setRecentInterviews((prev) => prev.filter((i) => i.id !== interviewId));
+      setAllSessions((prev) => prev.filter((s) => s.id !== interviewId));
+
+      toast({
+        title: "Interview deleted",
+        description: "The interview has been removed from your history.",
+      });
+    } catch (error) {
+      console.error('Error deleting interview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete interview",
+        variant: "destructive",
+      });
+    }
+  };
+
   const chartConfig = {
     score: {
       label: "Interview Score",
@@ -601,9 +638,40 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <Badge variant={interview.score >= 80 ? "default" : "secondary"}>
-                    {interview.score}%
-                  </Badge>
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <Badge variant={interview.score >= 80 ? "default" : "secondary"}>
+                      {interview.score}%
+                    </Badge>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          aria-label="Delete interview"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete this interview?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently remove "{interview.title}" and its results. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteInterview(interview.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </div>
               ))}
             </div>
