@@ -341,6 +341,8 @@ const Dashboard = () => {
       });
     }
   };
+
+  const chartConfig = {
     score: {
       label: "Interview Score",
       color: "hsl(var(--primary))",
