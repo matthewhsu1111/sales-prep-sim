@@ -638,9 +638,40 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <Badge variant={interview.score >= 80 ? "default" : "secondary"}>
-                    {interview.score}%
-                  </Badge>
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <Badge variant={interview.score >= 80 ? "default" : "secondary"}>
+                      {interview.score}%
+                    </Badge>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          aria-label="Delete interview"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete this interview?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently remove "{interview.title}" and its results. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteInterview(interview.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </div>
               ))}
             </div>
