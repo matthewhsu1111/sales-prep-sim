@@ -16,6 +16,7 @@ interface LeaderboardEntry {
   current_level: number;
   current_streak: number;
   rank: number;
+  leaderboard_visible: boolean | null;
 }
 
 export default function Leaderboards() {
@@ -65,12 +66,25 @@ export default function Leaderboards() {
   }
 
   function getDisplayName(entry: LeaderboardEntry) {
-    return entry.first_name || entry.name || 'Anonymous User';
+    const isCurrentUser = entry.user_id === user?.id;
+    // Always show the current user their own real name
+    if (isCurrentUser) {
+      return entry.first_name || entry.name || 'You';
+    }
+    // Respect opt-out: show as Anonymous but keep their rank
+    if (entry.leaderboard_visible === false) {
+      return 'Anonymous';
+    }
+    // Privacy: first name only (fallback to first word of full name)
+    if (entry.first_name) return entry.first_name;
+    if (entry.name) return entry.name.trim().split(/\s+/)[0];
+    return 'Anonymous Learner';
   }
 
   function getInitials(entry: LeaderboardEntry) {
     const name = getDisplayName(entry);
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    if (name === 'Anonymous' || name === 'Anonymous Learner') return '?';
+    return name.charAt(0).toUpperCase();
   }
 
   if (loading) {
@@ -94,6 +108,9 @@ export default function Leaderboards() {
         </div>
         <p className="text-muted-foreground">
           Compete with other interview masters and climb the ranks!
+        </p>
+        <p className="text-xs text-muted-foreground">
+          For privacy, only first names are shown. Manage your visibility in Settings.
         </p>
       </div>
 

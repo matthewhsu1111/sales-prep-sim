@@ -297,6 +297,7 @@ export type Database = {
           current_level: number | null
           current_streak: number | null
           first_name: string | null
+          leaderboard_visible: boolean | null
           name: string | null
           rank: number | null
           user_id: string | null
