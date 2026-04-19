@@ -21,6 +21,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Careers from "./pages/Careers";
 import Leaderboards from "./pages/Leaderboards";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
           <Sonner />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/register" element={<Register />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Signin />} />
