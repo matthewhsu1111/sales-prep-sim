@@ -1,4 +1,4 @@
 
-The header on the landing page (`src/pages/Index.tsx`) likely renders all nav items inline regardless of screen size, causing them to squish on tablet/mobile widths.
+The "Use default" button in `JobPostingModal.tsx` (URL tab) currently has no `onClick` handler — it's a dead button.
 
-Let me confirm by reading the header section.
+I need to find what "default job description" was previously specified. Let me check chat history.
