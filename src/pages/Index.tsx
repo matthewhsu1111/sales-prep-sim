@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import realisticRoleplayVideo from '@/assets/realistic-roleplay.mov';
 import practiceDetailsVideo from '@/assets/practice-details.mov';
+import resultsDemoVideo from '@/assets/results-demo.mov';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -126,7 +127,8 @@ const Index = () => {
         "Full interview transcript"
       ],
       icon: <BarChart3 className="h-6 w-6" />,
-      position: "right"
+      position: "right",
+      demo: resultsDemoVideo
     },
     {
       title: "Streaks & Progress Tracking",
