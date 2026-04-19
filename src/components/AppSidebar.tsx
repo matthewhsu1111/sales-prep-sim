@@ -34,7 +34,7 @@ const dashboardItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Interview Roleplay", url: "/dashboard/interview-roleplay", icon: Mic },
   { title: "Leaderboards", url: "/dashboard/leaderboards", icon: Trophy },
-  { title: "Careers", url: "/dashboard/careers", icon: Target },
+  
 ];
 
 export function AppSidebar() {
