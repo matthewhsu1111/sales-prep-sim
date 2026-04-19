@@ -102,7 +102,8 @@ const Index = () => {
         "Unlimited text-based practice sessions to build confidence"
       ],
       icon: <Users className="h-6 w-6" />,
-      position: "right"
+      position: "right",
+      demo: realisticRoleplayVideo
     },
     {
       title: "Real-Time Confidence Coaching", 
