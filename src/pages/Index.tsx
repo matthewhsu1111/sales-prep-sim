@@ -26,6 +26,7 @@ import {
   Brain,
   ChevronDown,
   X,
+  Menu,
   MessageSquare,
   Eye,
   Headphones,
@@ -36,6 +37,7 @@ import {
   Flame
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import rebeccaImage from '@/assets/rebecca-martinez.jpg';
 import jakeImage from '@/assets/jake-thompson.jpg';
 import michaelImage from '@/assets/michael-chen.jpg';
@@ -171,23 +173,23 @@ const Index = () => {
     <div className="min-h-screen bg-white">{/* Clean white background */}
 
       {/* Navigation */}
-      <nav className="fixed top-4 left-64 right-64 z-50 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-6 lg:px-8">
+      <nav className="fixed top-4 left-4 right-4 sm:left-8 sm:right-8 lg:left-32 lg:right-32 xl:left-64 xl:right-64 z-50 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-2">
+          <div className="flex h-16 items-center justify-between gap-4">
+            <div className="flex items-center space-x-2 shrink-0">
               <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
                 <Mic className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="font-bold text-xl text-foreground">Cadence</span>
             </div>
             
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-8">
               <a href="#realistic-section" className="text-gray-600 hover:text-foreground transition-colors">Features</a>
               <a href="#pricing" className="text-gray-600 hover:text-foreground transition-colors">Pricing</a>
               <a href="#faq" className="text-gray-600 hover:text-foreground transition-colors">FAQ</a>
             </div>
       
-            <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
               <Button 
                 variant="outline" 
                 size="sm"
@@ -203,6 +205,36 @@ const Index = () => {
                 Try For Free
               </Button>
             </div>
+
+            {/* Mobile menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72">
+                <div className="flex flex-col gap-6 mt-8">
+                  <SheetClose asChild>
+                    <a href="#realistic-section" className="text-lg font-medium text-foreground hover:text-primary transition-colors">Features</a>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <a href="#pricing" className="text-lg font-medium text-foreground hover:text-primary transition-colors">Pricing</a>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <a href="#faq" className="text-lg font-medium text-foreground hover:text-primary transition-colors">FAQ</a>
+                  </SheetClose>
+                  <div className="flex flex-col gap-3 pt-4 border-t">
+                    <Button variant="outline" onClick={() => navigate('/register')}>
+                      Watch Demo
+                    </Button>
+                    <Button variant="default" onClick={() => navigate('/signup')}>
+                      Try For Free
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </nav>
