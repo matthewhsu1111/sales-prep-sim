@@ -107,11 +107,11 @@ const Index = () => {
       demo: realisticRoleplayVideo
     },
     {
-      title: "Real-Time Confidence Coaching", 
-      description: "AI detects weak answers and guides you to stronger delivery",
+      title: "Practice Exactly What YOU Need",
+      description: "Personalize every practice session to match your upcoming interviews",
       details: [
-        "Response analysis detects hesitation and vague answers",
-        "Live coaching prompts during practice sessions"
+        "Paste a job description or URL to tailor questions to the exact role",
+        "Pick your interviewer persona and difficulty to mirror who you'll face"
       ],
       icon: <Brain className="h-6 w-6" />,
       position: "left"
