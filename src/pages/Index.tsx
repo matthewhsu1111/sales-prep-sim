@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import realisticRoleplayVideo from '@/assets/realistic-roleplay.mov';
+import practiceDetailsVideo from '@/assets/practice-details.mov';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -114,7 +115,8 @@ const Index = () => {
         "Pick scenario focus: Initial screen, hiring manager, technical/role-play, executive interview"
       ],
       icon: <Brain className="h-6 w-6" />,
-      position: "left"
+      position: "left",
+      demo: practiceDetailsVideo
     },
     {
       title: "Instant Feedback & Improvement",
