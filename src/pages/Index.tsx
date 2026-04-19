@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import realisticRoleplayVideo from '@/assets/realistic-roleplay.mov';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -444,11 +445,22 @@ const Index = () => {
                 
                 {/* GIF Placeholder */}
                 <div className="flex-1">
-                  <div className="aspect-video bg-white rounded-xl border border-gray-200 shadow-sm flex items-center justify-center">
-                    <div className="text-center" style={{color: 'rgb(75 85 99)'}}>
-                      <FileText className="h-12 w-12 mx-auto mb-2" />
-                      <p>Feature Demo</p>
-                    </div>
+                  <div className="aspect-video bg-white rounded-xl border border-gray-200 shadow-sm flex items-center justify-center overflow-hidden">
+                    {feature.demo ? (
+                      <video
+                        src={feature.demo}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center" style={{color: 'rgb(75 85 99)'}}>
+                        <FileText className="h-12 w-12 mx-auto mb-2" />
+                        <p>Feature Demo</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
