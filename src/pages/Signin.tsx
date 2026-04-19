@@ -30,7 +30,10 @@ const Signin = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/profile-setup`
+          redirectTo: `${window.location.origin}/profile-setup`,
+          queryParams: {
+            prompt: 'select_account',
+          },
         }
       });
       
