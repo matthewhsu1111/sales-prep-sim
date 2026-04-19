@@ -289,22 +289,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* VSL Demo Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="relative max-w-4xl mx-auto">
-            <div className="relative z-10 bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
-              <div className="aspect-video bg-gray-50 rounded-xl flex items-center justify-center">
-                <div className="text-center">
-                  <Play className="h-16 w-16 mx-auto mb-4" style={{color: 'rgb(75 85 99)'}} />
-                  <p className="text-lg font-medium" style={{color: 'rgb(75 85 99)'}}>VSL Demo Placeholder</p>
-                  <p className="text-sm mt-2" style={{color: 'rgb(107 114 128)'}}>Click to watch how Cadence works</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Quote Section */}
       <section className="py-20 bg-white">
