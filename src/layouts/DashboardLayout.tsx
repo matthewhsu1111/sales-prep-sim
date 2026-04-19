@@ -136,8 +136,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Main Content with top padding to account for fixed header */}
-        <div className="flex-1 flex flex-col pt-16">
-          <main className="flex-1 overflow-auto">
+        <div className="flex-1 flex flex-col pt-16 min-w-0">
+          <main className="flex-1 overflow-auto min-w-0">
             {children}
           </main>
         </div>

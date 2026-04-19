@@ -352,7 +352,7 @@ const Dashboard = () => {
   const dailyProgress = progress ? (progress.dailyXP / dailyGoal) * 100 : 0;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6 min-w-0 max-w-full overflow-x-hidden">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">
@@ -397,9 +397,9 @@ const Dashboard = () => {
       {/* Progress Over Time Chart */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle>Progress Over Time</CardTitle>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant={timeRange === 'today' ? 'default' : 'outline'}
                 size="sm"
