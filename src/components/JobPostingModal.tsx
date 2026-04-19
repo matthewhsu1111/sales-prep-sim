@@ -11,6 +11,40 @@ import { useToast } from "@/hooks/use-toast";
 import { WebScrapingService } from "@/utils/WebScrapingService";
 import { Globe, FileText } from "lucide-react";
 
+const DEFAULT_JOB_DESCRIPTION = `Sales Development Representative, Outbound (IT)
+About Rippling
+
+Rippling is the first way for businesses to manage all of their HR & IT—payroll, benefits, computers, apps, and more—in one unified workforce platform.
+
+By connecting every business system to one source of truth for employee data, businesses can automate all of the manual work they normally need to do to make employee changes. Take onboarding, for example. With Rippling, you can just click a button and set up a new employees' payroll, health insurance, work computer, and third-party apps—like Slack, Zoom, and Office 365—all within 90 seconds.
+
+Based in San Francisco, CA, Rippling has raised $1.2B from the world's top investors—including Kleiner Perkins, Founders Fund, Sequoia, Greenoaks, and Bedrock—and was named one of America's best startup employers by Forbes.
+
+About the role
+This role is hybrid 3x a week in our NYC Office
+
+The SDR role at Rippling provides a unique opportunity - we're looking for talented, ambitious SDR's who can manage high velocity top-of-funnel sales qualification, while also navigating a very strategic sales process.
+
+As a SDR, you will be responsible for prospecting and qualifying new customers for Rippling. We're building a team that will require a "winning" attitude, a high sense of urgency, and a passion for sales. As an SDR at Rippling, you will have the opportunity to help shape processes and build pipelines to support your Account Executive counterparts immediately. We believe in promotion from within and transparency on career paths that allow you to grow in your sales profession.
+
+What you'll do
+- Become a product expert across our IT platform and understand our competitor landscape
+- Manage outbound leads using specific qualifying criteria
+- Outbound with strategic and thoughtful messaging to upmarket prospects
+- Partner with marketing to manage outbound campaigns to increase lead volume
+- Prospect into new accounts using proven sales methodology
+- Maintain and update accurate records in CRM
+
+Qualifications
+- BA/BS degree, or equivalent work experience
+- Ability to thrive in a fast paced environment
+- Ability to collaborate with others and work cross functionally among different teams at Rippling
+- Desire to join competitive team based environment
+- Sales experience preferred but not required for role
+
+Location: New York, NY
+Compensation: $105,000 OTE (70/30 split)`;
+
 interface JobPostingModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -230,7 +264,14 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
                         onChange={(e) => setJobUrl(e.target.value)}
                         className="flex-1"
                       />
-                      <Button variant="outline" className="px-3">
+                      <Button
+                        variant="outline"
+                        className="px-3"
+                        onClick={() => {
+                          setJobDescription(DEFAULT_JOB_DESCRIPTION);
+                          setInputMode("text");
+                        }}
+                      >
                         Use default
                       </Button>
                     </div>
