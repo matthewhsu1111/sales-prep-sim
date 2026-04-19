@@ -110,8 +110,8 @@ const Index = () => {
       title: "Practice Exactly What YOU Need",
       description: "Personalize every practice session to match your upcoming interviews",
       details: [
-        "Paste a job description or URL to tailor questions to the exact role",
-        "Pick your interviewer persona and difficulty to mirror who you'll face"
+        "Adjust difficulty level: Start easy to build confidence, then increase to match real pressure",
+        "Pick scenario focus: Initial screen, hiring manager, technical/role-play, executive interview"
       ],
       icon: <Brain className="h-6 w-6" />,
       position: "left"
