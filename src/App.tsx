@@ -65,7 +65,7 @@ const App = () => (
                 <InterviewHistory />
               </DashboardLayout>
             } />
-            <Route path="/dashboard/careers" element={
+            <Route path="/dashboard/careerrss" element={
               <DashboardLayout>
                 <Careers />
               </DashboardLayout>
