@@ -80,6 +80,7 @@ export default function InterviewRoleplay() {
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [isInterviewDetailsModalOpen, setIsInterviewDetailsModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<'limit' | 'proactive'>('limit');
   const [hasJobPostings, setHasJobPostings] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedInterviewer, setSelectedInterviewer] = useState<string | null>(null);
@@ -141,6 +142,7 @@ export default function InterviewRoleplay() {
   const handleStartTraining = (templateId: string) => {
     // Check if user has reached interview limit (free users OR users without active subscription)
     if ((userTier === 'free' || subscriptionStatus !== 'active') && interviewCount >= 3) {
+      setUpgradeReason('limit');
       setIsUpgradeModalOpen(true);
       return;
     }
@@ -223,6 +225,17 @@ export default function InterviewRoleplay() {
           {(userTier === 'free' || subscriptionStatus !== 'active') && (
             <p className="text-sm text-muted-foreground mt-1">
               Free plan: {interviewCount}/3 interviews used
+              {' · '}
+              <button
+                type="button"
+                onClick={() => {
+                  setUpgradeReason('proactive');
+                  setIsUpgradeModalOpen(true);
+                }}
+                className="text-primary hover:underline font-medium"
+              >
+                Upgrade to Pro
+              </button>
             </p>
           )}
         </div>
@@ -295,6 +308,7 @@ export default function InterviewRoleplay() {
       <UpgradeModal
         isOpen={isUpgradeModalOpen}
         onClose={() => setIsUpgradeModalOpen(false)}
+        description={upgradeReason === 'proactive' ? 'Upgrade for unlimited interview sessions.' : undefined}
       />
     </div>
   );

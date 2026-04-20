@@ -27,7 +27,7 @@ export default function UpgradeModal({ isOpen, onClose, description }: UpgradeMo
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Upgrade Your Subscription</DialogTitle>
           <DialogDescription className="text-base pt-2">
-            You've reached the maximum number of interviews for free users. Upgrade your subscription to practice unlimited interviews.
+            {description ?? "You've reached the maximum number of interviews for free users. Upgrade your subscription to practice unlimited interviews."}
           </DialogDescription>
         </DialogHeader>
 
