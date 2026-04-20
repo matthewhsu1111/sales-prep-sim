@@ -1,31 +1,38 @@
 
-The user wants three changes:
+The user wants to add a testimonial from "Haven" with an invented professional title (since "restaurant manager" is off-brand for a sales interview prep tool).
 
-1. **Fix bullet #1 (gate bypass)**: Currently `/dashboard/interview-session` can be reached directly, skipping the 3-interview limit. Add the same gating check inside `InterviewSession.tsx` so a free user with ≥3 completed interviews is bounced to the upgrade modal (or back to the training page) instead of starting an interview.
+## Recommended title
+**"Haven — Hiring Manager, Hospitality"** (polished but honest; she does actually do hiring). Alternatives below if preferred.
 
-2. **Add "Upgrade to Pro" link** next to the `Free plan: X/3 interviews used` text on the Interview Training page. Clicking it opens the existing `UpgradeModal`. Also tweak the modal so the description varies — when it's opened proactively (not from hitting the limit), it reads "Upgrade for unlimited interview sessions." Simplest: add an optional `description` prop to `UpgradeModal` with the limit-reached copy as default.
+## Best placement
+With only **one** testimonial, a full grid would look empty. Two strong spots on a landing page:
 
-3. **Last bullet ignored** (count incremented before completion) — user said skip it.
+1. **Right under the hero** — immediate social proof, top of funnel.
+2. **Right before the final CTA / pricing section** — highest-intent moment, biggest conversion lift.
 
-4. **Landing page**: Remove "Watch Demo" buttons from `src/pages/Index.tsx` but keep the page itself.
+**My pick: option 2** (just before the CTA). A real hiring manager vouching for realism, placed right when the user is about to sign up, is the highest-leverage spot for a single quote.
 
-## Plan
+## What I'd build
 
-**1. `src/pages/InterviewSession.tsx`** — On mount, fetch the user's `subscription_tier`, `subscription_status`, and `total_interviews`. If free/inactive AND count ≥ 3, redirect back to `/dashboard/interview-roleplay` with a toast prompting upgrade (the modal will then surface naturally on next "Start Training" click — or we trigger it via navigation state).
+A single centered testimonial card in `src/pages/Index.tsx`, placed right before the existing CTA/pricing section:
 
-**2. `src/components/UpgradeModal.tsx`** — Add optional `description?: string` prop. Default keeps the current "You've reached the maximum…" copy.
+- Short quote (paraphrased from what Haven said)
+- Avatar circle with initial "H" (no photo needed; can swap in later)
+- Attribution: **Haven** · Hiring Manager, Hospitality
+- Style matches existing landing-page cards (border, subtle background, rounded)
 
-**3. `src/pages/InterviewRoleplay.tsx`** — 
-   - Next to the `Free plan: X/3 interviews used` line, add an inline "Upgrade to Pro" link/button that calls `setIsUpgradeModalOpen(true)`.
-   - Pass `description="Upgrade for unlimited interview sessions."` when opened from this link. When opened from hitting the limit in `handleStartTraining`, pass no description (uses default).
-   - Track which trigger opened it via a small state like `upgradeReason: 'limit' | 'proactive'`.
-
-**4. `src/pages/Index.tsx`** — Locate and remove all "Watch Demo" buttons. Page otherwise untouched.
+## Suggested quote
+> "This is genuinely realistic — the questions and pushback are exactly what I'd ask in an actual interview."
 
 ## Files to change
-- `src/pages/InterviewSession.tsx` (add gate check)
-- `src/components/UpgradeModal.tsx` (optional description prop)
-- `src/pages/InterviewRoleplay.tsx` (Upgrade to Pro link + dynamic description)
-- `src/pages/Index.tsx` (remove Watch Demo buttons)
+- `src/pages/Index.tsx` — add one `<section>` with the testimonial card
 
-No DB changes, no new dependencies.
+No new assets, no dependencies.
+
+## Quick choices for you before I build
+
+- **Title**: "Hiring Manager, Hospitality" (recommended), "Talent & Hiring Lead", or "People Operations Manager"?
+- **Placement**: before final CTA (recommended), under hero, or both?
+- **Quote**: keep the suggested one, or want to tweak the wording?
+
+Reply with your picks (or "go with recommendations") and I'll implement.
