@@ -90,6 +90,42 @@ export default function InterviewSession() {
       navigate("/dashboard");
       return;
     }
+
+    // Gate: free users (or inactive subscriptions) capped at 3 interviews
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier, subscription_status')
+          .eq('user_id', user.id)
+          .single();
+
+        const tier = (profile?.subscription_tier as 'free' | 'pro') || 'free';
+        const status = profile?.subscription_status;
+
+        const { data: countData } = await supabase
+          .from('user_interview_counts')
+          .select('total_interviews')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        const count = countData?.total_interviews || 0;
+
+        if ((tier === 'free' || status !== 'active') && count >= 3) {
+          toast({
+            title: "Interview limit reached",
+            description: "Upgrade to Pro for unlimited interview sessions.",
+            variant: "destructive",
+          });
+          navigate("/dashboard/interview-roleplay");
+        }
+      } catch (err) {
+        console.error('Error checking interview limit:', err);
+      }
+    })();
   }, [interviewDetails, navigate, toast]);
 
   // Cleanup timer on unmount

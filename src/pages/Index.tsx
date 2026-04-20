@@ -191,13 +191,6 @@ const Index = () => {
       
             <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
               <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => navigate('/register')}
-              >
-                Watch Demo
-              </Button>
-              <Button 
                 variant="default" 
                 size="sm"
                 onClick={() => navigate('/signup')}
@@ -225,9 +218,6 @@ const Index = () => {
                     <a href="#faq" className="text-lg font-medium text-foreground hover:text-primary transition-colors">FAQ</a>
                   </SheetClose>
                   <div className="flex flex-col gap-3 pt-4 border-t">
-                    <Button variant="outline" onClick={() => navigate('/register')}>
-                      Watch Demo
-                    </Button>
                     <Button variant="default" onClick={() => navigate('/signup')}>
                       Try For Free
                     </Button>
@@ -272,15 +262,6 @@ const Index = () => {
                 >
                   Try For Free
                   <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="text-lg px-8 py-6"
-                  onClick={() => navigate('/register')}
-                >
-                  Watch Demo
-                  <Play className="h-5 w-5 ml-2" />
                 </Button>
               </div>
             </div>

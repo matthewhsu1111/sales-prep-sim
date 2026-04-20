@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge";
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
+  description?: string;
 }
 
-export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
+export default function UpgradeModal({ isOpen, onClose, description }: UpgradeModalProps) {
   const [isTriMonthly, setIsTriMonthly] = useState(true);
 
   const handleUpgrade = () => {
@@ -26,7 +27,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Upgrade Your Subscription</DialogTitle>
           <DialogDescription className="text-base pt-2">
-            You've reached the maximum number of interviews for free users. Upgrade your subscription to practice unlimited interviews.
+            {description ?? "You've reached the maximum number of interviews for free users. Upgrade your subscription to practice unlimited interviews."}
           </DialogDescription>
         </DialogHeader>
 
