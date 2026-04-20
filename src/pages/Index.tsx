@@ -794,6 +794,25 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Testimonial */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 lg:p-12 text-center shadow-sm">
+            <div className="flex justify-center mb-6">
+              <div className="h-16 w-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-semibold">
+                H
+              </div>
+            </div>
+            <blockquote className="text-xl lg:text-2xl text-foreground font-medium leading-relaxed mb-6">
+              "As someone who actually interviews candidates, I'd recommend this to anyone preparing. It mirrors what real interviews feel like."
+            </blockquote>
+            <div className="text-sm text-gray-600">
+              <span className="font-semibold text-foreground">Haven</span> · Hiring Manager, Hospitality
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 max-w-4xl text-center">
