@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge";
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
+  description?: string;
 }
 
-export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
+export default function UpgradeModal({ isOpen, onClose, description }: UpgradeModalProps) {
   const [isTriMonthly, setIsTriMonthly] = useState(true);
 
   const handleUpgrade = () => {
