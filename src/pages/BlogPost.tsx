@@ -61,15 +61,15 @@ const posts: Record<string, Post> = {
   'how-to-get-sdr-job-no-experience-2026': {
     slug: 'how-to-get-sdr-job-no-experience-2026',
     title: 'How to Get an SDR Job With No Sales Experience (2026 Guide)',
-    subtitle: "You don't need a sales background to break into tech sales. You need to understand what the interview actually is — and get enough reps before you walk in the door.",
+    subtitle: "Interview prep for a sales job with no experience isn't about memorizing scripts — it's about understanding what the interview actually is and getting enough reps before you walk in the door.",
+    description: "Interview prep for a sales job with no experience: a 2026 guide to landing an SDR role with zero sales background — including roleplay practice, frameworks, and FAQs.",
     date: 'April 2026',
-    readTime: '12 min read',
+    readTime: '14 min read',
     audience: 'For career changers & new grads',
     body: [
-      { type: 'p', text: "Let's be honest about what's happening when you apply for an SDR role with no sales experience." },
-      { type: 'p', text: "You're scrolling job listings at midnight. You see the $65,000 base, the uncapped commission, the \"no cold calling experience required.\" You apply. Maybe you get a first-round interview. And then they ask you to do a roleplay — sell them something, handle an objection, cold call the interviewer right now — and your mind goes completely blank." },
-      { type: 'p', text: "You freeze. You stumble. You leave thinking you're just not cut out for this." },
-      { type: 'p', text: "Here's what nobody tells you: that feeling has nothing to do with whether you can do the job. It has everything to do with the fact that you've never done that specific thing under pressure before. And the only way to fix that is reps — not reading, not watching YouTube videos, not memorizing scripts. Reps." },
+      { type: 'p', text: "Let's be honest about what's happening when you start interview prep for a sales job with no experience. You see the $65,000 base, the uncapped commission, the \"no cold calling experience required.\" You apply. Maybe you get a first-round interview. And then they ask you to do a roleplay — sell them something, handle an objection, cold call the interviewer right now — and your mind goes completely blank." },
+      { type: 'p', text: "You freeze. You stumble. You leave thinking you're just not cut out for this. This guide is going to fix that — whether you're trying to break into tech sales from teaching, retail, the military, hospitality, or you're a fresh grad with no work history at all." },
+      { type: 'p', text: "Here's what nobody tells you: that freeze has nothing to do with whether you can do the job. It has everything to do with the fact that you've never done that specific thing under pressure before. And the only way to fix that is reps — not reading, not watching YouTube videos, not memorizing scripts. Reps." },
       { type: 'p', text: "But before we get to practice, let's fix the biggest mindset mistake career changers make walking into these interviews." },
 
       { type: 'h2', text: 'Stop Thinking of It as an Interview' },
@@ -77,11 +77,11 @@ const posts: Record<string, Post> = {
       { type: 'p', text: "Think about what an SDR actually does every day: they call strangers, create interest in something, handle objections, and try to move the conversation forward to the next step. A hiring manager is watching you do exactly that during your interview. They're not evaluating your resume. They're evaluating whether you'd buy from you." },
       { type: 'quote', text: "You are a salesperson and the product that you're selling is yourself — and you're going to close this deal." },
       { type: 'p', text: "This means every answer you give, every question you ask, every moment of energy or hesitation — it all signals how you'll perform on the phones. A confident, curious, well-prepared candidate who closes the interviewer at the end of the call will almost always beat the candidate with more experience who shows up passive and waits to be evaluated." },
-      { type: 'p', text: "The good news for career changers: you actually have something experienced SDR candidates often lack. You have a story. And story is what wins interviews." },
+      { type: 'p', text: "The good news for anyone making a career change into sales: you actually have something experienced SDR candidates often lack. You have a story. And story is what wins interviews." },
 
       { type: 'h2', text: 'Why Your Non-Sales Background Is Actually an Asset' },
       { type: 'p', text: "Hiring managers at tech companies aren't looking for people who've already done the job. If they were, SDR roles would require 3 years of SDR experience. They don't — because almost every SDR is hired green and trained from scratch." },
-      { type: 'p', text: "What they're actually looking for is evidence you can learn fast, handle rejection, talk to strangers, and stay coachable. When you map your real background against those needs, it starts to look pretty different:" },
+      { type: 'p', text: "What they're actually looking for is evidence you can learn fast, handle rejection, talk to strangers, and stay coachable. When you map your real background against those needs, an SDR interview with no sales background starts to look pretty different:" },
       { type: 'background-table' },
       { type: 'p', text: "The mistake most career changers make is describing their background in the language of their old industry. A teacher says \"I managed a classroom of 32 students.\" That lands flat. Instead say: \"I was responsible for getting 32 skeptical people to buy into something they didn't initially want, every single day, and I measured my success by outcomes.\" Same job. Completely different signal." },
 
@@ -107,17 +107,29 @@ const posts: Record<string, Post> = {
       { type: 'h3', text: 'Round 4 — Final / Panel' },
       { type: 'p', text: "You may meet additional team members or go through a second roleplay at higher difficulty. This is also where a 30/60/90 day plan — a short document outlining how you'd approach your first three months — can be a powerful differentiator. Most candidates don't bring one. The ones who do signal something different: they're already thinking like someone who has the job." },
 
-      { type: 'h2', text: 'The Three Levels of Interview Readiness' },
+      { type: 'h2', text: 'How to Pass the SDR Interview Roleplay' },
       { type: 'p', text: "Here's a framework for understanding exactly where you are in your prep — and what you should be focused on:" },
       { type: 'levels' },
       { type: 'p', text: "Most candidates walk into a final-round interview still solving Level 1 problems — trying to figure out what to say while they're saying it. That is what the freeze is. When you're at Level 3, the freeze doesn't happen because the answer is already there. You're just performing it." },
-      { type: 'p', text: "The only way to get from Level 1 to Level 3 is to do the roleplay over and over — not in your head, not on paper, out loud with something pushing back." },
+      { type: 'p', text: "The only way to get from Level 1 to Level 3 — the only way to actually pass an SDR interview roleplay — is to do it over and over, out loud, with something pushing back." },
 
       { type: 'h2', text: 'How to Actually Practice (Not Just Prepare)' },
       { type: 'p', text: "There's a difference between preparing and practicing. Preparing is reading interview tips, memorizing answers, watching YouTube videos. Practicing is doing the thing until you can do it without thinking." },
       { type: 'p', text: "Think about it this way: a pilot doesn't read about landing a plane and then land a plane. They do it hundreds of times in a simulator where the conditions are real and things go wrong, before a single passenger is on board." },
       { type: 'p', text: "The SDR interview is your landing. The roleplay is your most turbulent moment. You need a simulator, not a study guide." },
       { type: 'callout', title: 'The thing nobody tells you', text: "The hiring manager is the first persona you'll ever sell to in this career. Before you ever call a VP of Sales at a real prospect company, you're calling a VP of Sales in that interview room. CadenceAI puts that hiring manager in front of you — with realistic pushback, realistic objections, and realistic personalities — before it counts. So by the time you're in the real room, you've already done it fifty times." },
+      {
+        type: 'p-jsx',
+        node: (
+          <>
+            If you're comparing practice tools, we wrote an honest breakdown of how CadenceAI stacks up against the most common alternative — see{' '}
+            <Link to="/compare/yoodli" className="underline text-foreground hover:opacity-80">
+              CadenceAI vs Yoodli
+            </Link>
+            . Yoodli coaches how you speak. CadenceAI coaches what you say.
+          </>
+        ),
+      },
       { type: 'p', text: "Specifically, here's what your practice should include:" },
       { type: 'p', text: "Practice your \"tell me about yourself\" out loud until you can do it without notes, in under two minutes, with energy. Record yourself. Listen back. You'll immediately hear what interviewers hear — and it'll motivate you to fix it." },
       { type: 'p', text: "Practice the cold call roleplay until it's boring. The fear of it comes from novelty. Do it enough times that the adrenaline stops showing up. Practice with different personalities — the skeptical CFO, the friendly but busy VP, the dismissive gatekeeper. Each one teaches you something different." },
@@ -130,10 +142,22 @@ const posts: Record<string, Post> = {
       { type: 'p', text: "These questions do two things: they give you information you actually need, and they demonstrate exactly the behavior the hiring manager wants to see from an SDR. You're closing. In an interview for a closing role. They notice." },
       { type: 'p', text: "Send a follow-up email the same day. Keep it short. Reaffirm your interest, reference one specific thing from the conversation, and express confidence in your fit. It takes five minutes and almost nobody does it well." },
 
-      { type: 'h2', text: 'The Honest Truth About Breaking In' },
-      { type: 'p', text: "People break into SDR roles from every possible background — teaching, military, retail, hospitality, corporate ops, zero experience. The ones who make it aren't necessarily the most talented or the most credentialed. They're the ones who showed up to the interview already knowing what it felt like to be in that chair — because they'd been there before, in practice." },
+      { type: 'h2', text: 'The Honest Truth About Breaking Into Tech Sales' },
+      { type: 'p', text: "People break into tech sales from every possible background — teaching, military, retail, hospitality, corporate ops, zero experience. The ones who make it aren't necessarily the most talented or the most credentialed. They're the ones who showed up to the interview already knowing what it felt like to be in that chair — because they'd been there before, in practice." },
       { type: 'p', text: "The interview is a performance. Performances improve with rehearsal. The question is whether you rehearse enough before the show — or whether you try to figure it out live, with a real hiring manager watching, and everything on the line." },
       { type: 'p', text: "You already have more going for you than you think. You just need the reps." },
+
+      {
+        type: 'faq',
+        items: [
+          { q: 'Can I get an SDR job with no experience?', a: "Yes. Most SDR roles are entry-level by design — companies expect to train you from scratch. What hiring managers want to see is coachability, work ethic, and the ability to stay composed under pressure. If you can prove those three things in the interview (especially in the roleplay), your background matters far less than you think." },
+          { q: 'What do SDR interviewers look for?', a: "They're evaluating whether you'd be effective on the phones: clear communication, energy, the ability to handle rejection without falling apart, curiosity about the prospect, and basic discipline around process. The roleplay tests all of these at once, which is why it carries so much weight in the final decision." },
+          { q: 'How do I prepare for an SDR roleplay interview?', a: "Practice it out loud, repeatedly, with someone or something pushing back. Reading scripts won't help — your nerves come from novelty, and the only cure is reps. Run cold-call simulations until the structure feels boring, and rehearse the four most common objections (\"send me an email,\" \"we already use something,\" \"not interested,\" \"now's not a good time\") until your responses feel natural." },
+          { q: 'How long does it take to get an SDR job?', a: "For motivated candidates with focused prep, the search typically takes 4–10 weeks from first application to signed offer. Speed depends mostly on how many quality applications you send per week, how dialed your story is, and how much you've practiced the roleplay before your first real one." },
+          { q: "What's the difference between an SDR and an AE?", a: "An SDR (Sales Development Rep) generates and qualifies new pipeline — mostly through cold outbound — and books meetings for the closing team. An AE (Account Executive) takes those qualified meetings and runs the full sales cycle to close. SDR is the entry-level seat; most AEs were SDRs first." },
+        ],
+      },
+
       { type: 'cta' },
     ],
   },
