@@ -22,6 +22,9 @@ import NotFound from "./pages/NotFound";
 import Careers from "./pages/Careers";
 import Leaderboards from "./pages/Leaderboards";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+import CompareHyperbound from "./pages/CompareHyperbound";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
@@ -37,6 +40,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/compare/hyperbound" element={<CompareHyperbound />} />
           <Route path="/register" element={<Register />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Signin />} />
