@@ -43,6 +43,7 @@ import jakeImage from '@/assets/jake-thompson.jpg';
 import michaelImage from '@/assets/michael-chen.jpg';
 import heroImage from '@/assets/hero-interview.jpg';
 import founderImage from '@/assets/founder.png';
+import cadenceLogo from '@/assets/cadence-logo.png';
 
 const Index = () => {
   const navigate = useNavigate();
