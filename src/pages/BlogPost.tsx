@@ -1,4 +1,5 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Calendar, Clock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,20 +11,25 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+type FAQItem = { q: string; a: string };
+
 type Block =
   | { type: 'p'; text: string }
+  | { type: 'p-jsx'; node: React.ReactNode }
   | { type: 'h2'; text: string }
   | { type: 'h3'; text: string }
   | { type: 'quote'; text: string }
   | { type: 'callout'; title: string; text: string }
   | { type: 'levels' }
   | { type: 'background-table' }
+  | { type: 'faq'; items: FAQItem[] }
   | { type: 'cta' };
 
 type Post = {
   slug: string;
   title: string;
   subtitle?: string;
+  description?: string;
   date: string;
   readTime: string;
   audience?: string;
