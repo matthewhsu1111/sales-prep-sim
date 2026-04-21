@@ -138,14 +138,6 @@ const CompareYoodli = () => {
           </div>
         </section>
 
-        <section className="mb-16 border border-border rounded-xl p-8 bg-muted/20">
-          <p className="text-lg text-foreground italic leading-relaxed mb-4">
-            "I tried a couple of speech tools before my SDR interviews. They told me I said 'um' too
-            much. CadenceAI told me my discovery questions were weak — and gave me a hiring manager
-            to practice them on. That's what actually got me the offer."
-          </p>
-          <p className="text-sm text-muted-foreground">— CadenceAI user</p>
-        </section>
 
         <div className="text-center p-8 border border-border rounded-xl">
           <h3 className="text-2xl font-semibold text-foreground mb-3">
