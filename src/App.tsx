@@ -24,7 +24,7 @@ import Leaderboards from "./pages/Leaderboards";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
-import CompareHyperbound from "./pages/CompareHyperbound";
+import CompareYoodli from "./pages/CompareYoodli";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
@@ -42,7 +42,7 @@ const App = () => (
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/compare/hyperbound" element={<CompareHyperbound />} />
+          <Route path="/compare/yoodli" element={<CompareYoodli />} />
           <Route path="/register" element={<Register />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Signin />} />

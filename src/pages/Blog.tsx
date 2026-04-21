@@ -4,6 +4,14 @@ import { Button } from '@/components/ui/button';
 
 const posts = [
   {
+    slug: 'how-to-get-sdr-job-no-experience-2026',
+    title: 'How to Get an SDR Job With No Sales Experience (2026 Guide)',
+    excerpt:
+      "You don't need a sales background to break into tech sales. You need to understand what the interview actually is — and get enough reps before you walk in the door.",
+    date: 'April 2026',
+    readTime: '12 min read',
+  },
+  {
     slug: '5-mistakes-sdr-interviews',
     title: '5 Mistakes That Tank SDR Interviews (And How to Fix Them)',
     excerpt:

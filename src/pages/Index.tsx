@@ -862,10 +862,10 @@ const Index = () => {
               <ul className="space-y-3">
                 <li>
                   <button
-                    onClick={() => navigate('/compare/hyperbound')}
+                    onClick={() => navigate('/compare/yoodli')}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    vs Hyperbound
+                    vs Yoodli
                   </button>
                 </li>
               </ul>
