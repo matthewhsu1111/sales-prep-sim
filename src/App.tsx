@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/AuthProvider";
 import { AuthRedirectHandler } from "@/components/AuthRedirectHandler";
+import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Register from "./pages/Register";
 import Signup from "./pages/Signup";
@@ -32,6 +33,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <AuthRedirectHandler />
         <TooltipProvider>
