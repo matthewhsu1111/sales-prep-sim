@@ -231,8 +231,58 @@ const BlogPost = () => {
     );
   }
 
+  const faqBlock = post.body.find((b) => b.type === 'faq') as
+    | { type: 'faq'; items: FAQItem[] }
+    | undefined;
+
+  const canonicalUrl = `https://cadenceai.app/blog/${post.slug}`;
+  const description =
+    post.description ?? post.subtitle ?? `${post.title} — CadenceAI blog`;
+
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description,
+    datePublished: post.date,
+    author: { '@type': 'Organization', name: 'CadenceAI' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'CadenceAI',
+      logo: { '@type': 'ImageObject', url: 'https://cadenceai.app/favicon.png' },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+    image: 'https://cadenceai.app/og-image.png',
+  };
+
+  const faqSchema = faqBlock && {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqBlock.items.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{`${post.title} | CadenceAI`}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content="https://cadenceai.app/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
+        {faqSchema && (
+          <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        )}
+      </Helmet>
+
       <div className="container mx-auto px-4 max-w-2xl py-16">
         <button
           onClick={() => navigate('/blog')}
@@ -290,6 +340,12 @@ const BlogPost = () => {
                     {block.text}
                   </p>
                 );
+              case 'p-jsx':
+                return (
+                  <p key={i} className="text-base text-muted-foreground leading-relaxed">
+                    {block.node}
+                  </p>
+                );
               case 'quote':
                 return (
                   <blockquote
@@ -313,6 +369,32 @@ const BlogPost = () => {
                 return <Levels key={i} />;
               case 'background-table':
                 return <BackgroundTable key={i} />;
+              case 'faq':
+                return (
+                  <section key={i} className="mt-14">
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+                      Frequently Asked Questions
+                    </h2>
+                    <div className="space-y-4">
+                      {block.items.map((item, j) => (
+                        <details
+                          key={j}
+                          className="group border border-border rounded-xl bg-muted/20 p-5 open:bg-muted/40 transition-colors"
+                        >
+                          <summary className="cursor-pointer list-none font-semibold text-foreground flex justify-between items-start gap-4">
+                            <span>{item.q}</span>
+                            <span className="text-muted-foreground transition-transform group-open:rotate-45 text-xl leading-none mt-0.5">
+                              +
+                            </span>
+                          </summary>
+                          <p className="mt-3 text-muted-foreground leading-relaxed text-sm">
+                            {item.a}
+                          </p>
+                        </details>
+                      ))}
+                    </div>
+                  </section>
+                );
               case 'cta':
                 return (
                   <div
