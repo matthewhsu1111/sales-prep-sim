@@ -15,7 +15,7 @@ export default function UpgradeModal({ isOpen, onClose, description }: UpgradeMo
 
   const handleUpgrade = () => {
     const checkoutUrl = isTriMonthly
-      ? "https://buy.stripe.com/6oU6oGdfQ5er8s0cZzdZ601"
+      ? "https://buy.stripe.com/8x28wO8ZAcGT0Zy4t3dZ602"
       : "https://buy.stripe.com/eVq4gygs2eP18s07FfdZ600";
     
     window.open(checkoutUrl, '_blank');
@@ -48,7 +48,7 @@ export default function UpgradeModal({ isOpen, onClose, description }: UpgradeMo
               variant="secondary" 
               className={`ml-1 ${isTriMonthly ? 'bg-green-100 text-green-700 border-green-200' : 'opacity-50'}`}
             >
-              Save 20%
+              Save 21%
             </Badge>
           </div>
 
@@ -58,7 +58,7 @@ export default function UpgradeModal({ isOpen, onClose, description }: UpgradeMo
             className="w-full"
             size="lg"
           >
-            Upgrade Now (${isTriMonthly ? '40' : '50'}/month)
+            {isTriMonthly ? 'Upgrade Now ($45 every 3 months)' : 'Upgrade Now ($19/month)'}
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">

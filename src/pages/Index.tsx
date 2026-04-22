@@ -67,7 +67,7 @@ const Index = () => {
   const targetInfo = roleSalaries[targetRole];
   const baseDiff = targetInfo.base - currentSalaryNum;
   const oteDiff = targetInfo.ote - currentSalaryNum;
-  const cadenceCost = isTriMonthly ? 40 * 3 : 50 * 3;
+  const cadenceCost = isTriMonthly ? 45 : 19 * 3;
   const roiMultiple = oteDiff > 0 ? Math.round(oteDiff / cadenceCost) : 0;
 
   const interviewers = [
@@ -613,7 +613,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center gap-3 text-primary">
                   <CheckCircle className="h-5 w-5" />
-                  <span>Unlimited practice for $50/month</span>
+                  <span>Unlimited practice for $19/month</span>
                 </div>
                 <div className="flex items-center gap-3 text-primary">
                   <CheckCircle className="h-5 w-5" />
@@ -653,7 +653,7 @@ const Index = () => {
                 }`}
                 onClick={() => setIsTriMonthly(true)}
               >
-                Tri-Monthly (Save 20%)
+                Tri-Monthly (Save 21%)
               </button>
             </div>
           </div>
@@ -713,9 +713,12 @@ const Index = () => {
                   <CardTitle className="text-xl">Pro</CardTitle>
                 </div>
                 <div className="text-4xl font-bold">
-                  ${isTriMonthly ? '40' : '50'}
+                  ${isTriMonthly ? '15' : '19'}
                   <span className="text-lg text-gray-600">/month</span>
                 </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  {isTriMonthly ? 'Billed $45 every 3 months' : 'Billed monthly'}
+                </p>
                 <p className="text-gray-600 mt-4">Unlimited interview practice</p>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -724,7 +727,7 @@ const Index = () => {
                   className="w-full"
                   onClick={() => {
                     const checkoutUrl = isTriMonthly
-                      ? "https://buy.stripe.com/6oU6oGdfQ5er8s0cZzdZ601"
+                      ? "https://buy.stripe.com/8x28wO8ZAcGT0Zy4t3dZ602"
                       : "https://buy.stripe.com/eVq4gygs2eP18s07FfdZ600";
                     window.open(checkoutUrl, '_blank');
                   }}
