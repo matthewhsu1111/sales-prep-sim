@@ -4,6 +4,14 @@ import { Button } from '@/components/ui/button';
 
 const posts = [
   {
+    slug: 'best-app-practice-sales-interview',
+    title: 'The Best App to Practice Your Sales Interview in 2026',
+    excerpt:
+      'A ranked, honest breakdown of every AI SDR interview practice tool in 2026 — Cluely, Yoodli, Google Warmup, LinkedIn Learning, Hyperbound, and CadenceAI.',
+    date: 'April 21, 2026',
+    readTime: '14 min read',
+  },
+  {
     slug: 'how-to-get-sdr-job-no-experience-2026',
     title: 'How to Get an SDR Job With No Sales Experience (2026 Guide)',
     excerpt:
