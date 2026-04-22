@@ -469,6 +469,7 @@ ${interviewData.transcript}
           </Card>
         )}
 
+        {feedback && (
           <>
             {feedback.detailedScores && (
               <Card>
