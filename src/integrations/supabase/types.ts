@@ -231,6 +231,7 @@ export type Database = {
           current_level: number | null
           current_streak: number
           current_week: number
+          daily_stars: number
           daily_xp: number | null
           id: string
           last_completion_date: string | null
@@ -241,9 +242,11 @@ export type Database = {
           longest_streak: number
           practices_this_week: number | null
           total_days_completed: number
+          total_stars: number
           total_xp: number | null
           updated_at: string
           user_id: string
+          weekly_stars: number
           weekly_xp: number | null
         }
         Insert: {
@@ -252,6 +255,7 @@ export type Database = {
           current_level?: number | null
           current_streak?: number
           current_week?: number
+          daily_stars?: number
           daily_xp?: number | null
           id?: string
           last_completion_date?: string | null
@@ -262,9 +266,11 @@ export type Database = {
           longest_streak?: number
           practices_this_week?: number | null
           total_days_completed?: number
+          total_stars?: number
           total_xp?: number | null
           updated_at?: string
           user_id: string
+          weekly_stars?: number
           weekly_xp?: number | null
         }
         Update: {
@@ -273,6 +279,7 @@ export type Database = {
           current_level?: number | null
           current_streak?: number
           current_week?: number
+          daily_stars?: number
           daily_xp?: number | null
           id?: string
           last_completion_date?: string | null
@@ -283,15 +290,30 @@ export type Database = {
           longest_streak?: number
           practices_this_week?: number | null
           total_days_completed?: number
+          total_stars?: number
           total_xp?: number | null
           updated_at?: string
           user_id?: string
+          weekly_stars?: number
           weekly_xp?: number | null
         }
         Relationships: []
       }
     }
     Views: {
+      all_time_leaderboard: {
+        Row: {
+          current_level: number | null
+          current_streak: number | null
+          first_name: string | null
+          leaderboard_visible: boolean | null
+          name: string | null
+          rank: number | null
+          total_stars: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       weekly_leaderboard: {
         Row: {
           current_level: number | null
@@ -301,6 +323,7 @@ export type Database = {
           name: string | null
           rank: number | null
           user_id: string | null
+          weekly_stars: number | null
           weekly_xp: number | null
         }
         Relationships: []
