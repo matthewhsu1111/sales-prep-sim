@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
-import { getLevelInfo, formatXP } from '@/utils/gamification';
+import { getLevelInfo, formatStars } from '@/utils/gamification';
 
 export interface UserProgress {
-  totalXP: number;
+  totalXP: number; // total stars (kept name for backward compat)
   currentLevel: number;
-  weeklyXP: number;
-  dailyXP: number;
+  weeklyXP: number; // weekly stars
+  dailyXP: number; // daily stars
   currentStreak: number;
   longestStreak: number;
   lastPracticeDate: string | null;
   practicesThisWeek: number;
   leaderboardRank: number | null;
+  allTimeRank: number | null;
 }
 
 export function useGamification() {
@@ -31,10 +32,10 @@ export function useGamification() {
 
     try {
       setLoading(true);
-      
+
       // Check and reset streak if needed
       await supabase.rpc('check_and_reset_streak', { user_uuid: user.id });
-      
+
       // Fetch user progress
       const { data: progressData, error } = await supabase
         .from('user_progress')
@@ -44,23 +45,31 @@ export function useGamification() {
 
       if (error) throw error;
 
-      // Fetch leaderboard rank
-      const { data: leaderboard } = await supabase
-        .from('weekly_leaderboard')
-        .select('rank, user_id')
-        .eq('user_id', user.id)
-        .single();
+      // Fetch weekly + all-time leaderboard rank
+      const [weeklyRes, allTimeRes] = await Promise.all([
+        supabase
+          .from('weekly_leaderboard')
+          .select('rank, user_id')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        supabase
+          .from('all_time_leaderboard')
+          .select('rank, user_id')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+      ]);
 
       setProgress({
-        totalXP: progressData.total_xp || 0,
+        totalXP: progressData.total_stars ?? progressData.total_xp ?? 0,
         currentLevel: progressData.current_level || 1,
-        weeklyXP: progressData.weekly_xp || 0,
-        dailyXP: progressData.daily_xp || 0,
+        weeklyXP: progressData.weekly_stars ?? progressData.weekly_xp ?? 0,
+        dailyXP: progressData.daily_stars ?? progressData.daily_xp ?? 0,
         currentStreak: progressData.current_streak || 0,
         longestStreak: progressData.longest_streak || 0,
         lastPracticeDate: progressData.last_practice_date,
         practicesThisWeek: progressData.practices_this_week || 0,
-        leaderboardRank: leaderboard?.rank || null,
+        leaderboardRank: weeklyRes.data?.rank || null,
+        allTimeRank: allTimeRes.data?.rank || null,
       });
     } catch (error) {
       console.error('Error fetching progress:', error);
@@ -69,13 +78,13 @@ export function useGamification() {
     }
   }
 
-  async function awardXP(xpAmount: number, reason: string) {
+  async function awardStars(starsAmount: number, reason: string) {
     if (!user) return null;
 
     try {
       const now = new Date().toISOString();
       const today = new Date().toISOString().split('T')[0];
-      
+
       // Get current progress
       const { data: currentProgress } = await supabase
         .from('user_progress')
@@ -85,68 +94,73 @@ export function useGamification() {
 
       if (!currentProgress) return null;
 
-      const oldTotalXP = currentProgress.total_xp || 0;
-      const newTotalXP = oldTotalXP + xpAmount;
-      
+      const oldTotalStars = currentProgress.total_stars ?? currentProgress.total_xp ?? 0;
+      const newTotalStars = oldTotalStars + starsAmount;
+
       // Check if this is first practice today
-      const lastPracticeDate = currentProgress.last_practice_date 
+      const lastPracticeDate = currentProgress.last_practice_date
         ? new Date(currentProgress.last_practice_date).toISOString().split('T')[0]
         : null;
       const isFirstToday = lastPracticeDate !== today;
-      
+
       // Update streak if needed
       let newStreak = currentProgress.current_streak || 0;
       if (isFirstToday) {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toISOString().split('T')[0];
-        
-        // If last practice was yesterday, increment streak, otherwise reset to 1
+
         if (lastPracticeDate === yesterdayStr) {
           newStreak = newStreak + 1;
         } else if (lastPracticeDate !== today) {
-          // If it's been more than a day, reset to 1
           newStreak = 1;
         }
       }
-      
+
       // Calculate level
-      const levelInfo = getLevelInfo(newTotalXP);
-      const oldLevelInfo = getLevelInfo(oldTotalXP);
+      const levelInfo = getLevelInfo(newTotalStars);
+      const oldLevelInfo = getLevelInfo(oldTotalStars);
       const leveledUp = levelInfo.level > oldLevelInfo.level;
 
-      // Update progress
-      const { data: updatedProgress, error } = await supabase
+      const newWeeklyStars = (currentProgress.weekly_stars ?? currentProgress.weekly_xp ?? 0) + starsAmount;
+      const newDailyStars = isFirstToday
+        ? starsAmount
+        : (currentProgress.daily_stars ?? currentProgress.daily_xp ?? 0) + starsAmount;
+
+      // Update progress (write both *_stars and *_xp for back-compat)
+      const { error } = await supabase
         .from('user_progress')
         .update({
-          total_xp: newTotalXP,
+          total_stars: newTotalStars,
+          total_xp: newTotalStars,
           current_level: levelInfo.level,
-          weekly_xp: (currentProgress.weekly_xp || 0) + xpAmount,
-          daily_xp: isFirstToday ? xpAmount : (currentProgress.daily_xp || 0) + xpAmount,
+          weekly_stars: newWeeklyStars,
+          weekly_xp: newWeeklyStars,
+          daily_stars: newDailyStars,
+          daily_xp: newDailyStars,
           last_practice_date: now,
           practices_this_week: (currentProgress.practices_this_week || 0) + 1,
           current_streak: newStreak,
           longest_streak: Math.max(newStreak, currentProgress.longest_streak || 0),
         })
-        .eq('user_id', user.id)
-        .select()
-        .single();
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
       await fetchProgress();
 
       return {
-        xpAwarded: xpAmount,
-        oldTotalXP,
-        newTotalXP,
+        xpAwarded: starsAmount,
+        starsAwarded: starsAmount,
+        oldTotalXP: oldTotalStars,
+        newTotalXP: newTotalStars,
         leveledUp,
         newLevel: levelInfo,
         oldLevel: oldLevelInfo,
         isFirstToday,
       };
     } catch (error) {
-      console.error('Error awarding XP:', error);
+      console.error('Error awarding stars:', error);
       return null;
     }
   }
@@ -157,8 +171,10 @@ export function useGamification() {
     progress,
     levelInfo,
     loading,
-    awardXP,
+    awardXP: awardStars, // legacy alias
+    awardStars,
     refreshProgress: fetchProgress,
-    formatXP,
+    formatXP: formatStars,
+    formatStars,
   };
 }
