@@ -178,9 +178,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex h-16 items-center justify-between gap-4">
             <div className="flex items-center space-x-2 shrink-0">
-              <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-                <Mic className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <img src={cadenceLogo} alt="Cadence logo" className="h-9 w-9 rounded-lg" />
               <span className="font-bold text-xl text-foreground">Cadence</span>
             </div>
             
