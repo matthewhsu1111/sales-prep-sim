@@ -126,11 +126,11 @@ export function XPRewardPopup({
                 transition={{ duration: 0.5 }}
                 className="text-4xl font-bold text-primary"
               >
-                +{xpAwarded} XP
+                +{xpAwarded} ⭐
               </motion.div>
               
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                <span>{formatXP(animatedXP)} XP</span>
+                <span>{formatXP(animatedXP)} ⭐</span>
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
@@ -143,7 +143,7 @@ export function XPRewardPopup({
                 </div>
                 <Progress value={newLevel.progressPercentage} className="h-3" />
                 <p className="text-sm text-muted-foreground">
-                  {formatXP(newLevel.xpToNextLevel)} XP to next level
+                  {formatXP(newLevel.xpToNextLevel)} ⭐ to next level
                 </p>
               </div>
             )}
