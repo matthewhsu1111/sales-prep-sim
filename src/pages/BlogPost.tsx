@@ -54,7 +54,7 @@ const posts: Record<string, Post> = {
       { type: 'p', text: '"What\'s the culture like?" is not a question. Ask about ramp expectations, how reps hit quota, and what separates the top performer from the median.' },
       { type: 'h3', text: '5. Not following up' },
       { type: 'p', text: 'A short, specific follow-up email referencing something you actually discussed will keep you top of mind. Send it within 24 hours.' },
-      { type: 'p', text: "None of this is hard. It just requires reps under pressure — which is exactly what Cadence is built for." },
+      { type: 'p', text: "None of this is hard. It just requires reps under pressure — which is exactly what CadenceAI is built for." },
       { type: 'cta' },
     ],
   },

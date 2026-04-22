@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Bot, User, Send, Download, Mic } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import cadenceLogo from "@/assets/cadence-logo.png";
 
 // Import interviewer images
 import rebeccaImage from "@/assets/rebecca-martinez.jpg";
@@ -439,10 +440,8 @@ export default function InterviewSession() {
       {/* Top Navigation Bar */}
       <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
         <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-            <Mic className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-bold text-xl">Cadence</span>
+          <img src={cadenceLogo} alt="CadenceAI logo" className="h-8 w-8 rounded-lg" />
+          <span className="font-bold text-xl">CadenceAI</span>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
