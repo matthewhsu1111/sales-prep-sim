@@ -239,7 +239,7 @@ export default function Careers() {
     <div className="flex-1 space-y-6 p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Welcome to Cadence Careers!</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Welcome to CadenceAI Careers!</h1>
         <p className="text-muted-foreground">
           Follow our proven week-by-week system to land sales interviews faster than ever before
         </p>

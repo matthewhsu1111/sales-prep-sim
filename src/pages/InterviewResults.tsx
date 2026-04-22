@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, TrendingUp, AlertTriangle, Target, Download, Mic, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import cadenceLogo from "@/assets/cadence-logo.png";
 import { useGamification } from "@/hooks/useGamification";
 import { XPRewardPopup } from "@/components/XPRewardPopup";
 import { getInterviewTypeXP, XP_REWARDS } from "@/utils/gamification";
@@ -356,10 +357,8 @@ ${interviewData.transcript}
     <div className="min-h-screen bg-background">
       <div className="flex justify-between items-center p-4 m-4 bg-background rounded-lg shadow-sm border">
         <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-            <Mic className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-bold text-xl">Cadence</span>
+          <img src={cadenceLogo} alt="CadenceAI logo" className="h-8 w-8 rounded-lg" />
+          <span className="font-bold text-xl">CadenceAI</span>
         </div>
         <div className="flex gap-2">
           {feedback && (

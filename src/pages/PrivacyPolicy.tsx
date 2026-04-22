@@ -20,7 +20,7 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-3">Overview</h2>
             <p>
-              Cadence AI ("we", "us") provides AI-powered sales interview practice. This policy
+              CadenceAI ("we", "us") provides AI-powered sales interview practice. This policy
               explains what data we collect, how we use it, and the choices you have.
             </p>
           </section>

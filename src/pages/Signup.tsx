@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Mic, ArrowLeft } from 'lucide-react';
+import cadenceLogo from '@/assets/cadence-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -112,9 +113,7 @@ const Signup = () => {
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
           <div className="text-center">
-            <div className="inline-flex h-16 w-16 bg-primary rounded-2xl items-center justify-center mb-8">
-              <Mic className="h-8 w-8 text-primary-foreground" />
-            </div>
+            <img src={cadenceLogo} alt="CadenceAI logo" className="inline-block h-16 w-16 rounded-2xl mb-8" />
           </div>
 
           {/* Headline */}

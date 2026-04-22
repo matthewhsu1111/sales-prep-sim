@@ -150,11 +150,11 @@ const Index = () => {
   const faqItems = [
     {
       question: "What is Cadence?",
-      answer: "Cadence is an AI-powered text-based simulator to help aspiring SDRs/AEs practice realistic sales interview scenarios with real-time coaching and build confidence before real interviews."
+      answer: "CadenceAI is an AI-powered text-based simulator to help aspiring SDRs/AEs practice realistic sales interview scenarios with real-time coaching and build confidence before real interviews."
     },
     {
       question: "Why tri-monthly billing instead of monthly?",
-      answer: "Unlike other SaaS companies, Cadence is designed to get you hired, not keep you subscribed forever. Our tri-monthly billing aligns with realistic job search timelines of 30-90 days. Once you get hired, you won't need us anymore - and that's exactly the goal."
+      answer: "Unlike other SaaS companies, CadenceAI is designed to get you hired, not keep you subscribed forever. Our tri-monthly billing aligns with realistic job search timelines of 30-90 days. Once you get hired, you won't need us anymore - and that's exactly the goal."
     },
     {
       question: "Will this actually help me get hired?", 
@@ -235,7 +235,7 @@ const Index = () => {
             {/* New Release Bar */}
             <div className="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-medium mb-8">
               <Star className="h-4 w-4 mr-2" />
-              NEW! Cadence v1 released
+              NEW! CadenceAI v1 released
             </div>
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight max-w-5xl mx-auto">
@@ -541,7 +541,7 @@ const Index = () => {
                       </div>
                       <div className="border-t border-gray-200 pt-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm" style={{color: 'rgb(75 85 99)'}}>Cadence investment (3 months)</span>
+                          <span className="text-sm" style={{color: 'rgb(75 85 99)'}}>CadenceAI investment (3 months)</span>
                           <span className="font-medium text-foreground">${cadenceCost}</span>
                         </div>
                       </div>
@@ -549,7 +549,7 @@ const Index = () => {
                         <div className="bg-primary/10 rounded-lg p-4 text-center">
                           <p className="text-sm text-primary font-medium">Potential ROI</p>
                           <p className="text-3xl font-bold text-primary">{roiMultiple}x</p>
-                          <p className="text-xs text-muted-foreground mt-1">return on your Cadence investment</p>
+                          <p className="text-xs text-muted-foreground mt-1">return on your CadenceAI investment</p>
                         </div>
                       )}
                     </div>

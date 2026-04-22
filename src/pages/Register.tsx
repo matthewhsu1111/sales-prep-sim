@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Mic } from "lucide-react";
+import cadenceLogo from "@/assets/cadence-logo.png";
 
 const Register = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -41,10 +42,8 @@ const Register = () => {
       <div className="relative z-10 p-4 text-center">
         <Link to="/" className="inline-block">
           <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <Mic className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-xl text-foreground">Cadence</span>
+            <img src={cadenceLogo} alt="CadenceAI logo" className="h-8 w-8 rounded-lg" />
+            <span className="font-bold text-xl text-foreground">CadenceAI</span>
           </div>
         </Link>
       </div>
