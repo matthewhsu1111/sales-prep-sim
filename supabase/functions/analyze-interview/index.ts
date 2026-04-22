@@ -223,7 +223,7 @@ Return ONLY valid JSON in this exact format:
   "strengths": [
     {
       "skill": "string",
-      "category": "string", 
+      "category": "string",
       "evidence": "string",
       "score": number (1-100)
     }
@@ -232,13 +232,25 @@ Return ONLY valid JSON in this exact format:
     {
       "skill": "string",
       "category": "string",
-      "issue": "string", 
+      "issue": "string",
       "improvementActions": ["string"],
       "score": number (1-100)
     }
   ],
-  "improvements": ["specific actionable recommendations"]
-}`;
+  "improvements": ["specific actionable recommendations"],
+  "questionScores": [
+    {
+      "question": "Brief paraphrase of the interviewer's question",
+      "qualityScore": number (1-5, where 1=no/dodged answer, 2=very weak, 3=acceptable, 4=strong, 5=excellent)
+    }
+  ]
+}
+
+IMPORTANT for questionScores:
+- Include ONE entry for every distinct question the interviewer asked.
+- qualityScore >= 3 means the candidate gave a substantive, on-topic answer.
+- qualityScore < 3 means the answer was missing, dodged, off-topic, or nonsensical (e.g., "idk", "next", "yes" with no detail).
+- Do NOT inflate scores — be strict so users can't farm rewards by spamming.`;
 
     // Only cap scores for truly unprofessional content
     let maxAllowedScore = 100;
