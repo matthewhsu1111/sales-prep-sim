@@ -442,7 +442,33 @@ ${interviewData.transcript}
           </Card>
         )}
 
-        {feedback && (
+        {starBreakdown.length > 0 && (
+          <Card className="bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-700">
+                <span className="text-2xl">⭐</span>
+                Stars Earned
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {starBreakdown.map((b, i) => (
+                  <li key={i} className="flex justify-between text-sm">
+                    <span className="text-foreground">{b.label}</span>
+                    <span className="font-semibold text-amber-700">+{b.value}</span>
+                  </li>
+                ))}
+                <li className="flex justify-between border-t pt-2 mt-2">
+                  <span className="font-bold">Total</span>
+                  <span className="font-bold text-amber-700">
+                    +{starBreakdown.reduce((s, b) => s + b.value, 0)} ⭐
+                  </span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
           <>
             {feedback.detailedScores && (
               <Card>
