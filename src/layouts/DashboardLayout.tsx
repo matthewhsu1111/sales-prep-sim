@@ -90,7 +90,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
                 <Mic className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-xl">Cadence</span>
+              <span className="font-bold text-xl">CadenceAI</span>
             </div>
           </div>
           
