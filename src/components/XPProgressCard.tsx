@@ -1,4 +1,4 @@
-import { Star, Flame, Trophy } from 'lucide-react';
+import { Star, Flame } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -59,7 +59,7 @@ export function XPProgressCard() {
             <span className="font-semibold">{progress.currentStreak}</span>
           </div>
           <div className="flex items-center gap-1 text-sm" title="Stars this week">
-            <Trophy className="w-4 h-4 text-blue-500" />
+            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
             <span className="font-semibold">{progress.weeklyXP}</span>
           </div>
         </div>
