@@ -182,12 +182,7 @@ export default function InterviewResults() {
       const correctCount = questionScores.filter((q) => (q?.qualityScore ?? 0) >= 3).length;
       const cappedCorrect = Math.min(correctCount, STAR_REWARDS.QUESTION_CAP);
 
-      const today = new Date().toISOString().split('T')[0];
-      const lastPracticeDate = progress?.lastPracticeDate
-        ? new Date(progress.lastPracticeDate).toISOString().split('T')[0]
-        : null;
-      const isFirstToday = lastPracticeDate !== today;
-
+      // Build breakdown WITHOUT first-today bonus first; awardStars is the authoritative source for isFirstToday
       const breakdown: { label: string; value: number }[] = [
         { label: `${interviewData.interviewer} (${getInterviewerLabel(interviewData.interviewer)})`, value: interviewerStars },
         { label: `${interviewData.interviewType} round`, value: typeStars },
@@ -198,14 +193,19 @@ export default function InterviewResults() {
           value: cappedCorrect,
         });
       }
-      if (isFirstToday) {
+
+      const baseStars = breakdown.reduce((sum, b) => sum + b.value, 0);
+
+      // Award base stars first to get the DB-truth isFirstToday flag
+      const result = await awardStars(baseStars, `Completed ${interviewData.interviewType} interview`);
+
+      // Only award the first-practice bonus if the DB confirmed this was the first practice today
+      if (result?.isFirstToday) {
         breakdown.push({ label: 'First practice today', value: STAR_REWARDS.FIRST_PRACTICE_TODAY });
+        await awardStars(STAR_REWARDS.FIRST_PRACTICE_TODAY, 'First practice today bonus');
       }
 
-      const totalStars = breakdown.reduce((sum, b) => sum + b.value, 0);
       setStarBreakdown(breakdown);
-
-      const result = await awardStars(totalStars, `Completed ${interviewData.interviewType} interview`);
 
       if (result) {
         setXpReward(result);
