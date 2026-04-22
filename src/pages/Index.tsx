@@ -179,7 +179,7 @@ const Index = () => {
           <div className="flex h-16 items-center justify-between gap-4">
             <div className="flex items-center space-x-2 shrink-0">
               <img src={cadenceLogo} alt="Cadence logo" className="h-9 w-9 rounded-lg" />
-              <span className="font-bold text-xl text-foreground">Cadence</span>
+              <span className="font-bold text-xl text-foreground">CadenceAI</span>
             </div>
             
             <div className="hidden lg:flex items-center space-x-8">
@@ -287,7 +287,7 @@ const Index = () => {
                   />
                 </div>
                 <div>
-                  <p className="font-semibold text-foreground">Founder of Cadence</p>
+                  <p className="font-semibold text-foreground">Founder of CadenceAI</p>
                 </div>
               </div>
             </div>
