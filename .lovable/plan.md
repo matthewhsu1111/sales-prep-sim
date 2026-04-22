@@ -1,44 +1,40 @@
 
 
-## What I recommend fixing
+## Refined: Stars only awarded for *correct* answers
 
-### 1. Critical — Self-upgrade exploit (FIX)
-Right now, any logged-in user can run an UPDATE on their own `profiles` row and set `subscription_tier = 'pro'`, giving themselves a paid plan for free. They can also overwrite Stripe IDs. Your app only writes these fields from the `stripe-webhook` edge function (service role), so locking them down won't break anything in the UI.
+### Change to the question bonus rule
 
-### 2. Warnings (your call — recommended but not urgent)
-- **Leaked password protection** — toggle in Supabase Auth settings. Blocks signups using passwords found in known breaches. ~30 seconds.
-- **OTP long expiry** — shorten OTP lifetime (recommend 10 min) in Auth settings. Reduces window for an intercepted code to be used.
-- **Postgres patches available** — minor version upgrade in Supabase. Brief downtime possible. Important long-term but not exploitable through your app code.
+**Old:** +1 star per question answered (capped at +10).
+**New:** +1 star per question answered **correctly**, capped at +10.
 
-These three are dashboard toggles I can't do for you — I'll give you the exact links after the code fix.
+Stops the obvious exploit of spamming "yes / I don't know / next" to farm stars.
 
----
+### How "correct" is determined
 
-## Plan: Lock down billing fields on `profiles`
+We already run Claude post-session in `analyze-interview` to score the transcript. That function returns per-question feedback and an overall score. We extend its prompt to also return a per-question `correct: boolean` (or a 1–5 quality score where ≥3 counts as correct — cleaner for partial credit).
 
-**Approach:** Replace the broad UPDATE policy with one that uses a column-level guard via a trigger. Users keep being able to edit `name`, `target_role`, `background`, `interview_preferences`, `has_completed_setup`, `first_name`. Any attempt to change subscription/Stripe columns from a non-service-role context throws an error. The webhook continues to work because service role bypasses RLS and triggers' permission checks don't apply to it the same way — we'll explicitly allow the service role inside the trigger.
+Star calculation moves from "count questions in transcript" to "count questions where Claude marked quality ≥ 3", still capped at +10.
 
-### Migration (SQL)
-1. Create a trigger function `prevent_profile_billing_update()`:
-   - Runs BEFORE UPDATE on `profiles`.
-   - If `auth.role()` is `'service_role'`, allow anything (webhook path).
-   - Otherwise, if any of `subscription_tier`, `subscription_status`, `subscription_end_date`, `stripe_customer_id`, `stripe_subscription_id` differ between OLD and NEW, raise an exception: `"Billing fields can only be updated by the billing system"`.
-2. Attach trigger to `public.profiles`.
-3. Leave existing RLS UPDATE policy as-is (users still update their own row), since the trigger now enforces the column restriction at a lower level.
+### Where the logic lives
 
-### Why a trigger and not a separate table
-A separate `billing_details` table is cleaner architecturally but would force changes in 3 frontend files (`Settings.tsx`, `Profile.tsx`, `InterviewSession.tsx`) and the webhook — more surface area, more risk. The trigger achieves the same security guarantee with one migration and zero frontend changes.
+- `supabase/functions/analyze-interview/index.ts` — extend the JSON schema Claude returns to include `questionScores: { question: string, qualityScore: 1-5 }[]`. Already returns structured analysis, so this is an additive field.
+- `src/pages/InterviewResults.tsx` — when computing stars to award, count entries where `qualityScore >= 3` instead of total questions answered. Pass that count (capped at 10) to `awardStars`.
+- Everything else from the previous plan stays the same (interviewer bonus, type bonus, levels rescaled, All-Time leaderboard, DB migration).
 
-### Files touched
-- New migration only. No frontend or edge function code changes needed.
+### User-facing copy
 
-### Verification after apply
-- Confirm Settings/Profile/Interview pages still load subscription data (read paths unaffected).
-- Confirm regular profile edits (name, target_role) still save.
-- Optionally: from the Supabase SQL editor as an authenticated user, try `UPDATE profiles SET subscription_tier = 'pro' WHERE user_id = auth.uid()` — should error.
+On the results screen, break the star award down so it's transparent and feels earned:
+- "Rebecca (hard interviewer): +3"
+- "Hiring Manager round: +2"
+- "7 of 9 answers rated strong: +7"
+- "First practice today: +1"
+- **Total: +13 ⭐**
 
-### Dashboard fixes I'll link after
-- Auth → Providers → enable "Leaked password protection"
-- Auth → Settings → set OTP expiry to 600 seconds
-- Database → upgrade Postgres to latest patch version
+This also doubles as feedback — users see exactly which answers counted.
+
+### Edge cases handled
+
+- Very short sessions (1–2 questions) still award the interviewer + type bonus even if no answer was strong.
+- Sessions that fail analysis (Claude error) fall back to +0 question stars rather than crashing — interviewer + type bonus still awarded.
+- Cap of +10 still applies, so a 30-question session with all strong answers caps at +10 question stars (+ interviewer + type).
 
