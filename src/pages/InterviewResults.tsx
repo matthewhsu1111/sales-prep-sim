@@ -58,12 +58,13 @@ export default function InterviewResults() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { awardXP, progress } = useGamification();
+  const { awardStars, progress } = useGamification();
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [streakSaved, setStreakSaved] = useState(false);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [xpReward, setXpReward] = useState<any>(null);
+  const [starBreakdown, setStarBreakdown] = useState<{ label: string; value: number }[]>([]);
 
   const interviewData = location.state?.interviewData as InterviewResultsData;
   const savedFeedback = location.state?.savedFeedback as FeedbackData | undefined;
@@ -143,7 +144,7 @@ export default function InterviewResults() {
       setFeedback(data);
 
       // Update streak after successful analysis
-      await updateStreak();
+      await updateStreak(data);
     } catch (error) {
       console.error("💥 Error generating feedback:", error);
       toast({
@@ -168,40 +169,56 @@ export default function InterviewResults() {
     }
   };
 
-  const updateStreak = async () => {
+  const updateStreak = async (analysis?: FeedbackData) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Award XP for completing the interview
-      const interviewXP = getInterviewTypeXP(interviewData.interviewType);
+      const interviewerStars = getInterviewerStars(interviewData.interviewer);
+      const typeStars = getInterviewTypeStars(interviewData.interviewType);
+
+      // Count "correct" answers — qualityScore >= 3 — capped at QUESTION_CAP
+      const questionScores = analysis?.questionScores || [];
+      const correctCount = questionScores.filter((q) => (q?.qualityScore ?? 0) >= 3).length;
+      const cappedCorrect = Math.min(correctCount, STAR_REWARDS.QUESTION_CAP);
+
       const today = new Date().toISOString().split('T')[0];
-      const lastPracticeDate = progress?.lastPracticeDate 
-        ? new Date(progress.lastPracticeDate).toISOString().split('T')[0] 
+      const lastPracticeDate = progress?.lastPracticeDate
+        ? new Date(progress.lastPracticeDate).toISOString().split('T')[0]
         : null;
-      
-      // Add first practice bonus if this is the first practice today
-      let totalXP = interviewXP;
       const isFirstToday = lastPracticeDate !== today;
+
+      const breakdown: { label: string; value: number }[] = [
+        { label: `${interviewData.interviewer} (${getInterviewerLabel(interviewData.interviewer)})`, value: interviewerStars },
+        { label: `${interviewData.interviewType} round`, value: typeStars },
+      ];
+      if (questionScores.length > 0) {
+        breakdown.push({
+          label: `${correctCount} of ${questionScores.length} answers rated strong`,
+          value: cappedCorrect,
+        });
+      }
       if (isFirstToday) {
-        totalXP += XP_REWARDS.FIRST_PRACTICE_TODAY;
+        breakdown.push({ label: 'First practice today', value: STAR_REWARDS.FIRST_PRACTICE_TODAY });
       }
 
-      // Award the XP
-      const xpResult = await awardXP(totalXP, `Completed ${interviewData.interviewType} interview`);
-      
-      if (xpResult) {
-        setXpReward(xpResult);
+      const totalStars = breakdown.reduce((sum, b) => sum + b.value, 0);
+      setStarBreakdown(breakdown);
+
+      const result = await awardStars(totalStars, `Completed ${interviewData.interviewType} interview`);
+
+      if (result) {
+        setXpReward(result);
         setStreakSaved(true);
         setCurrentStreak(progress?.currentStreak || 0);
       }
 
       // Check for perfect week bonus (7 days in a row)
       if (progress && progress.practicesThisWeek === 7) {
-        await awardXP(XP_REWARDS.PERFECT_WEEK, 'Perfect week bonus!');
+        await awardStars(STAR_REWARDS.PERFECT_WEEK, 'Perfect week bonus!');
       }
     } catch (error) {
-      console.error('Error updating streak and XP:', error);
+      console.error('Error updating streak and stars:', error);
     }
   };
 
