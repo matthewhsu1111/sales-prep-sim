@@ -84,11 +84,11 @@ export default function Leaderboards() {
 
   function getDisplayName(entry: { user_id: string; first_name: string | null; name: string | null; leaderboard_visible: boolean | null }) {
     const isCurrentUser = entry.user_id === user?.id;
-    if (isCurrentUser) return entry.first_name || entry.name || 'You';
+    // Always show only first name (or first word of full name) — never last name
+    const firstOnly = entry.first_name?.trim() || entry.name?.trim().split(/\s+/)[0] || null;
+    if (isCurrentUser) return firstOnly || 'You';
     if (entry.leaderboard_visible === false) return 'Anonymous';
-    if (entry.first_name) return entry.first_name;
-    if (entry.name) return entry.name.trim().split(/\s+/)[0];
-    return 'Anonymous Learner';
+    return firstOnly || 'Anonymous Learner';
   }
 
   function getInitials(entry: { user_id: string; first_name: string | null; name: string | null; leaderboard_visible: boolean | null }) {
