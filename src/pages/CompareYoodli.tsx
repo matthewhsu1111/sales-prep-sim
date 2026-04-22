@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -10,6 +11,25 @@ const rows: { feature: string; cadence: string | boolean; competitor: string | b
   { feature: 'Objection handling practice', cadence: true, competitor: false },
   { feature: 'Free tier', cadence: 'Full interview reps included', competitor: 'Limited speech analysis' },
   { feature: 'Price', cadence: 'Aligned to a job search', competitor: 'Subscription for ongoing speech coaching' },
+];
+
+const faqs = [
+  {
+    q: 'CadenceAI vs Yoodli — which is better for SDR interview prep?',
+    a: "CadenceAI is purpose-built for SDR and AE interview prep — realistic hiring manager personas, sales-specific roleplay scenarios, and objection handling feedback. Yoodli is a general-purpose speech coach that scores how you talk (filler words, pace) but doesn't simulate a sales interview or push back like a real interviewer. If your goal is to pass an SDR roleplay, CadenceAI is the right tool.",
+  },
+  {
+    q: 'Does Yoodli help with sales roleplay interviews?',
+    a: "Not directly. Yoodli analyzes delivery — pacing, filler words, eye contact — across any speaking context. It doesn't run sales-specific scenarios, doesn't raise objections like a hiring manager would, and doesn't coach you on what to actually say in a cold call roleplay. It's a useful delivery tool, not an interview simulator.",
+  },
+  {
+    q: 'Is CadenceAI free?',
+    a: "Yes. CadenceAI has a generous free tier with full interview reps included — no credit card required. Paid tiers are priced for job seekers, not enterprise sales teams.",
+  },
+  {
+    q: 'Can I use both Yoodli and CadenceAI?',
+    a: "Sure. They solve different problems. Use Yoodli to clean up filler words and delivery polish across any speaking context. Use CadenceAI to actually practice the SDR or AE interview itself — hiring manager personas, objections, sales roleplay reps. Most candidates only need CadenceAI for the interview specifically.",
+  },
 ];
 
 const Cell = ({ value, primary }: { value: string | boolean; primary?: boolean }) => {
@@ -26,8 +46,56 @@ const Cell = ({ value, primary }: { value: string | boolean; primary?: boolean }
 const CompareYoodli = () => {
   const navigate = useNavigate();
 
+  const canonicalUrl = 'https://cadenceai.app/compare/cadenceai-vs-yoodli';
+  const title = 'CadenceAI vs Yoodli: Which Is Better for SDR Interview Prep? (2026)';
+  const description =
+    "CadenceAI vs Yoodli compared. Yoodli coaches how you speak. CadenceAI coaches what you say in a sales interview. Here's which to choose for SDR and AE interview prep in 2026.";
+
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description,
+    datePublished: 'April 21, 2026',
+    author: { '@type': 'Organization', name: 'CadenceAI' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'CadenceAI',
+      logo: { '@type': 'ImageObject', url: 'https://cadenceai.app/favicon.png' },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+    image: 'https://cadenceai.app/og-image.png',
+    keywords: 'CadenceAI vs Yoodli, Yoodli alternative, SDR interview prep, sales roleplay practice, AI sales interview app',
+  };
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content="https://cadenceai.app/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      </Helmet>
+
       <div className="container mx-auto px-4 max-w-4xl py-16">
         <button
           onClick={() => navigate('/')}
@@ -116,7 +184,15 @@ const CompareYoodli = () => {
               walk into your SDR interview and close it.
             </p>
             <p>
-              Both tools are useful. They just solve different problems.
+              Both tools are useful. They just solve different problems. For a full breakdown of
+              every sales interview practice tool in 2026, see our{' '}
+              <Link
+                to="/blog/best-app-practice-sales-interview"
+                className="underline text-foreground hover:opacity-80"
+              >
+                ranked guide to the best apps for sales interview practice
+              </Link>
+              .
             </p>
           </div>
         </section>
@@ -138,6 +214,27 @@ const CompareYoodli = () => {
           </div>
         </section>
 
+        <section className="mb-16">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-4">
+            {faqs.map((item, j) => (
+              <details
+                key={j}
+                className="group border border-border rounded-xl bg-muted/20 p-5 open:bg-muted/40 transition-colors"
+              >
+                <summary className="cursor-pointer list-none font-semibold text-foreground flex justify-between items-start gap-4">
+                  <span>{item.q}</span>
+                  <span className="text-muted-foreground transition-transform group-open:rotate-45 text-xl leading-none mt-0.5">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-muted-foreground leading-relaxed text-sm">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
 
         <div className="text-center p-8 border border-border rounded-xl">
           <h3 className="text-2xl font-semibold text-foreground mb-3">

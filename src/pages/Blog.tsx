@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, ArrowRight, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -32,8 +33,49 @@ const posts = [
 const Blog = () => {
   const navigate = useNavigate();
 
+  const canonicalUrl = 'https://cadenceai.app/blog';
+  const title = 'CadenceAI Blog — SDR & AE Interview Prep, Sales Roleplay Practice';
+  const description =
+    'Practical, honest guides on landing SDR and AE roles in 2026 — interview prep, sales roleplay practice, and tool comparisons for job seekers breaking into tech sales.';
+
+  const blogSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'CadenceAI Blog',
+    url: canonicalUrl,
+    description,
+    publisher: {
+      '@type': 'Organization',
+      name: 'CadenceAI',
+      logo: { '@type': 'ImageObject', url: 'https://cadenceai.app/favicon.png' },
+    },
+    blogPost: posts.map((p) => ({
+      '@type': 'BlogPosting',
+      headline: p.title,
+      url: `https://cadenceai.app/blog/${p.slug}`,
+      description: p.excerpt,
+      datePublished: p.date,
+      author: { '@type': 'Organization', name: 'CadenceAI' },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content="https://cadenceai.app/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <script type="application/ld+json">{JSON.stringify(blogSchema)}</script>
+      </Helmet>
+
       <div className="container mx-auto px-4 max-w-3xl py-16">
         <button
           onClick={() => navigate('/')}
