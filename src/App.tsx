@@ -26,6 +26,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import CompareYoodli from "./pages/CompareYoodli";
+import CompareCluely from "./pages/CompareCluely";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/compare/yoodli" element={<CompareYoodli />} />
+          <Route path="/compare/cadenceai-vs-cluely" element={<CompareCluely />} />
           <Route path="/register" element={<Register />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Signin />} />
