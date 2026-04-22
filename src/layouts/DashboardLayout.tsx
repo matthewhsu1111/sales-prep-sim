@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Mic, HelpCircle, LogOut, Settings, User, Flame } from "lucide-react";
+import cadenceLogo from "@/assets/cadence-logo.png";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -65,9 +66,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center mb-4">
-            <Mic className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <img src={cadenceLogo} alt="CadenceAI logo" className="h-8 w-8 rounded-lg mb-4 mx-auto" />
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -87,9 +86,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex items-center gap-4">
             <SidebarTrigger />
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-                <Mic className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <img src={cadenceLogo} alt="CadenceAI logo" className="h-8 w-8 rounded-lg" />
               <span className="font-bold text-xl">CadenceAI</span>
             </div>
           </div>
