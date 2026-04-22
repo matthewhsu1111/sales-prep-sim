@@ -871,7 +871,7 @@ const Index = () => {
 
             {/* Product */}
             <div>
-              <h4 className="text-xs font-semibold tracking-wider text-foreground uppercase mb-4">Product</h4>
+              <h4 className="text-xs font-semibold tracking-wider text-foreground uppercase mb-4">RESOURCES</h4>
               <ul className="space-y-3">
                 <li>
                   <button
