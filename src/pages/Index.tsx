@@ -860,10 +860,18 @@ const Index = () => {
               <ul className="space-y-3">
                 <li>
                   <button
-                    onClick={() => navigate('/compare/yoodli')}
+                    onClick={() => navigate('/compare/cadenceai-vs-yoodli')}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     vs Yoodli
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigate('/compare/cadenceai-vs-cluely')}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    vs Cluely
                   </button>
                 </li>
               </ul>

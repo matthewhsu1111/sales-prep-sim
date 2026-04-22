@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/components/AuthProvider";
 import { AuthRedirectHandler } from "@/components/AuthRedirectHandler";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -45,7 +45,8 @@ const App = () => (
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/compare/yoodli" element={<CompareYoodli />} />
+          <Route path="/compare/cadenceai-vs-yoodli" element={<CompareYoodli />} />
+          <Route path="/compare/yoodli" element={<Navigate to="/compare/cadenceai-vs-yoodli" replace />} />
           <Route path="/compare/cadenceai-vs-cluely" element={<CompareCluely />} />
           <Route path="/register" element={<Register />} />
           <Route path="/signup" element={<Signup />} />

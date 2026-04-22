@@ -138,7 +138,7 @@ const posts: Record<string, Post> = {
         node: (
           <>
             If you're comparing practice tools, we wrote an honest breakdown of how CadenceAI stacks up against the most common alternative — see{' '}
-            <Link to="/compare/yoodli" className="underline text-foreground hover:opacity-80">
+            <Link to="/compare/cadenceai-vs-yoodli" className="underline text-foreground hover:opacity-80">
               CadenceAI vs Yoodli
             </Link>
             . Yoodli coaches how you speak. CadenceAI coaches what you say.
