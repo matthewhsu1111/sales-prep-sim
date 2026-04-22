@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import cadenceLogo from "@/assets/cadence-logo.png";
 import { useGamification } from "@/hooks/useGamification";
 import { XPRewardPopup } from "@/components/XPRewardPopup";
-import { getInterviewTypeXP, XP_REWARDS } from "@/utils/gamification";
+import { getInterviewTypeStars, getInterviewerStars, getInterviewerLabel, STAR_REWARDS } from "@/utils/gamification";
 
 interface InterviewResultsData {
   interviewer: string;
@@ -34,6 +34,11 @@ interface WeaknessItem {
   score: number;
 }
 
+interface QuestionScore {
+  question: string;
+  qualityScore: number; // 1-5
+}
+
 interface FeedbackData {
   strengths: StrengthItem[] | string[];
   weaknesses: WeaknessItem[] | string[];
@@ -46,6 +51,7 @@ interface FeedbackData {
     salesSkills: number;
     interviewMechanics: number;
   };
+  questionScores?: QuestionScore[];
 }
 
 export default function InterviewResults() {
