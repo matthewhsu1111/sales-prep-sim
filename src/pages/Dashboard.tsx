@@ -36,7 +36,7 @@ const Dashboard = () => {
   const [improvements, setImprovements] = useState<any[]>([]);
   const [recentInterviews, setRecentInterviews] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'all'>('all');
-  const [dailyGoal] = useState(50); // Daily XP goal
+  const [dailyGoal] = useState(5); // Daily Stars goal
 
   useEffect(() => {
     fetchDashboardData();
@@ -374,15 +374,15 @@ const Dashboard = () => {
                   <h3 className="font-semibold">Daily Goal</h3>
                 </div>
                 <Badge variant={dailyProgress >= 100 ? "default" : "secondary"}>
-                  {progress.dailyXP}/{dailyGoal} XP
+                  {progress.dailyXP}/{dailyGoal} ⭐
                 </Badge>
               </div>
               <Progress value={Math.min(dailyProgress, 100)} className="h-3" />
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>
-                  {dailyProgress >= 100 
-                    ? "🎉 Goal achieved! Amazing work!" 
-                    : `${dailyGoal - progress.dailyXP} XP to go`}
+                  {dailyProgress >= 100
+                    ? "🎉 Goal achieved! Amazing work!"
+                    : `${dailyGoal - progress.dailyXP} ⭐ to go`}
                 </span>
                 <span className="flex items-center gap-1">
                   <Star className="w-4 h-4 text-yellow-500" />
