@@ -1,38 +1,44 @@
 
-The user wants to add a testimonial from "Haven" with an invented professional title (since "restaurant manager" is off-brand for a sales interview prep tool).
 
-## Recommended title
-**"Haven — Hiring Manager, Hospitality"** (polished but honest; she does actually do hiring). Alternatives below if preferred.
+## What I recommend fixing
 
-## Best placement
-With only **one** testimonial, a full grid would look empty. Two strong spots on a landing page:
+### 1. Critical — Self-upgrade exploit (FIX)
+Right now, any logged-in user can run an UPDATE on their own `profiles` row and set `subscription_tier = 'pro'`, giving themselves a paid plan for free. They can also overwrite Stripe IDs. Your app only writes these fields from the `stripe-webhook` edge function (service role), so locking them down won't break anything in the UI.
 
-1. **Right under the hero** — immediate social proof, top of funnel.
-2. **Right before the final CTA / pricing section** — highest-intent moment, biggest conversion lift.
+### 2. Warnings (your call — recommended but not urgent)
+- **Leaked password protection** — toggle in Supabase Auth settings. Blocks signups using passwords found in known breaches. ~30 seconds.
+- **OTP long expiry** — shorten OTP lifetime (recommend 10 min) in Auth settings. Reduces window for an intercepted code to be used.
+- **Postgres patches available** — minor version upgrade in Supabase. Brief downtime possible. Important long-term but not exploitable through your app code.
 
-**My pick: option 2** (just before the CTA). A real hiring manager vouching for realism, placed right when the user is about to sign up, is the highest-leverage spot for a single quote.
+These three are dashboard toggles I can't do for you — I'll give you the exact links after the code fix.
 
-## What I'd build
+---
 
-A single centered testimonial card in `src/pages/Index.tsx`, placed right before the existing CTA/pricing section:
+## Plan: Lock down billing fields on `profiles`
 
-- Short quote (paraphrased from what Haven said)
-- Avatar circle with initial "H" (no photo needed; can swap in later)
-- Attribution: **Haven** · Hiring Manager, Hospitality
-- Style matches existing landing-page cards (border, subtle background, rounded)
+**Approach:** Replace the broad UPDATE policy with one that uses a column-level guard via a trigger. Users keep being able to edit `name`, `target_role`, `background`, `interview_preferences`, `has_completed_setup`, `first_name`. Any attempt to change subscription/Stripe columns from a non-service-role context throws an error. The webhook continues to work because service role bypasses RLS and triggers' permission checks don't apply to it the same way — we'll explicitly allow the service role inside the trigger.
 
-## Suggested quote
-> "This is genuinely realistic — the questions and pushback are exactly what I'd ask in an actual interview."
+### Migration (SQL)
+1. Create a trigger function `prevent_profile_billing_update()`:
+   - Runs BEFORE UPDATE on `profiles`.
+   - If `auth.role()` is `'service_role'`, allow anything (webhook path).
+   - Otherwise, if any of `subscription_tier`, `subscription_status`, `subscription_end_date`, `stripe_customer_id`, `stripe_subscription_id` differ between OLD and NEW, raise an exception: `"Billing fields can only be updated by the billing system"`.
+2. Attach trigger to `public.profiles`.
+3. Leave existing RLS UPDATE policy as-is (users still update their own row), since the trigger now enforces the column restriction at a lower level.
 
-## Files to change
-- `src/pages/Index.tsx` — add one `<section>` with the testimonial card
+### Why a trigger and not a separate table
+A separate `billing_details` table is cleaner architecturally but would force changes in 3 frontend files (`Settings.tsx`, `Profile.tsx`, `InterviewSession.tsx`) and the webhook — more surface area, more risk. The trigger achieves the same security guarantee with one migration and zero frontend changes.
 
-No new assets, no dependencies.
+### Files touched
+- New migration only. No frontend or edge function code changes needed.
 
-## Quick choices for you before I build
+### Verification after apply
+- Confirm Settings/Profile/Interview pages still load subscription data (read paths unaffected).
+- Confirm regular profile edits (name, target_role) still save.
+- Optionally: from the Supabase SQL editor as an authenticated user, try `UPDATE profiles SET subscription_tier = 'pro' WHERE user_id = auth.uid()` — should error.
 
-- **Title**: "Hiring Manager, Hospitality" (recommended), "Talent & Hiring Lead", or "People Operations Manager"?
-- **Placement**: before final CTA (recommended), under hero, or both?
-- **Quote**: keep the suggested one, or want to tweak the wording?
+### Dashboard fixes I'll link after
+- Auth → Providers → enable "Leaked password protection"
+- Auth → Settings → set OTP expiry to 600 seconds
+- Database → upgrade Postgres to latest patch version
 
-Reply with your picks (or "go with recommendations") and I'll implement.
