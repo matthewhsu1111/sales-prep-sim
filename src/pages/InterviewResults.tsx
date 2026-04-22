@@ -465,6 +465,14 @@ ${interviewData.transcript}
                   </span>
                 </li>
               </ul>
+              <div className="mt-4 p-3 rounded-lg bg-white/60 border border-yellow-200 text-sm text-foreground">
+                <p className="font-semibold mb-1">💡 To earn more stars:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
+                  <li>Try harder interviewers (Rebecca/Michael)</li>
+                  <li>Practice executive-level scenarios</li>
+                  <li>Aim for quality over quantity</li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
         )}
