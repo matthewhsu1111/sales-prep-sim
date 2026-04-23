@@ -154,7 +154,7 @@ export default function Leaderboards() {
       <div className="w-12 flex justify-center">{getRankIcon(entry.rank)}</div>
 
       <Avatar>
-        <AvatarFallback>{getInitials(entry)}</AvatarFallback>
+        <AvatarFallback className={getAvatarColor(entry.user_id)}>{getInitials(entry)}</AvatarFallback>
       </Avatar>
 
       <div className="flex-1">
