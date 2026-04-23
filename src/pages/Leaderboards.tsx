@@ -97,6 +97,35 @@ export default function Leaderboards() {
     return name.charAt(0).toUpperCase();
   }
 
+  // Deterministic vibrant color per user based on user_id
+  const AVATAR_COLORS = [
+    'bg-red-500 text-white',
+    'bg-orange-500 text-white',
+    'bg-amber-500 text-white',
+    'bg-yellow-500 text-black',
+    'bg-lime-500 text-black',
+    'bg-green-500 text-white',
+    'bg-emerald-500 text-white',
+    'bg-teal-500 text-white',
+    'bg-cyan-500 text-black',
+    'bg-sky-500 text-white',
+    'bg-blue-500 text-white',
+    'bg-indigo-500 text-white',
+    'bg-violet-500 text-white',
+    'bg-purple-500 text-white',
+    'bg-fuchsia-500 text-white',
+    'bg-pink-500 text-white',
+    'bg-rose-500 text-white',
+  ];
+
+  function getAvatarColor(userId: string) {
+    let hash = 0;
+    for (let i = 0; i < userId.length; i++) {
+      hash = (hash * 31 + userId.charCodeAt(i)) >>> 0;
+    }
+    return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto p-6 space-y-6">
