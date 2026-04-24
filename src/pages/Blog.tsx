@@ -5,6 +5,14 @@ import { Button } from '@/components/ui/button';
 
 const posts = [
   {
+    slug: '9-sdr-interview-roleplay-scenarios',
+    title: '9 SDR Interview Roleplay Scenarios With Scripts — Practice These Before Your Interview',
+    excerpt:
+      "The exact roleplay scenarios hiring managers use to screen SDR candidates — with real dialogue, objection responses, and the PASS Framework for practicing until the freeze never happens.",
+    date: 'April 23, 2026',
+    readTime: '16 min read',
+  },
+  {
     slug: 'best-app-practice-sales-interview',
     title: 'The Best App to Practice Your Sales Interview in 2026',
     excerpt:

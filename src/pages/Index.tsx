@@ -877,6 +877,14 @@ const Index = () => {
                     vs Cluely
                   </button>
                 </li>
+                <li>
+                  <button
+                    onClick={() => navigate('/compare/cadenceai-vs-final-round-ai')}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    vs Final Round AI
+                  </button>
+                </li>
               </ul>
             </div>
 

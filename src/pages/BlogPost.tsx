@@ -58,6 +58,172 @@ type Post = {
 };
 
 const posts: Record<string, Post> = {
+  '9-sdr-interview-roleplay-scenarios': {
+    slug: '9-sdr-interview-roleplay-scenarios',
+    title: '9 SDR Interview Roleplay Scenarios With Scripts — Practice These Before Your Interview',
+    subtitle: "The exact roleplay scenarios hiring managers use to screen SDR candidates — with real dialogue, objection responses, and the PASS Framework for practicing until the freeze never happens.",
+    description: "9 SDR interview roleplay scenarios with full scripts, objection responses, and a step-by-step practice framework. The exact scenarios hiring managers use to screen candidates in 2026.",
+    date: 'April 23, 2026',
+    readTime: '16 min read',
+    audience: 'Updated monthly',
+    body: [
+      { type: 'p', text: "If you're preparing for an SDR interview, the roleplay round is the scenario that separates hires from rejections — and it's the one almost nobody actually practices. This guide gives you the 9 most common SDR interview roleplay scenarios hiring managers use in 2026, complete with sample scripts, the specific objections they throw, and exactly why each response works." },
+      { type: 'p', text: "These aren't generic sales training scenarios. Every scenario below is calibrated specifically to the job interview context — because practicing a real sales call and practicing for a hiring manager who is evaluating whether you can do a real sales call are two completely different things." },
+      { type: 'callout', title: 'What the freeze actually is', text: "When candidates freeze in the SDR roleplay round, it's almost never a talent problem. It's a reps problem. They've never been in that specific seat — with a stranger, under pressure, being evaluated — and their nervous system treats it as a genuine threat. The scripts below don't just give you words. They give you enough reps that the situation stops feeling novel. That's when the freeze disappears." },
+
+      { type: 'h2', text: 'Why SDR Interview Roleplay Scenarios Are Different From Regular Sales Practice' },
+      { type: 'p', text: "There's a crucial difference between practicing sales calls for a job you already have and practicing for an interview where you're trying to demonstrate you can do the job. In a real sales call, you've been trained on the product, you know the ICP, and your goal is booking a meeting. In a job interview roleplay, you know almost nothing — and that's the point." },
+      { type: 'p', text: "Hiring managers aren't testing whether you can close deals. They're testing three specific things: whether you stay composed under pressure, whether you instinctively ask questions instead of pitching, and whether you can recover when something unexpected happens. The scripts below are designed to train exactly those instincts." },
+      { type: 'p', text: "One more thing before the scenarios: every script here is a starting point, not a rigid template. The best responses are the ones that feel natural coming out of your mouth — not recited. Use these to understand the structure, then make them yours." },
+
+      { type: 'h2', text: 'The PASS Framework' },
+      { type: 'p', text: "Four principles that separate candidates who pass from candidates who freeze." },
+      {
+        type: 'numbered-steps',
+        items: [
+          { title: 'P — Pressure Inoculation', body: "Practice under simulated pressure — time constraints, difficult personas, unexpected objections — until your nervous system treats it as routine, not threat." },
+          { title: 'A — Ask Before You Pitch', body: "The single most common mistake in SDR roleplays: pitching before qualifying. Great SDR candidates ask questions first. Every time. Without exception." },
+          { title: 'S — Stay in the Conversation', body: "A \"not interested\" is not a rejection — it's the beginning of the real conversation. Staying calm and curious after pushback is what hiring managers are watching for." },
+          { title: 'S — Specific Reps', body: "Don't practice randomly. Identify the 3 scenarios most likely in your interview and practice each one 15–20 times. Depth beats breadth every time." },
+        ],
+      },
+
+      { type: 'h2', text: 'How to Use These SDR Interview Roleplay Scenarios' },
+      { type: 'p', text: "Before you run through each scenario, understand what you're practicing. Each one has a setup that describes the exact situation, a sample dialogue showing one strong response, and a \"why it works\" breakdown explaining the instincts being demonstrated. Read the dialogue once. Then close it and practice the scenario out loud from memory — adapting the words to feel natural for you. Repeat until your response to the opening situation feels automatic, not deliberate." },
+      {
+        type: 'p-jsx',
+        node: (
+          <>
+            If you want to practice with an AI hiring manager that actually pushes back and adapts mid-conversation,{' '}
+            <Link to="/signup" className="underline text-foreground hover:opacity-80">CadenceAI</Link>{' '}
+            gives you all 9 of these scenarios with live feedback — so you're not just rehearsing lines but building real muscle memory under pressure.
+          </>
+        ),
+      },
+
+      { type: 'h2', text: '01 — The Cold Call Opening' },
+      { type: 'callout', title: 'What they say', text: "\"Okay, I'm going to be a VP of Sales at a 200-person SaaS company. You're calling me cold. Go.\" — Testing: pattern interrupt, composure in silence, permission-based opening." },
+      { type: 'p', text: "Hiring Mgr: \"Yeah, who's this?\"" },
+      { type: 'p', text: "You: \"Hi Sarah — this is [Your Name] calling from [Company]. I'll be honest, you weren't expecting my call. I've got a reason for reaching out, but before I get into it — is now an okay moment, or should I call back at a better time?\"" },
+      { type: 'p', text: "Hiring Mgr: \"I've got two minutes.\"" },
+      { type: 'p', text: "You: \"I'll be quick. We work with VP-level sales leaders at SaaS companies in the 150 to 500 person range who are frustrated with SDR ramp time. Typically they're waiting 3 to 4 months before a new hire is productive. I don't know if that's something on your radar, but if it is, it might be worth a 15-minute conversation. Is SDR ramp a problem you're actively looking at right now?\"" },
+      { type: 'p', text: "Hiring Mgr: \"We actually just hired four SDRs. It's definitely on my mind.\"" },
+      { type: 'p', text: "You: \"Perfect timing then. What does your current onboarding process look like for those new hires?\"" },
+      { type: 'callout', title: 'Why this works', text: "The opener gives them an out immediately — which is counterintuitive but builds instant trust. The two-sentence value proposition is specific to their role and company size, not generic. Most importantly, the rep ends with a question, not a pitch. Hiring managers are watching for that pivot from speaking to listening." },
+
+      { type: 'h2', text: '02 — The Immediate "Not Interested"' },
+      { type: 'callout', title: 'What they say', text: "\"We're not interested\" — immediately after you finish your opener. Testing: recovery speed, staying curious instead of defensive, not collapsing." },
+      { type: 'p', text: "Hiring Mgr: \"Not interested.\"" },
+      { type: 'p', text: "You: \"That's fair — most people I call say that initially. Can I ask just one quick question before I let you go?\"" },
+      { type: 'p', text: "Hiring Mgr: \"Fine, one question.\"" },
+      { type: 'p', text: "You: \"When you say not interested — is it that the timing isn't right, or is this just not a priority at all for your team right now?\"" },
+      { type: 'p', text: "Hiring Mgr: \"Timing isn't great — we just went through a reorg.\"" },
+      { type: 'p', text: "You: \"That makes complete sense. I won't waste your time now — would it be worth me following up in a couple months once things settle, or would that still be too soon?\"" },
+      { type: 'callout', title: 'Why this works', text: "This is the scenario that eliminates the most candidates — because most people either give up immediately or push back defensively. The \"one quick question\" technique is respectful and almost always granted. Separating \"bad timing\" from \"not a priority\" is a real qualification question dressed up as a soft follow-up. Asking them to tell you when to follow up makes the prospect do the closing work." },
+
+      { type: 'h2', text: '03 — "Send Me an Email"' },
+      { type: 'callout', title: 'What they say', text: "\"Just send me an email\" — mid-conversation, as a way to end the call. Testing: whether you recognize this as a brush-off, confidence to stay on the call." },
+      { type: 'p', text: "Hiring Mgr: \"Yeah, why don't you just send me an email with the details.\"" },
+      { type: 'p', text: "You: \"Absolutely — happy to do that. I just want to make sure I send you something actually useful and not just a generic overview. What would make an email worth 60 seconds of your time? Is it the ROI data, the implementation timeline, or how we compare to what you're using now?\"" },
+      { type: 'p', text: "Hiring Mgr: \"Just send me the overview.\"" },
+      { type: 'p', text: "You: \"Will do. And so the email has some context — when you look at it, what's the main thing you're trying to solve right now? Even a rough answer helps me make sure I'm not wasting your inbox.\"" },
+      { type: 'callout', title: 'Why this works', text: "\"Send me an email\" is almost always a polite way to end the call — not genuine interest. The response agrees to the email (no confrontation) but pivots immediately into a qualification question before committing. Getting any answer to \"what are you trying to solve\" turns a brush-off into a warm lead. Hiring managers love seeing this pivot because it shows commercial instinct." },
+
+      { type: 'h2', text: '04 — "We Already Use a Competitor"' },
+      { type: 'callout', title: 'What they say', text: "\"We actually already use [Competitor]. We're happy with it.\" Testing: competitive awareness, not badmouthing, genuine curiosity about their current setup." },
+      { type: 'p', text: "Hiring Mgr: \"We're actually already using Outreach. Been with them for two years.\"" },
+      { type: 'p', text: "You: \"Good to know — Outreach is solid for a lot of teams. I'm curious: when you say you're happy with it, is it meeting everything you need, or are there areas where it's just good enough for now?\"" },
+      { type: 'p', text: "Hiring Mgr: \"It does what we need.\"" },
+      { type: 'p', text: "You: \"Totally fair. The companies we tend to talk to usually have it working — but they're hitting friction in one or two specific areas. For your team, is it more around the reporting side, the sequencing, or something else? I'm asking because if we're genuinely not solving a problem you have, I'd rather know now.\"" },
+      { type: 'callout', title: 'Why this works', text: "Never badmouth a competitor — hiring managers see it as a red flag immediately. Validating their current tool (\"Outreach is solid\") builds credibility. The question about \"good enough for now\" vs \"meeting everything\" is a surgical qualification technique that identifies dissatisfaction without being pushy. The closing line — \"I'd rather know now if we're not solving a problem you have\" — signals confidence, not desperation." },
+
+      { type: 'h2', text: '05 — The Gatekeeper Block' },
+      { type: 'callout', title: 'What they say', text: "Hiring manager plays an executive assistant: \"I'll take a message, but she's not available for cold calls.\" Testing: respect for gatekeepers, creative navigation without being pushy." },
+      { type: 'p', text: "Hiring Mgr: \"This is Karen, I handle Sarah's calendar. She's not taking cold calls.\"" },
+      { type: 'p', text: "You: \"Hi Karen — completely understand. I actually have a quick question for you, if you don't mind. We work with a few companies similar to yours who've been dealing with [specific problem]. Is that something Sarah would even be thinking about, or would that fall under someone else's remit?\"" },
+      { type: 'p', text: "Hiring Mgr: \"That would be Sarah's area, but she's genuinely not available.\"" },
+      { type: 'p', text: "You: \"That helps — thank you. Rather than clog her inbox, what's the best way to reach her? Is email better, or is there a time she typically takes calls?\"" },
+      { type: 'p', text: "Hiring Mgr: \"Email is best. Try sarah@company.com.\"" },
+      { type: 'p', text: "You: \"Perfect — I'll be brief. Thanks for your help, Karen. I really appreciate it.\"" },
+      { type: 'callout', title: 'Why this works', text: "Gatekeepers are almost never bypassed by persistence — they're navigated by respect and intelligence. Asking the gatekeeper a qualification question treats them as knowledgeable (which they are) and often surfaces useful information. Getting the preferred contact method from the gatekeeper instead of guessing is a professional move most candidates don't think to make." },
+
+      { type: 'h2', text: '06 — "I Don\'t Have Budget"' },
+      { type: 'callout', title: 'What they say', text: "\"We don't have budget for this right now.\" Testing: whether you know \"no budget\" often means \"no priority yet\" — and how you respond." },
+      { type: 'p', text: "Hiring Mgr: \"Look, we're in a budget freeze right now. Nothing's getting approved.\"" },
+      { type: 'p', text: "You: \"That's fair — I hear that a lot. Quick question: is the budget freeze a company-wide thing, or is it more that this particular problem isn't high enough on the priority list to fight for budget right now?\"" },
+      { type: 'p', text: "Hiring Mgr: \"Honestly, a bit of both.\"" },
+      { type: 'p', text: "You: \"I appreciate the honesty. If the problem got worse — say your Q3 miss was partly because of this — would it become priority enough to unlock budget? I'm asking because I'd rather understand the real situation than try to sell to someone who genuinely can't move right now.\"" },
+      { type: 'callout', title: 'Why this works', text: "Budget objections are almost always priority objections in disguise. Separating \"company freeze\" from \"not our priority\" is a real distinction with different follow-up strategies. The hypothetical question about Q3 is a gentle pain amplifier — it gets them to think about consequences without being pushy. The last sentence signals maturity and confidence, not desperation." },
+
+      { type: 'h2', text: '07 — The Discovery Call Opening (AE Track)' },
+      { type: 'callout', title: 'What they say', text: "\"Okay, this prospect agreed to a 30-minute discovery call. They're guarded and give short answers. Go.\" Testing: open-ended questioning, following up on vague answers, not pitching in discovery." },
+      { type: 'p', text: "You: \"Thanks for making time today. Before I tell you anything about us, I'd love to understand what made you agree to this call. Was it the email I sent, something you're actively looking at, or just curiosity?\"" },
+      { type: 'p', text: "Hiring Mgr: \"We've had some challenges recently.\"" },
+      { type: 'p', text: "You: \"I'd love to understand that. When you say challenges — walk me through what a bad week has looked like for your team. What breaks first?\"" },
+      { type: 'p', text: "Hiring Mgr: \"Mostly around pipeline. We're not generating enough meetings.\"" },
+      { type: 'p', text: "You: \"Got it. Is that a volume problem — not enough activity — or is it that activity's happening but it's not converting into actual meetings?\"" },
+      { type: 'callout', title: 'Why this works', text: "Opening a discovery call by asking why they agreed to the call immediately demonstrates curiosity and respect for their time. \"What breaks first\" is a vivid, specific question that gets real answers from guarded prospects. The final question between \"volume problem\" vs \"conversion problem\" shows strategic thinking and narrows the pain without leading the witness." },
+
+      { type: 'h2', text: '08 — "Why Should I Hire You Over Someone With Experience?"' },
+      { type: 'callout', title: 'What they say', text: "\"You don't have direct sales experience. Why should we take a risk on you over someone who has?\" Testing: confidence without defensiveness, narrative framing, translating past experience." },
+      { type: 'p', text: "Hiring Mgr: \"Your background is in teaching. Why are you the right hire over someone who's already done this role?\"" },
+      { type: 'p', text: "You: \"That's a fair challenge — I'd push back on myself with the same question. Here's how I'd frame it: I spent five years getting skeptical people interested in things they didn't come in wanting to hear. Every class, different audience, different energy, different resistance. That's a cold call structure. The difference is I haven't applied it to a sales context yet — which is exactly why I'm willing to outwork anyone in your pipeline to prove it translates.\"" },
+      { type: 'p', text: "Hiring Mgr: \"That's a nice answer. But experience is experience.\"" },
+      { type: 'p', text: "You: \"You're right that experience matters. But I'd ask — what's the conversion rate on your experienced hires? Because your best SDRs were all inexperienced once. The thing that made them great wasn't what they knew when they started. It was how fast they learned and how hard they worked. I can demonstrate both.\"" },
+      { type: 'callout', title: 'Why this works', text: "This scenario is specific to career changers and it requires real confidence to execute. The first response accepts the frame (\"fair challenge\") before reframing it — never defensive. Translating teaching into sales language makes the abstract concrete. The pushback on \"experience is experience\" is a genuine counter-argument, not just deflection. Ending with \"I can demonstrate both\" is a soft close on the conversation itself." },
+
+      { type: 'h2', text: '09 — Closing the Interview Like a Salesperson' },
+      { type: 'callout', title: 'What they say', text: "\"Okay, we're wrapping up. Do you have any questions for me?\" Testing: whether you treat the close like a salesperson — or passively wait to be evaluated." },
+      { type: 'p', text: "Hiring Mgr: \"Do you have any questions for me before we wrap up?\"" },
+      { type: 'p', text: "You: \"I do — a few. First: what does success look like in the first 90 days for the person you hire? And the second question might be more direct than you're used to — based on what we've discussed today, is there anything about my background or how I performed in the roleplay that gives you pause? I'd rather know now and address it.\"" },
+      { type: 'p', text: "Hiring Mgr: \"Honestly, I'm a little concerned that you've never done a real sales call.\"" },
+      { type: 'p', text: "You: \"I appreciate you saying that directly. That's the right concern to have. What would it take for you to feel comfortable enough to move me forward — is it more evidence of the instinct you just saw, or is it something else I haven't addressed?\"" },
+      { type: 'p', text: "Hiring Mgr: \"If the rest of the process goes well, I think we can move forward.\"" },
+      { type: 'p', text: "You: \"That's great to hear. What does the rest of the process look like from here, and when can I expect to hear back?\"" },
+      { type: 'callout', title: 'Why this works', text: "Most candidates treat the \"any questions?\" moment as a courtesy. Great SDR candidates treat it as the close. Asking directly \"is there anything that gives you pause\" is a trial close — it surfaces objections before you leave the room, when you can still handle them. The follow-up \"what would it take to move forward\" is a hard close. It signals exactly what a hiring manager wants to see from someone who will be doing this with prospects every day." },
+
+      { type: 'h2', text: 'How to Practice These Scenarios Effectively' },
+      { type: 'p', text: "Reading these scenarios builds awareness. Practicing them out loud builds skill. There's a significant difference. Here's how to structure your practice sessions to get the maximum benefit from the scenarios above:" },
+      {
+        type: 'numbered-steps',
+        items: [
+          { title: 'Sessions 1–5 — Figuring out the words', body: "Read the script. Practice the scenario. Get the basic response structure in your head. Expect to stumble. That's normal." },
+          { title: 'Sessions 6–10 — Locking in the structure', body: "You know roughly what to say. Now focus on the specific technique — the pivot, the qualifying question, the recovery move. Get it clean." },
+          { title: 'Sessions 11–20 — Owning the delivery', body: "Script is automatic. Now every mental resource goes into energy, tone, and conviction. This is when you start sounding like someone who belongs in the role." },
+        ],
+      },
+      { type: 'p', text: "The most common mistake is stopping at session three or four — right when it starts feeling familiar but before it feels automatic. Familiar is not the same as ready. Automatic is what you're after. When the hiring manager throws \"not interested\" and your response comes out naturally without a pause, without a search, without a decision — that's when you know you're ready." },
+      { type: 'quote', text: "Every rep who interviewed with me that I hired had one thing in common: they'd clearly been in this specific chair before. Not in a real interview — in practice. You could feel the difference immediately." },
+      { type: 'p', text: "The three scenarios to prioritize above everything else: the cold call opener, the immediate \"not interested,\" and closing the interview like a salesperson. Together they cover the beginning, middle, and end of the most common SDR interview format. Master those three before you focus on the others." },
+      {
+        type: 'p-jsx',
+        node: (
+          <>
+            If you want to practice all 9 with a realistic AI hiring manager that adapts mid-conversation, gives you feedback after each session, and lets you practice at midnight if you want — see our{' '}
+            <Link to="/blog/best-app-practice-sales-interview" className="underline text-foreground hover:opacity-80">
+              ranked guide to the best apps for sales interview practice
+            </Link>
+            . CadenceAI is built specifically for this. Not for enterprise sales teams. For you.
+          </>
+        ),
+      },
+
+      {
+        type: 'faq',
+        items: [
+          { q: 'What is an SDR interview roleplay scenario?', a: "An SDR interview roleplay scenario is a simulated sales conversation that hiring managers use to evaluate candidates during the interview process. The hiring manager typically plays a prospect — a VP of Sales, a skeptical buyer, or a gatekeeper — and asks you to cold call them, handle their objections, and attempt to book a meeting. It's designed to test composure under pressure, questioning instincts, and recovery speed rather than product knowledge." },
+          { q: 'How do you prepare for an SDR interview roleplay?', a: "The most effective preparation is repeated practice against realistic personas that push back like a real hiring manager. Start by understanding the structure of each scenario type — cold call openers, objection responses, gatekeeper navigation. Then practice each one out loud, not in your head, until your responses feel automatic rather than deliberate. Aim for 15 to 20 full practice sessions before your interview, focusing on the three most common scenarios: the cold call opener, the immediate \"not interested,\" and closing the interview with trial close questions." },
+          { q: 'What do SDR hiring managers look for in a roleplay?', a: "SDR hiring managers are not looking for a perfect performance. They're watching for three specific things: whether you stay composed when they push back, whether you instinctively ask questions instead of pitching, and how quickly you recover when something unexpected happens. A candidate who handles \"not interested\" calmly and pivots to a qualifying question will almost always beat a candidate with more experience who panics or gives up at the first objection." },
+          { q: 'Can you get an SDR job with no sales experience?', a: "Yes — and it happens constantly. Most SDR hiring managers care far more about coachability, energy, and how you handle pressure than whether you've done the job before. Career changers from teaching, retail, military, and hospitality land SDR roles every month. The key is translating your past experience into sales language — and showing up to the roleplay round already knowing how to handle the scenarios, which is what practicing these scripts in advance gives you." },
+          { q: 'How many times should I practice before my SDR interview?', a: "A minimum of 15 to 20 full practice sessions across your three priority scenarios. The first five sessions you are figuring out what to say. Sessions six through ten you are getting the response structure clean. Sessions eleven through twenty you are focused entirely on delivery — energy, tone, and conviction. Most candidates stop at two or three sessions and wonder why they still feel nervous when it counts. The answer is reps." },
+          { q: 'What is the PASS Framework for SDR interview prep?', a: "The PASS Framework is CadenceAI's system for building interview-ready sales instincts. P stands for Pressure Inoculation — practicing under simulated pressure until your nervous system treats it as routine. A stands for Ask Before You Pitch — qualifying with questions before delivering any value proposition. The first S stands for Stay in the Conversation — remaining calm and curious after objections rather than collapsing or pushing back defensively. The second S stands for Specific Reps — practicing your three highest-priority scenarios twenty or more times rather than skimming twenty scenarios once." },
+          { q: "What's the hardest SDR interview roleplay scenario?", a: "The immediate \"not interested\" eliminates more candidates than any other scenario — because most people either give up entirely or push back defensively, both of which signal poor sales instincts to the hiring manager. The correct response is to stay curious, ask a single clarifying question, and separate \"bad timing\" from \"not a priority.\" Practicing this specific scenario twenty times before your interview is one of the highest-leverage things you can do." },
+          { q: 'Should I use a script in my SDR interview roleplay?', a: "Scripts are starting points, not word-for-word templates. The scripts in this guide show you the structure and instincts behind strong responses — but the best responses are ones that feel natural coming from you, not recited. Use the scripts to understand what to do and why, then practice adapting the language until it sounds like you rather than something you memorized. The goal is internalizing the approach, not performing a script." },
+        ],
+      },
+      { type: 'cta', title: 'Practice these scenarios before it counts.', subtitle: 'Realistic AI hiring manager. All 9 scenarios. Instant feedback after every session. Built for job seekers — not enterprise sales teams.', ctaLabel: 'Start Free — No Credit Card →' },
+    ],
+  },
   '5-mistakes-sdr-interviews': {
     slug: '5-mistakes-sdr-interviews',
     title: '5 Mistakes That Tank SDR Interviews (And How to Fix Them)',
