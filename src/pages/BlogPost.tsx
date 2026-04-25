@@ -58,6 +58,124 @@ type Post = {
 };
 
 const posts: Record<string, Post> = {
+  'how-to-stop-freezing-sales-interview': {
+    slug: 'how-to-stop-freezing-sales-interview',
+    title: 'How to Stop Freezing in Your Sales Interview And Actually Practice the Roleplay',
+    subtitle: "Freezing in your SDR interview isn't a talent problem. It's a reps problem. Here's the difference — and how to fix it before your next interview.",
+    description: "How to stop freezing in your SDR sales interview: a practical 2026 guide to practicing the roleplay out loud, handling the four core objections, and building automatic responses through reps.",
+    date: 'April 25, 2026',
+    readTime: '13 min read',
+    audience: 'Updated monthly',
+    body: [
+      { type: 'p', text: "If you want to stop freezing in your sales interview, the answer is not more preparation. It is more practice. Those are different things. Preparation means reading about what to say. Practice means doing the thing out loud, under pressure, until your nervous system stops treating it as a threat. This guide covers exactly how to practice your SDR interview roleplay so that the freeze never happens when it counts." },
+      { type: 'p', text: "The freeze happens for one reason: your brain is trying to create an answer in real time while simultaneously judging how it sounds and predicting what the interviewer thinks. That's three cognitive tasks running at once. The overload shuts you down. The fix is not being smarter or calmer. It's removing the cognitive load entirely by having done it so many times that nothing has to be created in the moment." },
+      { type: 'callout', title: 'Quick Answer', text: "The best way to practice for an SDR interview roleplay is to do it out loud, repeatedly, against something that pushes back. Not in your head. Not by reading scripts. Out loud, with a realistic persona throwing real objections at you, until your responses become automatic. Most candidates need 15 to 20 full sessions before the freeze goes away. The first five sessions you figure out what to say. Sessions 6 through 10 you get it clean. Sessions 11 through 20 you stop thinking about the words entirely and just perform." },
+
+      { type: 'h2', text: "Why You Freeze — And Why Reading This Won't Fix It" },
+      { type: 'p', text: "Most people treat interview prep like studying for an exam. They read tips, watch YouTube videos, write out answers, and feel ready. Then the hiring manager says \"okay, I'm going to be a VP of Sales at a 200 person company, you're calling me cold, go\" and everything disappears." },
+      { type: 'p', text: "Reading about swimming does not teach you to swim. You can read every technique guide ever written and still drown the first time you get in the water. The SDR interview roleplay is the same. It is a performance skill. Performance skills are built through repetition in realistic conditions, not through studying." },
+      { type: 'p', text: "There are three levels of interview readiness and most candidates walk into a final round interview at level one:" },
+      { type: 'levels' },
+      { type: 'p', text: "Level three is the target. Getting there requires reps, not knowledge. Specifically it requires reps that feel like the real thing — with pressure, with pushback, with unexpected moments you have to recover from. That's what separates interview practice from interview preparation." },
+
+      { type: 'h2', text: 'How to Practice Your SDR Interview Roleplay the Right Way' },
+      { type: 'p', text: "Here is the exact practice structure that builds level three readiness before your interview:" },
+      {
+        type: 'numbered-steps',
+        items: [
+          { title: 'Practice out loud every single time', body: "This sounds obvious. Almost nobody does it. Thinking through your answer in your head and saying it out loud are completely different experiences. Your mouth, your breathing, your pacing, your vocal tone — none of that exists in your head. If you haven't said it out loud at least 20 times, you haven't practiced it." },
+          { title: 'Record yourself and watch it back', body: "This is the most uncomfortable and most effective thing you can do. You will immediately hear filler words, notice your energy dropping, catch where you lose structure. Fix one thing per session. The gap between how you think you sound and how you actually sound closes fast once you start watching." },
+          { title: "Practice the four core objections until they're automatic", body: "Almost every SDR interview roleplay uses the same four objections. Not interested. Send me an email. We already have something. Now isn't a good time. Practice each one in isolation until your response comes out clean without a pause. Then practice them in combination. Then practice handling them when they come earlier than expected." },
+          { title: 'Practice against something unpredictable', body: "Solo practice builds the words. Pressure practice builds the actual skill. The freeze happens specifically because something unexpected occurs and your brain doesn't have a map for it. Practice with different personas, different personalities, different timing. The more variability you experience in practice, the less anything in the real interview feels like a genuine threat." },
+          { title: 'Practice recovering, not just performing perfectly', body: "Most people only practice clean runs. You need to practice the stumble and the recovery. Lose your train of thought deliberately, then keep going. The recovery itself is a skill and hiring managers are specifically watching for it. An SDR who stumbles and recovers calmly signals more than one who never stumbles at all." },
+          { title: 'Do 15 to 20 sessions minimum before your interview', body: "Sessions one through five: figuring out the words. Six through ten: getting them clean. Eleven through twenty: delivery only. Most candidates stop at two or three sessions and wonder why they still freeze. You are not ready until the words are completely automatic and your only focus is the energy behind them." },
+        ],
+      },
+
+      { type: 'h2', text: 'The Four Objections You Need to Stop Freezing On' },
+      { type: 'p', text: "These four objections appear in the vast majority of SDR interview roleplays. Hiring managers use them specifically because they reveal instinct under pressure. Here's the structure of a strong response to each:" },
+      { type: 'h3', text: '"Not interested." — Don\'t give up. Don\'t push back.' },
+      { type: 'p', text: "\"Fair enough, most people say that at first. One quick question before I let you go — is the timing just off right now, or is this genuinely not something you're looking at?\"" },
+      { type: 'h3', text: '"Send me an email." — Agree, then redirect.' },
+      { type: 'p', text: "\"Happy to. So I send something actually useful rather than a generic overview — what would make it worth 60 seconds of your time? Is it the ROI data or how we compare to what you're using?\"" },
+      { type: 'h3', text: '"We already have something." — Validate, then get curious.' },
+      { type: 'p', text: "\"Good to know, that's a solid tool. When you say it's working — is it fully meeting everything or more that it's good enough for now?\"" },
+      { type: 'h3', text: '"Now isn\'t a good time." — Respect it, keep the door open.' },
+      { type: 'p', text: "\"Totally get it. Would it make more sense to circle back in a couple months, or is the timing just off today and a quick 15 minutes this week would still work?\"" },
+      { type: 'p', text: "The pattern across all four responses: stay calm, acknowledge what they said, and ask one question. Never argue. Never pitch harder. Interviewers are not watching whether you close — they're watching whether you stay curious under pressure. That single instinct is what all four responses demonstrate." },
+
+      { type: 'h2', text: 'What Interviewers Are Actually Watching For' },
+      { type: 'p', text: "Knowing this changes what you practice. Most candidates prepare for the wrong thing." },
+      { type: 'callout', title: "What they're NOT watching for", text: "A perfect answer. A smooth pitch. Whether you close the roleplay call. They expect it to be imperfect. They hire for an entry level role. Nobody expects a polished cold caller in the interview room." },
+      {
+        type: 'comparison-table',
+        headers: ["What they're actually watching", 'What it looks like'],
+        rows: [
+          { feature: 'Composure under pressure', cells: ['You don\'t visibly panic when they say "not interested"'] },
+          { feature: 'Questions before pitching', cells: ['Your first instinct is to ask, not to sell'] },
+          { feature: 'Recovery speed', cells: ['You stumble and keep going without a 5 second silence'] },
+          { feature: 'Energy', cells: ['You sound like you want to be there'] },
+          { feature: 'Closing instinct', cells: ['You trial close the interviewer at the end of the conversation'] },
+        ],
+      },
+      { type: 'p', text: "None of those things come from knowing what to say. All of them come from having been in that seat enough times that none of it feels unfamiliar. This is why reps are the whole answer." },
+
+      { type: 'h2', text: 'The Five Day Practice Plan Before Your SDR Interview' },
+      { type: 'p', text: "If your interview is next week, here is exactly how to spend the time:" },
+      {
+        type: 'comparison-table',
+        headers: ['Day', 'Morning (30 min)', 'Evening (30 min)'],
+        rows: [
+          { feature: 'Day 1', cells: ['Record your "tell me about yourself" 5 times. Watch them back. Fix one thing.', 'Practice the cold call opener out loud 10 times. No objections yet.'] },
+          { feature: 'Day 2', cells: ['Practice "not interested" and "send me an email" in isolation. 10 reps each.', 'Full cold call sequence with both objections combined. Record it.'] },
+          { feature: 'Day 3', cells: ['"We already have something" and "now isn\'t a good time" isolation reps.', 'Full scenario with all four objections in random order.'] },
+          { feature: 'Day 4', cells: ['Practice the stumble and recovery deliberately. Lose your thread mid-answer and keep going.', 'Full mock interview. Camera on, dressed for the interview. Treat it like the real thing.'] },
+          { feature: 'Day 5', cells: ['Practice closing the interviewer with trial close questions at the end.', 'One final full mock. Focus only on energy. Words are done. Just perform.'] },
+        ],
+      },
+      { type: 'p', text: "Five days of this and you will have done the thing more times than the vast majority of candidates you are competing against. That is the entire competitive advantage." },
+      { type: 'quote', text: "You don't rise to the level of your preparation. You fall to the level of your training." },
+
+      { type: 'h2', text: 'The One Thing That Accelerates This Faster Than Anything Else' },
+      { type: 'p', text: "Practicing alone helps. Practicing against something that actually pushes back helps dramatically more. The freeze happens specifically in response to unpredictability — something unexpected happens and your brain has no map for it. Solo practice can't replicate that because you always know what's coming next." },
+      {
+        type: 'p-jsx',
+        node: (
+          <>
+            What you need is a realistic persona that adapts mid-conversation, throws objections at unexpected moments, and gives you feedback after each session on what to fix. That's exactly what{' '}
+            <Link to="/signup" className="underline text-foreground hover:opacity-80">CadenceAI</Link>{' '}
+            is built for — not for enterprise sales teams training people they already hired, but for individual candidates preparing for the interview itself. SDR-specific scenarios, hiring manager personas, objection handling calibrated to the job interview context. You can practice at midnight the day before your interview and the AI doesn't get tired or break character.
+          </>
+        ),
+      },
+      {
+        type: 'p-jsx',
+        node: (
+          <>
+            For a full breakdown of every tool available, see our guide to the{' '}
+            <Link to="/blog/best-app-practice-sales-interview" className="underline text-foreground hover:opacity-80">
+              best apps to practice sales interviews in 2026
+            </Link>.
+          </>
+        ),
+      },
+
+      {
+        type: 'faq',
+        items: [
+          { q: 'How do I stop freezing in a sales interview?', a: "The freeze is almost always caused by trying to create answers in real time while under pressure. The fix is removing that cognitive load through repetition — practicing the scenarios out loud until the responses are automatic, so your only focus during the real interview is energy and delivery, not content. Most people need 15 to 20 full practice sessions before the freeze stops happening." },
+          { q: 'What is the best way to practice for an SDR interview roleplay?', a: "Practice out loud against something that pushes back — not in your head, not by reading scripts. Record yourself and watch it back to identify specific things to fix. Practice the four core objections in isolation until each response is automatic, then practice them in combination with unpredictable timing. Aim for a minimum of 15 full sessions across five days before your interview. AI roleplay tools like CadenceAI let you do this any time without needing a practice partner." },
+          { q: 'Why do I freeze in interviews even when I feel prepared?', a: "Because preparation and practice are different things. Preparation means you know what to say. Practice means you've said it out loud enough times under pressure that it no longer requires thinking. If you've only read about your answers or thought through them in your head, your brain is still creating them in real time during the interview. The freeze is the gap between knowing and doing." },
+          { q: 'How many times should I practice before an SDR interview?', a: "A minimum of 15 to 20 full practice sessions. Sessions one through five you figure out the words. Sessions six through ten you get the structure clean. Sessions eleven through twenty you stop thinking about content entirely and focus only on delivery. Most candidates do two or three sessions and consider themselves ready. That's why most candidates freeze." },
+          { q: 'What do SDR interviewers look for in the roleplay round?', a: "Composure under pressure, the instinct to ask questions instead of pitching, recovery speed when something unexpected happens, energy, and whether you close the interviewer at the end. They are not looking for a perfect cold call. They expect imperfection. What they can't train for is composure and instinct — those have to already be there." },
+          { q: 'Can I get an SDR job with no sales experience if I freeze in roleplays?', a: "The freeze is the main thing standing between you and the offer — not the lack of experience. Hiring managers expect career changers to not know the product or the industry. What they're watching for is whether you handle pressure with composure. Fix the freeze through practice and the lack of experience becomes much less of a barrier than most people assume." },
+          { q: 'What should I say when I blank during a sales interview?', a: "Buy yourself three seconds with a natural bridge: \"Let me think about the best example for this\" or \"The first thing that comes to mind is...\" Then start talking, even imperfectly. Motion beats silence. Interviewers remember how you recovered from the blank far more than they remember the blank itself. An SDR who stumbles and keeps going calmly signals more about their real-world capability than one who gives a polished answer with no visible resilience." },
+          { q: 'Is AI interview practice actually effective for SDR candidates?', a: "Yes, specifically because it solves the core problem: candidates need reps in a high-pressure, interactive situation but don't have access to a realistic practice partner on demand. AI roleplay tools that are built for sales interview prep — like CadenceAI — provide SDR-specific personas, real objections, and feedback after each session. The key is volume. One or two sessions with any tool won't fix the freeze. Fifteen to twenty sessions will." },
+        ],
+      },
+      { type: 'cta', title: 'The freeze goes away with reps. Start getting them.', subtitle: 'Realistic SDR interview scenarios. Hiring manager personas. Objection handling practice. Available whenever you need it.', ctaLabel: 'Start Free — No Credit Card →' },
+    ],
+  },
   '9-sdr-interview-roleplay-scenarios': {
     slug: '9-sdr-interview-roleplay-scenarios',
     title: '9 SDR Interview Roleplay Scenarios With Scripts — Practice These Before Your Interview',
