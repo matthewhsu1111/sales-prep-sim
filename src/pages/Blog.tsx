@@ -5,6 +5,14 @@ import { Button } from '@/components/ui/button';
 
 const posts = [
   {
+    slug: 'how-to-stop-freezing-sales-interview',
+    title: 'How to Stop Freezing in Your Sales Interview And Actually Practice the Roleplay',
+    excerpt:
+      "Freezing in your SDR interview isn't a talent problem. It's a reps problem. Here's the difference — and exactly how to fix it before your next interview.",
+    date: 'April 25, 2026',
+    readTime: '13 min read',
+  },
+  {
     slug: '9-sdr-interview-roleplay-scenarios',
     title: '9 SDR Interview Roleplay Scenarios With Scripts — Practice These Before Your Interview',
     excerpt:
