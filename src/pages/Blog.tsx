@@ -5,6 +5,14 @@ import { Button } from '@/components/ui/button';
 
 const posts = [
   {
+    slug: 'how-to-pass-sdr-interview-no-experience',
+    title: 'How to Pass an SDR Interview With No Sales Experience',
+    excerpt:
+      "No sales background doesn't mean no shot. Here's what hiring managers actually look for, how to translate whatever you've done before, and how to stop freezing in the roleplay round.",
+    date: 'April 26, 2026',
+    readTime: '15 min read',
+  },
+  {
     slug: 'how-to-stop-freezing-sales-interview',
     title: 'How to Stop Freezing in Your Sales Interview And Actually Practice the Roleplay',
     excerpt:
