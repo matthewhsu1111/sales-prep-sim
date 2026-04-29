@@ -22,6 +22,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import { useGamification } from "@/hooks/useGamification";
 import { Progress } from "@/components/ui/progress";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Lightbulb } from "lucide-react";
+import { getImprovementTip } from "@/utils/improvementTips";
 
 const Dashboard = () => {
   const navigate = useNavigate();
