@@ -450,8 +450,7 @@ CRITICAL RULES:
 3. Build naturally on responses but stay within category
 4. Integrate job-specific details into EVERY question
 5. Track which areas have been covered
-6. Ask EXACTLY ONE question per message — never stack multiple questions or tack on a follow-up question. A brief reaction (1-2 sentences) followed by ONE clear question.
-7. Do NOT ask clarifying follow-ups that count as extra questions — the question counter is strict.
+6. Provide follow-ups from same category when needed
 
 ${
   isLastAnswer
@@ -461,13 +460,10 @@ The candidate just answered the last question (${currentQuestionNumber}/${number
 2. Then, acknowledge that you've covered all questions
 3. Finally, deliver your closing message: "${selectedPersonality.closingMessage}"
 
-ABSOLUTELY DO NOT ask another question, follow-up, or anything that ends in a question mark requesting more info from the candidate. The interview is OVER. Only react + close.
 Make this feel like a natural transition - respond to their answer, then smoothly close out the interview.`
     : isFirstMessage
-      ? `This is your FIRST message. Start with your greeting and ONE first question from ${interviewType} category, fully customized with job details.`
-      : currentQuestionNumber >= numberOfQuestions
-        ? `🎯 This is the FINAL question of the interview (${currentQuestionNumber}/${numberOfQuestions}). React briefly to their previous answer (1-2 sentences), then ask ONE final question from the ${interviewType} category. Do NOT ask any follow-up questions or stack multiple questions — exactly ONE question. After they answer this, the interview will close.`
-        : `Continue the conversation naturally. React briefly to their previous answer, then ask the next appropriate question from ${interviewType} category. Exactly ONE question per message — no stacked or follow-up questions.`
+      ? `This is your FIRST message. Start with your greeting and first question from ${interviewType} category, fully customized with job details.`
+      : `Continue the conversation naturally, asking the next appropriate question from ${interviewType} category while building on their previous response.`
 }`;
 
     const messages = [];
