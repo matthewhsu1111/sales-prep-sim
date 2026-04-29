@@ -63,8 +63,8 @@ export function useGamification() {
         longestStreak: progressData.longest_streak || 0,
         lastPracticeDate: progressData.last_practice_date,
         practicesThisWeek: progressData.practices_this_week || 0,
-        leaderboardRank: weeklyRes.data?.rank || null,
-        allTimeRank: allTimeRes.data?.rank || null,
+        leaderboardRank: weeklyRank,
+        allTimeRank: allTimeRank,
       });
     } catch (error) {
       console.error('Error fetching progress:', error);
