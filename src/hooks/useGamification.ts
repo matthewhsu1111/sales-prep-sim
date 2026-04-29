@@ -45,19 +45,14 @@ export function useGamification() {
 
       if (error) throw error;
 
-      // Fetch weekly + all-time leaderboard rank
+      // Fetch weekly + all-time leaderboard rank via security-definer RPCs
       const [weeklyRes, allTimeRes] = await Promise.all([
-        supabase
-          .from('weekly_leaderboard')
-          .select('rank, user_id')
-          .eq('user_id', user.id)
-          .maybeSingle(),
-        supabase
-          .from('all_time_leaderboard')
-          .select('rank, user_id')
-          .eq('user_id', user.id)
-          .maybeSingle(),
+        supabase.rpc('get_weekly_leaderboard', { _limit: 1000 }),
+        supabase.rpc('get_all_time_leaderboard', { _limit: 1000 }),
       ]);
+
+      const weeklyRank = (weeklyRes.data as any[] | null)?.find((e) => e.user_id === user.id)?.rank ?? null;
+      const allTimeRank = (allTimeRes.data as any[] | null)?.find((e) => e.user_id === user.id)?.rank ?? null;
 
       setProgress({
         totalXP: progressData.total_stars ?? progressData.total_xp ?? 0,
