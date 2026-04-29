@@ -48,15 +48,15 @@ export default function Leaderboards() {
       setLoading(true);
 
       const [weeklyRes, allTimeRes] = await Promise.all([
-        supabase.from('weekly_leaderboard').select('*').limit(50),
-        supabase.from('all_time_leaderboard').select('*').limit(50),
+        supabase.rpc('get_weekly_leaderboard', { _limit: 50 }),
+        supabase.rpc('get_all_time_leaderboard', { _limit: 50 }),
       ]);
 
       if (weeklyRes.error) throw weeklyRes.error;
       if (allTimeRes.error) throw allTimeRes.error;
 
-      const w = (weeklyRes.data || []) as WeeklyEntry[];
-      const a = (allTimeRes.data || []) as AllTimeEntry[];
+      const w = (weeklyRes.data || []) as unknown as WeeklyEntry[];
+      const a = (allTimeRes.data || []) as unknown as AllTimeEntry[];
 
       setWeekly(w);
       setAllTime(a);
