@@ -11,6 +11,7 @@ import cadenceLogo from "@/assets/cadence-logo.png";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getAvatarColor, getInitial } from "@/utils/avatarColor";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -21,6 +22,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentStreak, setCurrentStreak] = useState<number>(0);
+  const [firstName, setFirstName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -38,14 +40,25 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data } = await supabase
-      .from('user_progress')
-      .select('current_streak')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    const [{ data: progressData }, { data: profileData }] = await Promise.all([
+      supabase
+        .from('user_progress')
+        .select('current_streak')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('profiles')
+        .select('first_name, name')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+    ]);
 
-    if (data) {
-      setCurrentStreak(data.current_streak || 0);
+    if (progressData) {
+      setCurrentStreak(progressData.current_streak || 0);
+    }
+    if (profileData) {
+      const fn = profileData.first_name?.trim() || profileData.name?.trim().split(/\s+/)[0] || null;
+      setFirstName(fn);
     }
   };
 
@@ -108,8 +121,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                      M
+                    <AvatarFallback className={`${getAvatarColor(user?.id || firstName)} text-sm`}>
+                      {getInitial(firstName)}
                     </AvatarFallback>
                   </Avatar>
                 </Button>

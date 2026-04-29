@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getAvatarColor, getInitial } from '@/utils/avatarColor';
 
 interface WeeklyEntry {
   user_id: string;
@@ -84,46 +85,21 @@ export default function Leaderboards() {
 
   function getDisplayName(entry: { user_id: string; first_name: string | null; name: string | null; leaderboard_visible: boolean | null }) {
     const isCurrentUser = entry.user_id === user?.id;
-    // Always show only first name (or first word of full name) — never last name
     const firstOnly = entry.first_name?.trim() || entry.name?.trim().split(/\s+/)[0] || null;
-    if (isCurrentUser) return firstOnly || 'You';
+    if (isCurrentUser) {
+      // Current user always sees their own first name (or "You" if missing)
+      return firstOnly || 'You';
+    }
+    // Others who chose to be anonymous show as "Anonymous" (still visible on the board)
     if (entry.leaderboard_visible === false) return 'Anonymous';
     return firstOnly || 'Anonymous Learner';
   }
 
   function getInitials(entry: { user_id: string; first_name: string | null; name: string | null; leaderboard_visible: boolean | null }) {
-    const name = getDisplayName(entry);
-    if (name === 'Anonymous' || name === 'Anonymous Learner') return '?';
-    return name.charAt(0).toUpperCase();
-  }
-
-  // Deterministic vibrant color per user based on user_id
-  const AVATAR_COLORS = [
-    'bg-red-500 text-white',
-    'bg-orange-500 text-white',
-    'bg-amber-500 text-white',
-    'bg-yellow-500 text-black',
-    'bg-lime-500 text-black',
-    'bg-green-500 text-white',
-    'bg-emerald-500 text-white',
-    'bg-teal-500 text-white',
-    'bg-cyan-500 text-black',
-    'bg-sky-500 text-white',
-    'bg-blue-500 text-white',
-    'bg-indigo-500 text-white',
-    'bg-violet-500 text-white',
-    'bg-purple-500 text-white',
-    'bg-fuchsia-500 text-white',
-    'bg-pink-500 text-white',
-    'bg-rose-500 text-white',
-  ];
-
-  function getAvatarColor(userId: string) {
-    let hash = 0;
-    for (let i = 0; i < userId.length; i++) {
-      hash = (hash * 31 + userId.charCodeAt(i)) >>> 0;
-    }
-    return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    const isCurrentUser = entry.user_id === user?.id;
+    if (!isCurrentUser && entry.leaderboard_visible === false) return 'A';
+    const firstOnly = entry.first_name?.trim() || entry.name?.trim().split(/\s+/)[0] || null;
+    return getInitial(firstOnly);
   }
 
   if (loading) {
