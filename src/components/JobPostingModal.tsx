@@ -251,7 +251,7 @@ export default function JobPostingModal({ isOpen, onClose, onSave }: JobPostingM
                         </div>
                         <div>
                           <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Tip</p>
-                          <p className="text-sm text-blue-700 dark:text-blue-300">X Careers, LinkedIn and Greenhouse links work best.</p>
+                          <p className="text-sm text-blue-700 dark:text-blue-300">Paste the job posting link of your dream job or the role you're currently applying for. X Careers, LinkedIn and Greenhouse links work best.</p>
                         </div>
                       </div>
                     </div>
