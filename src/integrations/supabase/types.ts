@@ -334,6 +334,33 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: undefined
       }
+      get_all_time_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          current_level: number
+          current_streak: number
+          first_name: string
+          leaderboard_visible: boolean
+          name: string
+          rank: number
+          total_stars: number
+          user_id: string
+        }[]
+      }
+      get_weekly_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          current_level: number
+          current_streak: number
+          first_name: string
+          leaderboard_visible: boolean
+          name: string
+          rank: number
+          user_id: string
+          weekly_stars: number
+          weekly_xp: number
+        }[]
+      }
       initialize_user_progress: { Args: { user_uuid: string }; Returns: string }
       reset_daily_xp: { Args: never; Returns: undefined }
       reset_weekly_xp: { Args: never; Returns: undefined }
