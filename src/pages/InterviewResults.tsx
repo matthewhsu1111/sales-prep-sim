@@ -579,7 +579,7 @@ ${interviewData.transcript}
         )}
 
         <div className="flex gap-4 justify-center">
-          <Button onClick={() => navigate("/interview-preparation")} size="lg">
+          <Button onClick={() => navigate("/dashboard/interview-roleplay")} size="lg">
             Practice Another Interview
           </Button>
           <Button variant="outline" onClick={() => navigate("/dashboard")} size="lg">
