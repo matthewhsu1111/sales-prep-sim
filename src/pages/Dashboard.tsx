@@ -22,6 +22,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import { useGamification } from "@/hooks/useGamification";
 import { Progress } from "@/components/ui/progress";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Lightbulb } from "lucide-react";
+import { getImprovementTip } from "@/utils/improvementTips";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -553,24 +556,53 @@ const Dashboard = () => {
                 </p>
               </div>
             ) : (
-              improvements.map((improvement) => (
-                <div key={improvement.skill} className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <span className="font-medium">{improvement.skill}</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground ml-5">
-                      Appeared in {improvement.count} {improvement.count === 1 ? 'interview' : 'interviews'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">Avg {improvement.score}/10</span>
-                    {improvement.trend === "down" && <TrendingDown className="h-4 w-4 text-red-500" />}
-                    {improvement.trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
-                  </div>
-                </div>
-              ))
+              improvements.map((improvement) => {
+                const tip = getImprovementTip(improvement.skill);
+                return (
+                  <HoverCard key={improvement.skill} openDelay={150} closeDelay={100}>
+                    <HoverCardTrigger asChild>
+                      <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg cursor-help hover:bg-red-100 transition-colors">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                            <span className="font-medium">{improvement.skill}</span>
+                          </div>
+                          <span className="text-xs text-muted-foreground ml-5">
+                            Appeared in {improvement.count} {improvement.count === 1 ? 'interview' : 'interviews'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold">Avg {improvement.score}/10</span>
+                          {improvement.trend === "down" && <TrendingDown className="h-4 w-4 text-red-500" />}
+                          {improvement.trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
+                        </div>
+                      </div>
+                    </HoverCardTrigger>
+                    <HoverCardContent side="left" align="start" className="w-80">
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-2">
+                          <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                          <div>
+                            <h4 className="font-semibold text-sm">{improvement.skill}</h4>
+                            <p className="text-xs text-muted-foreground mt-1">{tip.summary}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-foreground mb-1.5">Things to work on:</p>
+                          <ul className="space-y-1.5">
+                            {tip.actions.map((action, i) => (
+                              <li key={i} className="text-xs text-muted-foreground flex gap-2">
+                                <span className="text-primary font-semibold">{i + 1}.</span>
+                                <span>{action}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                );
+              })
             )}
           </CardContent>
         </Card>

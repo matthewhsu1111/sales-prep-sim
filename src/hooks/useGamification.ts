@@ -45,19 +45,14 @@ export function useGamification() {
 
       if (error) throw error;
 
-      // Fetch weekly + all-time leaderboard rank
+      // Fetch weekly + all-time leaderboard rank via security-definer RPCs
       const [weeklyRes, allTimeRes] = await Promise.all([
-        supabase
-          .from('weekly_leaderboard')
-          .select('rank, user_id')
-          .eq('user_id', user.id)
-          .maybeSingle(),
-        supabase
-          .from('all_time_leaderboard')
-          .select('rank, user_id')
-          .eq('user_id', user.id)
-          .maybeSingle(),
+        supabase.rpc('get_weekly_leaderboard', { _limit: 1000 }),
+        supabase.rpc('get_all_time_leaderboard', { _limit: 1000 }),
       ]);
+
+      const weeklyRank = (weeklyRes.data as any[] | null)?.find((e) => e.user_id === user.id)?.rank ?? null;
+      const allTimeRank = (allTimeRes.data as any[] | null)?.find((e) => e.user_id === user.id)?.rank ?? null;
 
       setProgress({
         totalXP: progressData.total_stars ?? progressData.total_xp ?? 0,
@@ -68,8 +63,8 @@ export function useGamification() {
         longestStreak: progressData.longest_streak || 0,
         lastPracticeDate: progressData.last_practice_date,
         practicesThisWeek: progressData.practices_this_week || 0,
-        leaderboardRank: weeklyRes.data?.rank || null,
-        allTimeRank: allTimeRes.data?.rank || null,
+        leaderboardRank: weeklyRank,
+        allTimeRank: allTimeRank,
       });
     } catch (error) {
       console.error('Error fetching progress:', error);
