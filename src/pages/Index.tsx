@@ -270,6 +270,22 @@ const Index = () => {
       </section>
 
 
+      {/* Product Demo Video Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="aspect-video bg-gray-50 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <video
+              src={productDemoVideo}
+              controls
+              playsInline
+              preload="metadata"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
+
       {/* Quote Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
