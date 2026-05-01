@@ -4,6 +4,7 @@ import realisticRoleplayVideo from '@/assets/realistic-roleplay.mov';
 import practiceDetailsVideo from '@/assets/practice-details.mov';
 import resultsDemoVideo from '@/assets/results-demo.mov';
 import xpDemoVideo from '@/assets/xp-demo.mov';
+import productDemoVideo from '@/assets/product-demo.mov';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
