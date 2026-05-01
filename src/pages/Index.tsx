@@ -4,6 +4,7 @@ import realisticRoleplayVideo from '@/assets/realistic-roleplay.mov';
 import practiceDetailsVideo from '@/assets/practice-details.mov';
 import resultsDemoVideo from '@/assets/results-demo.mov';
 import xpDemoVideo from '@/assets/xp-demo.mov';
+import productDemoVideo from '@/assets/product-demo.mov';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -265,6 +266,22 @@ const Index = () => {
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+
+      {/* Product Demo Video Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="aspect-video bg-gray-50 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <video
+              src={productDemoVideo}
+              controls
+              playsInline
+              preload="metadata"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </section>
