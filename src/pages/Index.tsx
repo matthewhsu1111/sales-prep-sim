@@ -793,30 +793,30 @@ const Index = () => {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => window.open('https://www.linkedin.com/in/joshpurayidathil/', '_blank')}
+                  onClick={() => window.open('https://www.linkedin.com/in/matthewhsu6/', '_blank')}
                 >
                   Get in Contact →
                 </Button>
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Bulk seats with team management</span>
+                    <span className="text-sm">Many seats with easy team controls</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Cohort-wide analytics & progress tracking</span>
+                    <span className="text-sm">See how your whole group is doing</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Custom scenarios & branded personas</span>
+                    <span className="text-sm">Your own practice setups and characters</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Leaderboards & gamified rep competitions</span>
+                    <span className="text-sm">Fun score boards to keep people going</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Dedicated onboarding & priority support</span>
+                    <span className="text-sm">Help getting started and fast support</span>
                   </li>
                 </ul>
               </CardContent>
