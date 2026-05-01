@@ -675,7 +675,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Free Plan */}
             <Card className="bg-white text-black border border-gray-200 shadow-lg">
               <CardHeader className="text-center pb-8">
@@ -771,6 +771,52 @@ const Index = () => {
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
                     <span className="text-sm">Performance analytics dashboard</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Enterprise Plan */}
+            <Card className="bg-white text-black border border-gray-200 shadow-lg">
+              <CardHeader className="text-center pb-8">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <CheckCircle className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-xl">Enterprise</CardTitle>
+                </div>
+                <div className="text-4xl font-bold">
+                  Custom
+                </div>
+                <p className="text-sm text-gray-500 mt-1">&nbsp;</p>
+                <p className="text-gray-600 mt-4">Scale rep training across your organization</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => window.open('https://www.linkedin.com/in/joshpurayidathil/', '_blank')}
+                >
+                  Get in Contact →
+                </Button>
+                <ul className="space-y-4">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Bulk seats with team management</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Cohort-wide analytics & progress tracking</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Custom scenarios & branded personas</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Leaderboards & gamified rep competitions</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Dedicated onboarding & priority support</span>
                   </li>
                 </ul>
               </CardContent>
