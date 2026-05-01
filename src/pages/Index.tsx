@@ -786,7 +786,6 @@ const Index = () => {
                 <div className="text-4xl font-bold">
                   Custom
                 </div>
-                <p className="text-sm text-gray-500 mt-1">&nbsp;</p>
                 <p className="text-gray-600 mt-4">Scale rep training across your organization</p>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -800,23 +799,23 @@ const Index = () => {
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Many seats with easy team controls</span>
+                    <span className="text-sm">Bulk licensing with centralized team management</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">See how your whole group is doing</span>
+                    <span className="text-sm">Cohort-wide analytics and progress tracking</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Your own practice setups and characters</span>
+                    <span className="text-sm">Custom scenarios and tailored AI personas</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Fun score boards to keep people going</span>
+                    <span className="text-sm">Competitive leaderboards to drive engagement</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Help getting started and fast support</span>
+                    <span className="text-sm">Dedicated onboarding and priority support</span>
                   </li>
                 </ul>
               </CardContent>
