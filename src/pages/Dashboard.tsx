@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, Clock, Play, BarChart3, Star, Target, Trash2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Clock, Play, BarChart3, Star, Target, Trash2, Flame } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -385,7 +385,7 @@ const Dashboard = () => {
                     : `${dailyGoal - progress.dailyXP} ⭐ to go`}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-500" />
+                  <Flame className="w-4 h-4 text-orange-500" />
                   {progress.currentStreak} day streak
                 </span>
               </div>
