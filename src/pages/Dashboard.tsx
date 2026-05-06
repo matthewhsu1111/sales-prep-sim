@@ -36,7 +36,7 @@ const Dashboard = () => {
   const [improvements, setImprovements] = useState<any[]>([]);
   const [recentInterviews, setRecentInterviews] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'all'>('all');
-  const [dailyGoal] = useState(5); // Daily Stars goal
+  const [dailyGoal] = useState(10); // Daily Stars goal
 
   useEffect(() => {
     fetchDashboardData();
