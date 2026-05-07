@@ -741,7 +741,8 @@ const Index = () => {
               <CardContent className="space-y-6">
                 <Button 
                   variant="default" 
-                  className="w-full"
+                  size="lg"
+                  className="w-full shadow-glow"
                   onClick={() => {
                     const checkoutUrl = isTriMonthly
                       ? "https://buy.stripe.com/8x28wO8ZAcGT0Zy4t3dZ602"
@@ -792,7 +793,7 @@ const Index = () => {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => window.open('https://www.linkedin.com/in/matthewhsu6/', '_blank')}
+                  onClick={() => window.open('https://calendly.com/matthewhsu6/cadenceai-enterprise-call', '_blank')}
                 >
                   Get in Contact →
                 </Button>
