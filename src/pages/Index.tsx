@@ -723,7 +723,7 @@ const Index = () => {
             </Card>
 
             {/* Pro Plan */}
-            <Card className="bg-white text-black border-2 border-primary shadow-lg">
+            <Card className="bg-white text-black border-2 border-primary shadow-lg -mt-8">
               <CardHeader className="text-center pb-8">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <CheckCircle className="h-5 w-5 text-primary" />
