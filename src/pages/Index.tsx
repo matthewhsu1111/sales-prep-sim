@@ -793,7 +793,7 @@ const Index = () => {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => window.open('https://www.linkedin.com/in/matthewhsu6/', '_blank')}
+                  onClick={() => window.open('https://calendly.com/matthewhsu6/cadenceai-enterprise-call', '_blank')}
                 >
                   Get in Contact →
                 </Button>
