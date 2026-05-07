@@ -741,7 +741,8 @@ const Index = () => {
               <CardContent className="space-y-6">
                 <Button 
                   variant="default" 
-                  className="w-full"
+                  size="lg"
+                  className="w-full shadow-glow"
                   onClick={() => {
                     const checkoutUrl = isTriMonthly
                       ? "https://buy.stripe.com/8x28wO8ZAcGT0Zy4t3dZ602"
