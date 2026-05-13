@@ -28,6 +28,7 @@ import BlogPost from "./pages/BlogPost";
 import CompareYoodli from "./pages/CompareYoodli";
 import CompareCluely from "./pages/CompareCluely";
 import CompareFinalRoundAI from "./pages/CompareFinalRoundAI";
+import Schedule from "./pages/Schedule";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
           <Sonner />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/schedule" element={<Schedule />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
