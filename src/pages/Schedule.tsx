@@ -96,10 +96,12 @@ function dateKey(d: Date) {
 }
 
 export default function Schedule() {
-  const displayDate = useMemo(() => getDisplayDate(), []);
-  const dayName = DAY_NAMES[displayDate.getDay()];
-  const tasks = SCHEDULE[dayName] || [];
-  const storageKey = dateKey(displayDate);
+  const today = useMemo(() => getDisplayDate(), []);
+  const todayName = DAY_NAMES[today.getDay()];
+  const [selectedDay, setSelectedDay] = useState<string>(todayName);
+  const tasks = SCHEDULE[selectedDay] || [];
+  const isToday = selectedDay === todayName;
+  const storageKey = isToday ? dateKey(today) : `schedule-checklist-preview-${selectedDay}`;
 
   const [checked, setChecked] = useState<Record<number, boolean>>({});
 
@@ -124,13 +126,41 @@ export default function Schedule() {
   const completedCount = tasks.filter((_, i) => checked[i]).length;
   const progress = tasks.length ? (completedCount / tasks.length) * 100 : 0;
 
+  const dayShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
   return (
     <div className="min-h-screen bg-background py-10 px-4">
       <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6">
           <p className="text-sm uppercase tracking-wider text-muted-foreground mb-2">Daily Checklist</p>
-          <h1 className="text-4xl font-bold mb-1">{dayName}</h1>
-          <p className="text-muted-foreground">{formatDate(displayDate)}</p>
+          <h1 className="text-4xl font-bold mb-1">{selectedDay}</h1>
+          <p className="text-muted-foreground">
+            {isToday ? formatDate(today) : "Preview"}
+            {isToday && <span className="ml-2 text-xs uppercase tracking-wider text-primary">Today</span>}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-7 gap-2 mb-6">
+          {DAY_NAMES.map((day, idx) => {
+            const active = day === selectedDay;
+            const isTodayBtn = day === todayName;
+            return (
+              <button
+                key={day}
+                onClick={() => setSelectedDay(day)}
+                className={`flex flex-col items-center justify-center py-3 rounded-lg border text-sm font-medium transition-colors ${
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card hover:bg-muted border-border text-foreground"
+                }`}
+              >
+                <span>{dayShort[idx]}</span>
+                {isTodayBtn && (
+                  <span className={`mt-1 h-1.5 w-1.5 rounded-full ${active ? "bg-primary-foreground" : "bg-primary"}`} />
+                )}
+              </button>
+            );
+          })}
         </div>
 
         <Card className="mb-6">
