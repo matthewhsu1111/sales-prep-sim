@@ -29,6 +29,7 @@ import CompareYoodli from "./pages/CompareYoodli";
 import CompareCluely from "./pages/CompareCluely";
 import CompareFinalRoundAI from "./pages/CompareFinalRoundAI";
 import Schedule from "./pages/Schedule";
+import CRM from "./pages/CRM";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
