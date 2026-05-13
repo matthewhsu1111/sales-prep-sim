@@ -29,6 +29,7 @@ import CompareYoodli from "./pages/CompareYoodli";
 import CompareCluely from "./pages/CompareCluely";
 import CompareFinalRoundAI from "./pages/CompareFinalRoundAI";
 import Schedule from "./pages/Schedule";
+import CRM from "./pages/CRM";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/crm" element={<CRM />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />

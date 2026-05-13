@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Briefcase } from "lucide-react";
 
 type Task = { time: string; text: string };
 
@@ -131,13 +134,20 @@ export default function Schedule() {
   return (
     <div className="min-h-screen bg-background py-10 px-4">
       <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <p className="text-sm uppercase tracking-wider text-muted-foreground mb-2">Daily Checklist</p>
-          <h1 className="text-4xl font-bold mb-1">{selectedDay}</h1>
-          <p className="text-muted-foreground">
-            May 20 – June 20
-            {isToday && <span className="ml-2 text-xs uppercase tracking-wider text-primary">Today</span>}
-          </p>
+        <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <p className="text-sm uppercase tracking-wider text-muted-foreground mb-2">Daily Checklist</p>
+            <h1 className="text-4xl font-bold mb-1">{selectedDay}</h1>
+            <p className="text-muted-foreground">
+              May 20 – June 20
+              {isToday && <span className="ml-2 text-xs uppercase tracking-wider text-primary">Today</span>}
+            </p>
+          </div>
+          <Button asChild variant="outline">
+            <Link to="/crm">
+              <Briefcase className="h-4 w-4 mr-1" /> Open CRM
+            </Link>
+          </Button>
         </div>
 
         <div className="grid grid-cols-7 gap-2 mb-6">
