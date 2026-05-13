@@ -135,7 +135,7 @@ export default function Schedule() {
           <p className="text-sm uppercase tracking-wider text-muted-foreground mb-2">Daily Checklist</p>
           <h1 className="text-4xl font-bold mb-1">{selectedDay}</h1>
           <p className="text-muted-foreground">
-            {isToday ? formatDate(today) : "Preview"}
+            May 20 – June 20
             {isToday && <span className="ml-2 text-xs uppercase tracking-wider text-primary">Today</span>}
           </p>
         </div>
