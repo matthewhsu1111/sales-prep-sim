@@ -82,12 +82,7 @@ const SCHEDULE: Record<string, Task[]> = {
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function getDisplayDate(): Date {
-  const today = new Date();
-  const start = new Date(2026, 4, 20); // May 20, 2026
-  const end = new Date(2026, 5, 20);   // June 20, 2026
-  if (today < start) return start;
-  if (today > end) return end;
-  return today;
+  return new Date();
 }
 
 function formatDate(d: Date) {
